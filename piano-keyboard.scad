@@ -1,3 +1,18 @@
+/* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
+ * William de Beaumont
+ * 2017-01-29
+ */
+
+/* TODO
+ * - subtract about 0.4mm from each side of all thin walls, since my printer prints them too thick
+ * - increase hinge_height by about 0.25mm, or just get rid of the cones and do straight cylinders, since my printer will round them over anyway (or maybe do hemispheres instead of cones)
+ * - redo radiusing of white keys to follow how black keys do it, because slic3r doesn't like the weird seams the old way produces
+ * - make it rest on the back part when not pressed
+ *  . increase back_depth to hold three rows of 5 pennies like this o*o
+ *  . instead of weights, use a separately-printed S-shaped spring, hooked between a smaller version of the current key back hole, and a new slot at the bottom of the back wall of the support
+ *   - single wall, but more layers than the coil spring I tried way back
+ */
+
 // measurements taken from my optimus md-1150
 octave = 162.5;
 white_width = 21.8;
@@ -15,18 +30,6 @@ black_max_height = 12; // at max end of key
 corner_radius = 1.5; // ? approx (maybe less for top of black keys)
 // ^^^ doesn't apply to cutouts in white keys for black keys
 
-/*
-// direct measurements
-c_stem_width = 12.75;
-d_stem_width = 14;
-e_stem_width = 12.65;
-f_stem_width = 12.2;
-g_stem_width = 12.2;
-a_stem_width = 12.2;
-b_stem_width = 12.1;
-// computed using above
-black_gap = 1.84; // ?
-*/
 // measurements from paper transfer
 c_stem_width = 13;
 d_stem_width = 14;
@@ -73,8 +76,8 @@ epsilon = 0.01;
 
 key_back_width = black_width;
 key_back_depth = 19 + wall_thickness + 2*gap; // enough to fit a penny around the X axis
-// TODO maybe only add black_min_height for black key backs, so everything can print flat upside down
-key_back_height = white_travel + white_thickness /*+ black_min_height*/;
+white_back_height = white_travel + white_thickness;
+black_back_height = white_back_height + black_min_height;
 
 hinge_radius = corner_radius;
 hinge_height = (white_gap - gap)/2;
@@ -139,9 +142,9 @@ module white_key(left_cutout, right_cutout) {
     // back
       translate([left_cutout + (white_width - left_cutout - right_cutout - key_back_width) / 2, 0, 0])
     difference() {
-      cube([key_back_width, key_back_depth, key_back_height]);
+      cube([key_back_width, key_back_depth, white_back_height]);
         translate([wall_thickness, -epsilon, wall_thickness])
-      cube([key_back_width - 2*wall_thickness, key_back_depth - wall_thickness + epsilon, key_back_height - wall_thickness + epsilon]);
+      cube([key_back_width - 2*wall_thickness, key_back_depth - wall_thickness + epsilon, white_back_height - wall_thickness + epsilon]);
     }
     // hinge
       translate([left_cutout,0,0])
@@ -167,28 +170,6 @@ module white_key(left_cutout, right_cutout) {
 }
 
 module black_key() {
-  // TODO redo front and back so that:
-  // - black_{min,max}_height is obeyed (top slope)
-  // - everything lies flat upside down (front and back!)
-  // - black_{min,max}_depth is obeyed (front slope)
-  // - black_top_width is obeyed (side slopes)
-  // - corner_radius is obeyed (how???)
-  // maybe just break down and use a polyhedron with beveled instead of curved corners/edges?
-  // or do minkowski sum with sphere?
-  // front
-/*  intersection() {
-      translate([0,-black_max_depth,0])
-    cube([black_width, black_max_depth, black_max_height + white_travel + white_thickness]);
-      rotate([-atan2(black_travel, black_max_depth),0,0])
-      translate([0,-black_max_depth-10,0])
-    cube([black_width+2*epsilon, black_max_depth + 10, black_max_height + white_travel + white_thickness]);
-  }
-  // back
-  difference() {
-    cube([key_back_width, key_back_depth, key_back_height + black_min_height]);
-      translate([wall_thickness, -epsilon, wall_thickness])
-    cube([key_back_width - 2*wall_thickness, key_back_depth - wall_thickness + epsilon, key_back_height + black_min_height - wall_thickness + epsilon]);
-  }*/
   /* no-radius version
     translate([0,0,white_travel + white_thickness])
   polyhedron(
@@ -222,6 +203,7 @@ module black_key() {
     ],
     convexity=2
   );*/
+  // radius version
   difference() {
     union() {
       // bottom (under top of white keys)
@@ -234,7 +216,7 @@ module black_key() {
 	translate([black_width - corner_radius, -(black_max_depth-corner_radius), 0])
       cylinder(r=corner_radius, h=white_travel + white_thickness);
       // back
-      cube([key_back_width, key_back_depth, key_back_height + black_min_height]);
+      cube([key_back_width, key_back_depth, black_back_height]);
       // top (over top of white keys)
       minkowski() {
 	  translate([0,0,white_travel + white_thickness])
@@ -283,7 +265,7 @@ module black_key() {
     cube([black_width+2*epsilon, key_back_depth + black_max_depth + 10, white_travel]);
     // back hole
       translate([wall_thickness, -epsilon, wall_thickness])
-    cube([key_back_width - 2*wall_thickness, key_back_depth - wall_thickness + epsilon, key_back_height + black_min_height - wall_thickness + epsilon]);
+    cube([key_back_width - 2*wall_thickness, key_back_depth - wall_thickness + epsilon, black_back_height - wall_thickness + epsilon]);
   }
   // hinge
   intersection() {

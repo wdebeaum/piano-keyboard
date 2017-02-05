@@ -4,13 +4,16 @@
  */
 
 /* TODO
- * # subtract about 0.4mm from each side of all thin walls, since my printer prints them too thick
- * # increase hinge_height by about 0.25mm, or just get rid of the cones and do straight cylinders, since my printer will round them over anyway (or maybe do hemispheres instead of cones)
- * # redo radiusing of white keys to follow how black keys do it, because slic3r doesn't like the weird seams the old way produces
- * - make it rest on the back part when not pressed
- *  X increase back_depth to hold three rows of 5 pennies like this o*o
- *  # instead of weights, use a separately-printed S-shaped spring, hooked between a smaller version of the current key back hole, and a new slot at the bottom of the back wall of the support
- *   # single wall, but more layers than the coil spring I tried way back
+ * - abandon back with pennies or springs
+ *  - instead put a y-axis hole in back, to put in a long bolt (~4cm?) with 1 or
+ *    2 nuts at the back end (or 1 nut and a bunch of washers)
+ *  - nuts must be narrower than black_width
+ *  - need to keep *some* of the back, so that there's a flat part to balance
+ *    on in the key up position. no need for the current back hole, though
+ *   - or just make the bolt hole close to the bottom so the nut hits the ground
+ * - make support only wall_thickness around hinge, with no back part (tall
+ *   single walls delaminate easily, and the back would be in the way of the
+ *   bolt)
  */
 
 // measurements taken from my optimus md-1150

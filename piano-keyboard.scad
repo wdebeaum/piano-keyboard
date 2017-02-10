@@ -1,19 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2017-02-04
- */
-
-/* TODO
- * - abandon back with pennies or springs
- *  - instead put a y-axis hole in back, to put in a long bolt (~4cm?) with 1 or
- *    2 nuts at the back end (or 1 nut and a bunch of washers)
- *  - nuts must be narrower than black_width
- *  - need to keep *some* of the back, so that there's a flat part to balance
- *    on in the key up position. no need for the current back hole, though
- *   - or just make the bolt hole close to the bottom so the nut hits the ground
- * - make support only wall_thickness around hinge, with no back part (tall
- *   single walls delaminate easily, and the back would be in the way of the
- *   bolt)
+ * 2017-02-09
  */
 
 // measurements taken from my optimus md-1150
@@ -70,6 +57,8 @@ a_x = g_sharp_x + black_width + black_gap;
 a_sharp_x = a_x + a_stem_width + black_gap;
 b_x = a_sharp_x + black_width + black_gap;
 
+screw_radius = 4.1656 / 2; // UTS #8
+
 // end measurements
 
 wall_thickness = 1;
@@ -78,9 +67,12 @@ gap = 0.3;
 thin_wall_deduction = 0.2;/* for imperfect printing */
 epsilon = 0.01;
 
+pad_thickness = 25.4 / 4; // 1/4"
+screw_axis_height = pad_thickness + screw_radius - (wall_thickness + gap);
+screw_hole_depth = 5;
+
 key_back_width = black_width;
-//key_back_depth = 19 + wall_thickness + 2*gap; // enough to fit a penny around the X axis
-key_back_depth = 15;
+key_back_depth = screw_hole_depth+epsilon;
 support_back_depth = 20;
 white_back_height = white_travel + white_thickness;
 black_back_height = white_back_height + black_min_height;
@@ -89,11 +81,9 @@ hinge_radius = corner_radius;
 hinge_height = (white_gap - gap)/2 + 0.25/*for imperfect printing*/;
 
 spring_thickness = 0.5; // 1 layer
-spring_radius = 3.7; // slightly smaller than would fit without stretching
-spring_width = key_back_width - 2*(wall_thickness + gap);
-
-spring_gap_height = 2;
-spring_gap_width = spring_width + 2*(gap-epsilon);
+spring_inner_radius = (screw_axis_height + screw_radius - spring_thickness)/2;
+spring_outer_radius = spring_inner_radius + spring_thickness;
+spring_width = screw_hole_depth;
 
 $fn=24;
 
@@ -130,8 +120,9 @@ module white_key(left_cutout, right_cutout) {
       translate([left_cutout + (white_width - left_cutout - right_cutout - key_back_width) / 2, 0, 0])
     difference() {
       cube([key_back_width, key_back_depth, white_back_height]);
-        translate([wall_thickness, -epsilon, wall_thickness])
-      cube([key_back_width - 2*wall_thickness, key_back_depth - wall_thickness + epsilon, white_back_height - wall_thickness + epsilon]);
+        translate([key_back_width/2, key_back_depth+epsilon, screw_axis_height])
+        rotate([90,0,0])
+      cylinder(r=screw_radius, h=screw_hole_depth+epsilon);
     }
     // hinge
       translate([left_cutout,0,0])
@@ -250,11 +241,10 @@ module black_key() {
       rotate([-(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
       translate([-epsilon,-black_max_depth, 0])
     cube([black_width+2*epsilon, key_back_depth + black_max_depth + 10, white_travel]);
-    // back holes
-      translate([wall_thickness, -epsilon, wall_thickness])
-    cube([key_back_width - 2*wall_thickness, key_back_depth - wall_thickness + epsilon, black_back_height - wall_thickness + epsilon]);
-      translate([wall_thickness+epsilon, key_back_depth-(wall_thickness+epsilon), white_travel + white_thickness])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
+    // back hole
+      translate([key_back_width/2, key_back_depth+epsilon, screw_axis_height])
+      rotate([90,0,0])
+    cylinder(r=screw_radius, h=screw_hole_depth+epsilon);
   }
   // hinge
   intersection() {
@@ -326,60 +316,77 @@ module octave() {
 
 module spring() {
   difference() {
-    cylinder(r=spring_radius, h=spring_width);
+    cylinder(r=spring_outer_radius, h=spring_width);
       translate([0,0,-epsilon])
-    cylinder(r=spring_radius-spring_thickness, h=spring_width + 2*epsilon);
-      translate([0, -(spring_radius+epsilon), -epsilon])
-    cube([spring_radius+epsilon, spring_radius+epsilon, spring_width + 2*epsilon]);
-  }
-    translate([-epsilon,-(2*spring_radius-spring_thickness), 0])
-  difference() {
-    cylinder(r=spring_radius, h=spring_width);
-      translate([0,0,-epsilon])
-    cylinder(r=spring_radius-spring_thickness, h=spring_width + 2*epsilon);
-      translate([-(spring_radius+epsilon), 0, -epsilon])
-    cube([spring_radius+epsilon, spring_radius+epsilon, spring_width + 2*epsilon]);
+    cylinder(r=spring_inner_radius, h=spring_width+2*epsilon);
+    // gap to aid assembly
+      translate([-wall_thickness/2, 0, -epsilon])
+    cube([wall_thickness,spring_outer_radius+epsilon,spring_width+2*epsilon]);
   }
 }
 
 module spring_assembled() {
-    translate([spring_width,support_back_depth,spring_radius + spring_gap_height - 2*gap])
-    rotate([-60,0,0])
-    rotate([0,-90,0])
+    translate([0,support_depth/2-spring_width-wall_thickness-gap,spring_outer_radius])
+    rotate([-90,0,0])
   spring();
 }
 
 module springs_assembled() {
-  translate([(c_x+c_sharp_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(c_sharp_x+d_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(d_x+d_sharp_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(d_sharp_x+e_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(e_x+f_x      -spring_width-white_gap)/2,0,0]) spring_assembled();
-  translate([(f_x+f_sharp_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(f_sharp_x+g_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(g_x+g_sharp_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(g_sharp_x+a_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(a_x+a_sharp_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(a_sharp_x+b_x-spring_width-black_gap)/2,0,0]) spring_assembled();
-  translate([(b_x+octave   -spring_width-white_gap)/2,0,0]) spring_assembled();
+  translate([(c_x+c_sharp_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(c_sharp_x+d_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(d_x+d_sharp_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(d_sharp_x+e_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(e_x+f_x      -white_gap)/2,0,0]) spring_assembled();
+  translate([(f_x+f_sharp_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(f_sharp_x+g_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(g_x+g_sharp_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(g_sharp_x+a_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(a_x+a_sharp_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(a_sharp_x+b_x-black_gap)/2,0,0]) spring_assembled();
+  translate([(b_x+octave   -white_gap)/2,0,0]) spring_assembled();
+}
+
+module spring_hook() {
+    translate([-wall_thickness, support_depth/2 - (spring_width + 2*(wall_thickness+gap)), -(gap+epsilon)])
+  difference() {
+    cube([2*wall_thickness, spring_width + 2*(wall_thickness+gap), wall_thickness + spring_thickness + 2*gap + epsilon]);
+      translate([-epsilon, wall_thickness, -epsilon])
+    cube([2*(wall_thickness+epsilon), spring_width + 2*gap, spring_thickness + 2*(gap + epsilon)]);
+  }
+}
+
+module spring_hooks() {
+  translate([(c_x+c_sharp_x-black_gap)/2,0,0]) spring_hook();
+  translate([(c_sharp_x+d_x-black_gap)/2,0,0]) spring_hook();
+  translate([(d_x+d_sharp_x-black_gap)/2,0,0]) spring_hook();
+  translate([(d_sharp_x+e_x-black_gap)/2,0,0]) spring_hook();
+  translate([(e_x+f_x      -white_gap)/2,0,0]) spring_hook();
+  translate([(f_x+f_sharp_x-black_gap)/2,0,0]) spring_hook();
+  translate([(f_sharp_x+g_x-black_gap)/2,0,0]) spring_hook();
+  translate([(g_x+g_sharp_x-black_gap)/2,0,0]) spring_hook();
+  translate([(g_sharp_x+a_x-black_gap)/2,0,0]) spring_hook();
+  translate([(a_x+a_sharp_x-black_gap)/2,0,0]) spring_hook();
+  translate([(a_sharp_x+b_x-black_gap)/2,0,0]) spring_hook();
+  translate([(b_x+octave   -white_gap)/2,0,0]) spring_hook();
 }
 
 black_wall_thickness = black_gap - 2*(gap+thin_wall_deduction);
 white_wall_thickness = white_gap - 2*(gap+thin_wall_deduction);
 
+support_depth = 40;
+
 module support_wall(thickness) {
+    rotate([0,90,0])
   difference() {
-    union() {
-        translate([0,0,-(wall_thickness + gap)])
-      cube([thickness, support_back_depth + gap + thin_wall_deduction, white_travel + white_thickness + wall_thickness + gap]);
-        rotate([0,90,0])
-      cylinder(r=white_travel + white_thickness, h=thickness);
+    linear_extrude(height=thickness, convexity=2, twist=0, slices=1, scale=1.0) {
+      polygon(points=[
+        [gap+epsilon,-support_depth/2],
+	[gap+epsilon,support_depth/2],
+	[-(hinge_radius + 2*wall_thickness),0]
+      ]);
     }
-      translate([-epsilon,0,0])
-      rotate([0,90,0])
-    cylinder(r=hinge_radius, h=thickness+2*epsilon);
-      translate([-epsilon, -(white_travel + white_thickness + epsilon), -(white_travel + white_thickness + wall_thickness + gap)+epsilon])
-    cube([thickness+2*epsilon, 2*(white_travel + white_thickness + epsilon), white_travel + white_thickness]);
+      translate([0,0,-epsilon])
+    cylinder(r=hinge_radius+gap, h=thickness+2*epsilon);
   }
 }
 
@@ -389,64 +396,15 @@ module support(include_first_wall) {
   // bottom
     translate([
       (include_first_wall ? -white_gap : 0),
-      -(white_travel + white_thickness),
+      -support_depth/2,
       -(wall_thickness + gap)
     ])
   cube([
     octave + (include_first_wall ? white_gap : 0),
-    support_back_depth + white_travel + white_thickness + wall_thickness + gap,
-    wall_thickness + gap
+    support_depth,
+    wall_thickness
   ]);
-  // back
-  difference() {
-      translate([
-	(include_first_wall ? -white_gap : 0),
-	support_back_depth + gap + thin_wall_deduction,
-	-gap
-      ])
-    cube([
-      octave + (include_first_wall ? white_gap : 0),
-      wall_thickness - thin_wall_deduction,
-      white_travel + white_thickness + gap
-    ]);
-    // spring gaps
-      translate([(c_x+c_sharp_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(c_sharp_x+d_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(d_x+d_sharp_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(d_sharp_x+e_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(e_x+f_x      -spring_width-white_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(f_x+f_sharp_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(f_sharp_x+g_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(g_x+g_sharp_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(g_sharp_x+a_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(a_x+a_sharp_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(a_sharp_x+b_x-spring_width-black_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-      translate([(b_x+octave   -spring_width-white_gap)/2-gap,
-		support_back_depth+gap, epsilon])
-    cube([spring_gap_width, wall_thickness + 2*epsilon, spring_gap_height]);
-  }
+  spring_hooks();
   // between keys
   if (include_first_wall) {
       translate([c_x-white_gap+gap, 0, 0])
@@ -514,7 +472,7 @@ module plated_keys() {
 // fit test
 //
 
-  rotate([0,0,40])
+//  rotate([0,0,40])
 union() {
   // plated C key
     translate([0,0,white_travel + white_thickness])

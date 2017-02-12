@@ -1,18 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2017-02-11
- */
-
-/* TODO:
- * - Really get rid of springs. They're crap, and I've got the counterweights working now anyway.
- * - Instead of walls separating keys, make the keys straddle walls. This lets the walls be thicker so that:
- *  - They don't fall apart or bend.
- *  - I don't have to cut the ooze flying off the side from single-layer walls.
- *  - They can accommodate bigger hinges.
- *  - I can make them (slightly) taller without worrying about delamination.
- * - Also make walls (and base) deeper, to help restrict side-to-side motion of keys.
- * ? Put holes in base to make it easier to peel off of print bed, and less
- * likely to curl up.
+ * 2017-02-12
  */
 
 // measurements taken from my optimus md-1150
@@ -25,7 +13,10 @@ white_depth = 134;
 black_min_depth = 77; // at top
 black_max_depth = 84; // at bottom, next to top of white key
 white_travel = 16.9 - 6.1; // at max end of white key
-black_travel = 12 - 5.6; // ? at max end of black key (but tilted)
+// measured
+//black_travel = 12 - 5.6; // ? at max end of black key (but tilted)
+// calculated with the assumption that the travel angle is the same for b&w
+black_travel = white_travel * black_max_depth / white_depth;
 // height of black key above white key, with neither depressed
 black_min_height = 8; // at min end of key, toward fulcrum
 black_max_height = 12; // at max end of key
@@ -77,85 +68,89 @@ wall_thickness = 1;
 white_thickness = 2*corner_radius;
 gap = 0.3;
 thin_wall_deduction = 0.2;/* for imperfect printing */
+support_gap = gap + thin_wall_deduction; // TODO more gap for easy sliding?
 epsilon = 0.01;
 
 pad_thickness = 25.4 / 4; // 1/4"
-screw_axis_height = pad_thickness + screw_radius - (wall_thickness + gap) - 0.5/*for imperfect printing*/;
+screw_axis_height = pad_thickness + screw_radius - (wall_thickness + support_gap) - 0.5/*for imperfect printing*/;
 screw_hole_depth = 5;
 
 key_back_width = black_width;
 key_back_depth = screw_hole_depth+epsilon;
-support_back_depth = 20;
 white_back_height = white_travel + white_thickness;
 black_back_height = white_back_height + black_min_height;
 
-hinge_radius = corner_radius;
-hinge_height = (white_gap - gap)/2 + 0.5/*for imperfect printing*/;
+hollow_width = key_back_width - 2*wall_thickness;
+hollow_height = white_travel;
+support_width = hollow_width - 2*support_gap;
+support_depth = 40;
 
-spring_thickness = 0.5; // 1 layer
-spring_inner_radius = (screw_axis_height + screw_radius - spring_thickness)/2;
-spring_outer_radius = spring_inner_radius + spring_thickness;
-spring_width = screw_hole_depth;
-spring_hook_thickness = spring_thickness + 1/*for imperfect printing*/;
-spring_hook_width = spring_width + 1/*for imperfect printing*/;
+hinge_radius = key_back_depth - (2*wall_thickness+support_gap);
+hinge_height = wall_thickness + 0.5/*for imperfect printing*/;
 
 $fn=24;
 
 module white_key(left_cutout, right_cutout) {
     translate([-left_cutout,0,0])
   union() {
-    // front
     difference() {
-      intersection() {
-	minkowski() {
-	    translate([corner_radius,-(white_depth-corner_radius),0])
-	  cube([white_width-2*corner_radius, white_depth-corner_radius, white_travel + white_thickness -corner_radius]);
-	  sphere(r=corner_radius);
+      union() {
+	// front
+	difference() {
+	  intersection() {
+	    minkowski() {
+		translate([corner_radius,-(white_depth-corner_radius),0])
+	      cube([white_width-2*corner_radius, white_depth-corner_radius, white_travel + white_thickness -corner_radius]);
+	      sphere(r=corner_radius);
+	    }
+	      translate([-epsilon,-(white_depth+epsilon),0])
+	    cube([white_width+2*epsilon, white_depth+epsilon, white_travel + white_thickness +epsilon]);
+	    // the "10" in the following I think should be:
+	    // white_thickness*white_travel/sqrt(white_depth*white_depth+white_travel*white_travel)
+	    // but obviously I made a mistake because that still cuts into the front
+	      rotate([-atan2(white_travel, white_depth),0,0])
+	      translate([0,-white_depth-10,0])
+	    cube([white_width+2*epsilon, white_depth + 10, white_travel + white_thickness]);
+	  }
+	  if (left_cutout > 0) {
+	      translate([-epsilon, epsilon-(black_max_depth + black_gap), -epsilon])
+	    cube([left_cutout + epsilon, black_max_depth + black_gap, white_travel + white_thickness + 2*epsilon]);
+	  }
+	  if (right_cutout > 0) {
+	      translate([white_width - right_cutout, epsilon-(black_max_depth + black_gap), -epsilon])
+	    cube([right_cutout + epsilon, black_max_depth + black_gap, white_travel + white_thickness + 2*epsilon]);
+	  }
 	}
-	  translate([-epsilon,-(white_depth+epsilon),0])
-	cube([white_width+2*epsilon, white_depth+epsilon, white_travel + white_thickness +epsilon]);
-	// the "10" in the following I think should be:
-	// white_thickness*white_travel/sqrt(white_depth*white_depth+white_travel*white_travel)
-	// but obviously I made a mistake because that still cuts into the front
-	  rotate([-atan2(white_travel, white_depth),0,0])
-	  translate([0,-white_depth-10,0])
-	cube([white_width+2*epsilon, white_depth + 10, white_travel + white_thickness]);
+	// back
+	  translate([left_cutout + (white_width - left_cutout - right_cutout - key_back_width) / 2, 0, 0])
+	difference() {
+	  cube([key_back_width, key_back_depth, white_back_height]);
+	    translate([key_back_width/2, key_back_depth+epsilon, screw_axis_height])
+	    rotate([90,0,0])
+	  cylinder(r=screw_radius, h=screw_hole_depth+epsilon);
+	}
       }
-      if (left_cutout > 0) {
-	  translate([-epsilon, epsilon-(black_max_depth + black_gap), -epsilon])
-	cube([left_cutout + epsilon, black_max_depth + black_gap, white_travel + white_thickness + 2*epsilon]);
-      }
-      if (right_cutout > 0) {
-	  translate([white_width - right_cutout, epsilon-(black_max_depth + black_gap), -epsilon])
-	cube([right_cutout + epsilon, black_max_depth + black_gap, white_travel + white_thickness + 2*epsilon]);
-      }
-    }
-    // back
-      translate([left_cutout + (white_width - left_cutout - right_cutout - key_back_width) / 2, 0, 0])
-    difference() {
-      cube([key_back_width, key_back_depth, white_back_height]);
-        translate([key_back_width/2, key_back_depth+epsilon, screw_axis_height])
-        rotate([90,0,0])
-      cylinder(r=screw_radius, h=screw_hole_depth+epsilon);
+      // hollow
+	translate([left_cutout + (white_width - left_cutout - right_cutout - hollow_width)/2,-(black_max_depth-corner_radius),-epsilon])
+      cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + wall_thickness), hollow_height]);
     }
     // hinge
-      translate([left_cutout,0,0])
+      translate([left_cutout + (white_width - left_cutout - right_cutout - hollow_width)/2,0,0])
     intersection() {
-	rotate([0,90,0])
-      rotate_extrude(convexity=2, $fn=12) {
-	polygon(points=[
-	  [0, -hinge_height],
-	  [hinge_radius, 0],
-	  [hinge_radius, white_width-left_cutout-right_cutout],
-	  [0, white_width-left_cutout-right_cutout+hinge_height],
-	]);
+      union() {
+	  translate([-epsilon,0,0])
+	  rotate([0,90,0])
+	cylinder(r1=hinge_radius, r2=0, h=hinge_height);
+	  translate([hollow_width+epsilon,0,0])
+	  rotate([0,-90,0])
+	cylinder(r1=hinge_radius, r2=0, h=hinge_height);
       }
       union() {
-	  translate([-(hinge_height+epsilon),0,0])
-	cube([white_width+2*hinge_height+2*epsilon, hinge_radius+epsilon, hinge_radius+epsilon]);
+	  translate([-2*epsilon,0,0])
+	cube([hollow_width+4*epsilon, hinge_radius+epsilon, hinge_radius+epsilon]);
 	  rotate([-atan2(white_travel, white_depth),0,0])
-	  translate([-(hinge_height+epsilon),-hinge_radius,0])
-	cube([white_width+2*hinge_height+2*epsilon, hinge_radius+epsilon, hinge_radius+epsilon]);
+	  translate([-2*epsilon,-hinge_radius,0])
+	cube([hollow_width+4*epsilon, hinge_radius+epsilon, hinge_radius+epsilon]);
       }
     }
   }
@@ -259,17 +254,19 @@ module black_key() {
       translate([key_back_width/2, key_back_depth+epsilon, screw_axis_height])
       rotate([90,0,0])
     cylinder(r=screw_radius, h=screw_hole_depth+epsilon);
+    // hollow
+      translate([(black_width - hollow_width)/2,-(black_max_depth-corner_radius),-epsilon])
+    cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + wall_thickness), hollow_height]);
   }
   // hinge
   intersection() {
-      rotate([0,90,0])
-    rotate_extrude(convexity=2, $fn=12) {
-      polygon(points=[
-	[0, -hinge_height],
-	[hinge_radius, 0],
-	[hinge_radius, black_width],
-	[0, black_width+hinge_height],
-      ]);
+    union() {
+	translate([(black_width - hollow_width)/2-epsilon,0,0])
+	rotate([0,90,0])
+      cylinder(r1=hinge_radius, r2=0, h=hinge_height);
+	translate([black_width-((black_width - hollow_width)/2-epsilon),0,0])
+	rotate([0,-90,0])
+      cylinder(r1=hinge_radius, r2=0, h=hinge_height);
     }
     union() {
 	translate([-(hinge_height+epsilon),0,0])
@@ -328,134 +325,63 @@ module octave() {
   octave_black_keys();
 }
 
-module spring() {
+support_back_depth = key_back_depth-(wall_thickness+support_gap)+epsilon;
+
+module support_wall(x, next_x, next_gap) {
+    translate([(x + next_x - next_gap - support_width)/2,0,0])
   difference() {
-    cylinder(r=spring_outer_radius, h=spring_width);
-      translate([0,0,-epsilon])
-    cylinder(r=spring_inner_radius, h=spring_width+2*epsilon);
-    // gap to aid assembly
-      translate([-wall_thickness/2, 0, -epsilon])
-    cube([wall_thickness,spring_outer_radius+epsilon,spring_width+2*epsilon]);
-  }
-}
-
-module spring_assembled() {
-    translate([0,support_depth/2-spring_width-2*wall_thickness-gap,spring_outer_radius])
-    rotate([-90,0,0])
-  spring();
-}
-
-module springs_assembled() {
-  translate([(c_x+c_sharp_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(c_sharp_x+d_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(d_x+d_sharp_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(d_sharp_x+e_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(e_x+f_x      -white_gap)/2,0,0]) spring_assembled();
-  translate([(f_x+f_sharp_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(f_sharp_x+g_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(g_x+g_sharp_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(g_sharp_x+a_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(a_x+a_sharp_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(a_sharp_x+b_x-black_gap)/2,0,0]) spring_assembled();
-  translate([(b_x+octave   -white_gap)/2,0,0]) spring_assembled();
-}
-
-module spring_hook() {
-    translate([-screw_radius, support_depth/2 - (spring_hook_width + 2*(2*wall_thickness+gap)), -(gap+epsilon)])
-  difference() {
-    cube([2*screw_radius, spring_hook_width + 2*(2*wall_thickness+gap), wall_thickness + spring_hook_thickness + 2*gap + epsilon]);
-      translate([-epsilon, 2*wall_thickness, -epsilon])
-    cube([2*(screw_radius+epsilon), spring_hook_width + 2*gap, spring_hook_thickness + 2*(gap + epsilon)]);
-  }
-}
-
-module spring_hooks() {
-  translate([(c_x+c_sharp_x-black_gap)/2,0,0]) spring_hook();
-  translate([(c_sharp_x+d_x-black_gap)/2,0,0]) spring_hook();
-  translate([(d_x+d_sharp_x-black_gap)/2,0,0]) spring_hook();
-  translate([(d_sharp_x+e_x-black_gap)/2,0,0]) spring_hook();
-  translate([(e_x+f_x      -white_gap)/2,0,0]) spring_hook();
-  translate([(f_x+f_sharp_x-black_gap)/2,0,0]) spring_hook();
-  translate([(f_sharp_x+g_x-black_gap)/2,0,0]) spring_hook();
-  translate([(g_x+g_sharp_x-black_gap)/2,0,0]) spring_hook();
-  translate([(g_sharp_x+a_x-black_gap)/2,0,0]) spring_hook();
-  translate([(a_x+a_sharp_x-black_gap)/2,0,0]) spring_hook();
-  translate([(a_sharp_x+b_x-black_gap)/2,0,0]) spring_hook();
-  translate([(b_x+octave   -white_gap)/2,0,0]) spring_hook();
-}
-
-black_wall_thickness = black_gap - 2*(gap+thin_wall_deduction);
-white_wall_thickness = white_gap - 2*(gap+thin_wall_deduction);
-
-support_depth = 40;
-
-module support_wall(thickness) {
-    rotate([0,90,0])
-  difference() {
-    linear_extrude(height=thickness, convexity=2, twist=0, slices=1, scale=1.0) {
-      polygon(points=[
-        [gap+epsilon,-support_depth/2],
-	[gap+epsilon,support_depth/2],
-	[-(hinge_radius + 2*wall_thickness),0]
-      ]);
+      rotate([atan2(white_travel, white_depth),0,0])
+    union() {
+      // curved top corner
+      intersection() {
+	  rotate([0,90,0])
+	cylinder(r=hollow_height-support_gap, h=support_width+2*epsilon, $fn=72);
+	  translate([0, -epsilon, -(support_gap + support_back_depth * white_travel / white_depth + epsilon)])
+	cube([support_width, support_back_depth, hollow_height + support_back_depth * white_travel / white_depth + epsilon]);
+      }
+      // bulk
+        translate([0, -support_depth, -support_gap])
+      cube([support_width, support_depth, hollow_height]);
     }
-      translate([0,0,-epsilon])
-    cylinder(r=hinge_radius+gap, h=thickness+2*epsilon);
+    // bottom
+      translate([-epsilon, -(support_depth - (support_back_depth + epsilon)), -(hollow_height + support_gap + epsilon)])
+    cube([support_width+2*epsilon, support_depth+2*epsilon, hollow_height]);
+    // front
+      translate([-epsilon, -(hollow_height + support_depth - key_back_depth), -hollow_height])
+    cube([support_width+2*epsilon, hollow_height, 2*hollow_height]);
+    // hinge pits
+      translate([-epsilon,0,0])
+      rotate([0,90,0])
+    cylinder(r1=hinge_radius + support_gap, r2=0, h=hinge_height + support_gap+epsilon);
+      translate([support_width+epsilon,0,0])
+      rotate([0,-90,0])
+    cylinder(r1=hinge_radius + support_gap, r2=0, h=hinge_height + support_gap+epsilon);
   }
 }
 
 // key support with holes for hinges
-// two versions: one with two B-C separators, and one with only one, at the high end
-module support(include_first_wall) {
+module support() {
   // bottom
-    translate([
-      (include_first_wall ? -white_gap : 0),
-      -support_depth/2,
-      -(wall_thickness + gap)
-    ])
-  cube([
-    octave + (include_first_wall ? white_gap : 0),
-    support_depth,
-    wall_thickness
-  ]);
-  spring_hooks();
-  // between keys
-  if (include_first_wall) {
-      translate([c_x-white_gap+gap, 0, 0])
-    support_wall(white_wall_thickness);
-  }
-    translate([c_sharp_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([d_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([d_sharp_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([e_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([f_x-white_gap+gap, 0, 0])
-  support_wall(white_wall_thickness);
-    translate([f_sharp_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([g_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([g_sharp_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([a_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([a_sharp_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([b_x-black_gap+gap, 0, 0])
-  support_wall(black_wall_thickness);
-    translate([octave-white_gap+gap, 0, 0])
-  support_wall(white_wall_thickness);
+    translate([0, -(support_depth - key_back_depth), -(wall_thickness + support_gap)])
+  cube([octave, support_depth, wall_thickness]);
+  // walls inside keys
+  support_wall(c_x, c_sharp_x, black_gap);
+  support_wall(c_sharp_x, d_x, black_gap);
+  support_wall(d_x, d_sharp_x, black_gap);
+  support_wall(d_sharp_x, e_x, black_gap);
+  support_wall(e_x, f_x, white_gap);
+  support_wall(f_x, f_sharp_x, black_gap);
+  support_wall(f_sharp_x, g_x, black_gap);
+  support_wall(g_x, g_sharp_x, black_gap);
+  support_wall(g_sharp_x, a_x, black_gap);
+  support_wall(a_x, a_sharp_x, black_gap);
+  support_wall(a_sharp_x, b_x, black_gap);
+  support_wall(b_x, octave, white_gap);
 }
 
 module assembled() {
   octave();
-  support(true);
-    translate([octave, 0, 0])
-  support(false);
-  springs_assembled();
+  support();
 }
 
 module plated_white_keys() {
@@ -477,10 +403,9 @@ module plated_keys() {
 }
 
 //assembled();
+//octave();
 //plated_keys();
-//support(true);
-//support(false);
-//spring();
+//support();
 
 //
 // fit test
@@ -488,30 +413,28 @@ module plated_keys() {
 
 //  rotate([0,0,40])
 union() {
-  // // plated C key
-  //   translate([0,0,white_travel + white_thickness])
-  //   rotate([0,180,0])
-  // white_key(0, white_width - c_stem_width);
+  // plated C key
+    translate([0,0,white_travel + white_thickness])
+    rotate([0,180,0])
+  white_key(0, white_width - c_stem_width);
   // // plated C# key
   //   translate([0,0,black_min_height + white_travel + white_thickness])
   //   rotate([0,180,0])
   //   rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
   // black_key();
-  // plated D key
-    translate([0,0,white_travel + white_thickness])
-    rotate([0,180,0])
-  white_key(
-    d_x - (white_width + white_gap),
-    2*white_width + white_gap - (d_sharp_x - black_gap)
-  );
-  // plated support for C-D keys only
+  // // plated D key
+  //   translate([0,0,white_travel + white_thickness])
+  //   rotate([0,180,0])
+  // white_key(
+  //   d_x - (white_width + white_gap),
+  //   2*white_width + white_gap - (d_sharp_x - black_gap)
+  // );
+  // plated support for C key only
     translate([0,-20,0])
   intersection() {
       translate([5,-80,-epsilon])
-    cube([50,60,30]);
-      translate([10, -50, wall_thickness + gap])
+    cube([20,60,30]);
+      translate([10, -50, wall_thickness + support_gap])
     support(true);
   }
-    translate([20,-20,0])
-  spring();
 }

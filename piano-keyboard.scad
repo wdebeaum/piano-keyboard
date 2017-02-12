@@ -1,6 +1,18 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2017-02-09
+ * 2017-02-11
+ */
+
+/* TODO:
+ * - Really get rid of springs. They're crap, and I've got the counterweights working now anyway.
+ * - Instead of walls separating keys, make the keys straddle walls. This lets the walls be thicker so that:
+ *  - They don't fall apart or bend.
+ *  - I don't have to cut the ooze flying off the side from single-layer walls.
+ *  - They can accommodate bigger hinges.
+ *  - I can make them (slightly) taller without worrying about delamination.
+ * - Also make walls (and base) deeper, to help restrict side-to-side motion of keys.
+ * ? Put holes in base to make it easier to peel off of print bed, and less
+ * likely to curl up.
  */
 
 // measurements taken from my optimus md-1150
@@ -68,7 +80,7 @@ thin_wall_deduction = 0.2;/* for imperfect printing */
 epsilon = 0.01;
 
 pad_thickness = 25.4 / 4; // 1/4"
-screw_axis_height = pad_thickness + screw_radius - (wall_thickness + gap);
+screw_axis_height = pad_thickness + screw_radius - (wall_thickness + gap) - 0.5/*for imperfect printing*/;
 screw_hole_depth = 5;
 
 key_back_width = black_width;
@@ -78,12 +90,14 @@ white_back_height = white_travel + white_thickness;
 black_back_height = white_back_height + black_min_height;
 
 hinge_radius = corner_radius;
-hinge_height = (white_gap - gap)/2 + 0.25/*for imperfect printing*/;
+hinge_height = (white_gap - gap)/2 + 0.5/*for imperfect printing*/;
 
 spring_thickness = 0.5; // 1 layer
 spring_inner_radius = (screw_axis_height + screw_radius - spring_thickness)/2;
 spring_outer_radius = spring_inner_radius + spring_thickness;
 spring_width = screw_hole_depth;
+spring_hook_thickness = spring_thickness + 1/*for imperfect printing*/;
+spring_hook_width = spring_width + 1/*for imperfect printing*/;
 
 $fn=24;
 
@@ -326,7 +340,7 @@ module spring() {
 }
 
 module spring_assembled() {
-    translate([0,support_depth/2-spring_width-wall_thickness-gap,spring_outer_radius])
+    translate([0,support_depth/2-spring_width-2*wall_thickness-gap,spring_outer_radius])
     rotate([-90,0,0])
   spring();
 }
@@ -347,11 +361,11 @@ module springs_assembled() {
 }
 
 module spring_hook() {
-    translate([-wall_thickness, support_depth/2 - (spring_width + 2*(wall_thickness+gap)), -(gap+epsilon)])
+    translate([-screw_radius, support_depth/2 - (spring_hook_width + 2*(2*wall_thickness+gap)), -(gap+epsilon)])
   difference() {
-    cube([2*wall_thickness, spring_width + 2*(wall_thickness+gap), wall_thickness + spring_thickness + 2*gap + epsilon]);
-      translate([-epsilon, wall_thickness, -epsilon])
-    cube([2*(wall_thickness+epsilon), spring_width + 2*gap, spring_thickness + 2*(gap + epsilon)]);
+    cube([2*screw_radius, spring_hook_width + 2*(2*wall_thickness+gap), wall_thickness + spring_hook_thickness + 2*gap + epsilon]);
+      translate([-epsilon, 2*wall_thickness, -epsilon])
+    cube([2*(screw_radius+epsilon), spring_hook_width + 2*gap, spring_hook_thickness + 2*(gap + epsilon)]);
   }
 }
 
@@ -474,20 +488,27 @@ module plated_keys() {
 
 //  rotate([0,0,40])
 union() {
-  // plated C key
-    translate([0,0,white_travel + white_thickness])
-    rotate([0,180,0])
-  white_key(0, white_width - c_stem_width);
+  // // plated C key
+  //   translate([0,0,white_travel + white_thickness])
+  //   rotate([0,180,0])
+  // white_key(0, white_width - c_stem_width);
   // // plated C# key
   //   translate([0,0,black_min_height + white_travel + white_thickness])
   //   rotate([0,180,0])
   //   rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
   // black_key();
-  // plated support for C(#) key only
+  // plated D key
+    translate([0,0,white_travel + white_thickness])
+    rotate([0,180,0])
+  white_key(
+    d_x - (white_width + white_gap),
+    2*white_width + white_gap - (d_sharp_x - black_gap)
+  );
+  // plated support for C-D keys only
     translate([0,-20,0])
   intersection() {
-      translate([5 /*20*/,-80,-epsilon])
-    cube([20,60,30]);
+      translate([5,-80,-epsilon])
+    cube([50,60,30]);
       translate([10, -50, wall_thickness + gap])
     support(true);
   }

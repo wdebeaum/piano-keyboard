@@ -1,6 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2017-02-12
+ * 2017-02-18
  */
 
 // measurements taken from my optimus md-1150
@@ -68,15 +68,16 @@ wall_thickness = 1;
 white_thickness = 2*corner_radius;
 gap = 0.3;
 thin_wall_deduction = 0.2;/* for imperfect printing */
-support_gap = gap + thin_wall_deduction; // TODO more gap for easy sliding?
+sliding_deduction = 0.6;
+support_gap = gap + thin_wall_deduction + sliding_deduction; // TODO more gap for easy sliding?
 epsilon = 0.01;
 
 pad_thickness = 25.4 / 4; // 1/4"
 screw_axis_height = pad_thickness + screw_radius - (wall_thickness + support_gap) - 0.5/*for imperfect printing*/;
-screw_hole_depth = 5;
+screw_hole_depth = 2*wall_thickness;
 
 key_back_width = black_width;
-key_back_depth = screw_hole_depth+epsilon;
+key_back_depth = 6+epsilon;
 white_back_height = white_travel + white_thickness;
 black_back_height = white_back_height + black_min_height;
 
@@ -85,7 +86,7 @@ hollow_height = white_travel;
 support_width = hollow_width - 2*support_gap;
 support_depth = 40;
 
-hinge_radius = key_back_depth - (2*wall_thickness+support_gap);
+hinge_radius = key_back_depth - (screw_hole_depth+wall_thickness+support_gap);
 hinge_height = wall_thickness + 0.5/*for imperfect printing*/;
 
 $fn=24;
@@ -127,12 +128,12 @@ module white_key(left_cutout, right_cutout) {
 	  cube([key_back_width, key_back_depth, white_back_height]);
 	    translate([key_back_width/2, key_back_depth+epsilon, screw_axis_height])
 	    rotate([90,0,0])
-	  cylinder(r=screw_radius, h=screw_hole_depth+epsilon);
+	  cylinder(r=screw_radius, h=screw_hole_depth+2*epsilon);
 	}
       }
       // hollow
 	translate([left_cutout + (white_width - left_cutout - right_cutout - hollow_width)/2,-(black_max_depth-corner_radius),-epsilon])
-      cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + wall_thickness), hollow_height]);
+      cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + screw_hole_depth), hollow_height]);
     }
     // hinge
       translate([left_cutout + (white_width - left_cutout - right_cutout - hollow_width)/2,0,0])
@@ -253,10 +254,10 @@ module black_key() {
     // back hole
       translate([key_back_width/2, key_back_depth+epsilon, screw_axis_height])
       rotate([90,0,0])
-    cylinder(r=screw_radius, h=screw_hole_depth+epsilon);
+    cylinder(r=screw_radius, h=screw_hole_depth+2*epsilon);
     // hollow
       translate([(black_width - hollow_width)/2,-(black_max_depth-corner_radius),-epsilon])
-    cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + wall_thickness), hollow_height]);
+    cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + screw_hole_depth), hollow_height]);
   }
   // hinge
   intersection() {
@@ -325,7 +326,7 @@ module octave() {
   octave_black_keys();
 }
 
-support_back_depth = key_back_depth-(wall_thickness+support_gap)+epsilon;
+support_back_depth = key_back_depth-(screw_hole_depth+support_gap)+epsilon;
 
 module support_wall(x, next_x, next_gap) {
     translate([(x + next_x - next_gap - support_width)/2,0,0])
@@ -413,27 +414,27 @@ module plated_keys() {
 
 //  rotate([0,0,40])
 union() {
-  // plated C key
-    translate([0,0,white_travel + white_thickness])
-    rotate([0,180,0])
-  white_key(0, white_width - c_stem_width);
+  // // plated C key
+  //   translate([0,0,white_travel + white_thickness])
+  //   rotate([0,180,0])
+  // white_key(0, white_width - c_stem_width);
   // // plated C# key
   //   translate([0,0,black_min_height + white_travel + white_thickness])
   //   rotate([0,180,0])
   //   rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
   // black_key();
-  // // plated D key
-  //   translate([0,0,white_travel + white_thickness])
-  //   rotate([0,180,0])
-  // white_key(
-  //   d_x - (white_width + white_gap),
-  //   2*white_width + white_gap - (d_sharp_x - black_gap)
-  // );
-  // plated support for C key only
+  // plated D key
+    translate([0,0,white_travel + white_thickness])
+    rotate([0,180,0])
+  white_key(
+    d_x - (white_width + white_gap),
+    2*white_width + white_gap - (d_sharp_x - black_gap)
+  );
+  // plated support for C-D keys only
     translate([0,-20,0])
   intersection() {
       translate([5,-80,-epsilon])
-    cube([20,60,30]);
+    cube([50,60,30]);
       translate([10, -50, wall_thickness + support_gap])
     support(true);
   }

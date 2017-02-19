@@ -68,7 +68,7 @@ wall_thickness = 1;
 white_thickness = 2*corner_radius;
 gap = 0.3;
 thin_wall_deduction = 0.2;/* for imperfect printing */
-sliding_deduction = 0.6;
+sliding_deduction = 0.3;
 support_gap = gap + thin_wall_deduction + sliding_deduction; // TODO more gap for easy sliding?
 epsilon = 0.01;
 
@@ -423,18 +423,25 @@ union() {
   //   rotate([0,180,0])
   //   rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
   // black_key();
-  // plated D key
+  // // plated D key
+  //   translate([0,0,white_travel + white_thickness])
+  //   rotate([0,180,0])
+  // white_key(
+  //   d_x - (white_width + white_gap),
+  //   2*white_width + white_gap - (d_sharp_x - black_gap)
+  // );
+  // plated E key
     translate([0,0,white_travel + white_thickness])
     rotate([0,180,0])
   white_key(
-    d_x - (white_width + white_gap),
-    2*white_width + white_gap - (d_sharp_x - black_gap)
+    e_x - 2*(white_width + white_gap),
+    0
   );
-  // plated support for C-D keys only
-    translate([0,-20,0])
+  // plated support for C-E keys only
+    translate([10,-20,0])
   intersection() {
       translate([5,-80,-epsilon])
-    cube([50,60,30]);
+    cube([60,60,30]);
       translate([10, -50, wall_thickness + support_gap])
     support(true);
   }

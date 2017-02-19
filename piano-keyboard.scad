@@ -1,6 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2017-02-18
+ * 2017-02-19
  */
 
 // measurements taken from my optimus md-1150
@@ -353,10 +353,10 @@ module support_wall(x, next_x, next_gap) {
     // hinge pits
       translate([-epsilon,0,0])
       rotate([0,90,0])
-    cylinder(r1=hinge_radius + support_gap, r2=0, h=hinge_height + support_gap+epsilon);
+    cylinder(r1=hinge_radius + gap, r2=0, h=hinge_height + gap+epsilon);
       translate([support_width+epsilon,0,0])
       rotate([0,-90,0])
-    cylinder(r1=hinge_radius + support_gap, r2=0, h=hinge_height + support_gap+epsilon);
+    cylinder(r1=hinge_radius + gap, r2=0, h=hinge_height + gap+epsilon);
   }
 }
 
@@ -404,6 +404,11 @@ module plated_keys() {
 }
 
 //assembled();
+// difference() { // cutaway
+//   assembled();
+//     translate([0,-40,1])
+//   cube([7,50,30]);
+// }
 //octave();
 //plated_keys();
 //support();
@@ -441,7 +446,7 @@ union() {
     translate([10,-20,0])
   intersection() {
       translate([5,-80,-epsilon])
-    cube([60,60,30]);
+    cube([75,60,30]);
       translate([10, -50, wall_thickness + support_gap])
     support(true);
   }

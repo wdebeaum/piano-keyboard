@@ -1,7 +1,28 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2017-02-19
+ * 2020-02-15
  */
+
+/* TODO:
+# add measurements for skewers, bobby pins
+- get rid of horizontal screw hole
+ - make key back block measurements no longer depend on screw measurements
+- replace it with vertical hole for 1/2 bobby pin
+- add a back plate for the base, with a vertical groove for the other 1/2 bobby pin (and a hole connecting groove to where the other 1/2 goes)
+- make base plate thicker to accommodate skewer holes
+- make horizontal holes in base plate for skewer segments
+ - along the pitch axis for connection to other octaves
+ - perpendicular, for stability
+# make base broader for more key wiggle stability
+ - also make it broader in plated form (what went wrong?)
+- how to make this assemblable:
+ . replace cone hinges with another skewer
+  ? instead of making base plate thicker, put skewers through supports and add notches in keys to accommodate them
+  > argh, using skewer as hinge means I can't put bobby pin there
+ . add vertical grooves in support for cones to travel along during assembly (tighter fit than main hinge sockets)
+? print base in 2 sections per octave so it'll fit on printer
+? paperclips instead of bobby pins so they don't stick up so much
+*/
 
 // measurements taken from my optimus md-1150
 octave = 162.5;
@@ -62,6 +83,32 @@ b_x = a_sharp_x + black_width + black_gap;
 
 screw_radius = 4.1656 / 2; // UTS #8
 
+skewer_radius = 3 / 2; // 3mm diameter skewers
+
+/* bobby pin measurements
+	o  ends
+	|
+	| o
+max	|/	min length
+length	|\
+	|/  m
+	|\
+	| |
+	| |
+	 U
+
+	 u
+*/
+bpin_width = 1.6;
+bpin_thickness = 0.7;
+bpin_end_thickness = 1.7; // max
+bpin_u_diameter = 3.8;
+bpin_max_length = 50;
+bpin_min_length = 46;
+bpin_u_m = 17.5;
+bpin_m_length = bpin_min_length - bpin_u_m;
+bpin_m_pitch = 22 / 4;
+
 // end measurements
 
 wall_thickness = 1;
@@ -69,7 +116,7 @@ white_thickness = 2*corner_radius;
 gap = 0.3;
 thin_wall_deduction = 0.2;/* for imperfect printing */
 sliding_deduction = 0.3;
-support_gap = gap + thin_wall_deduction + sliding_deduction; // TODO more gap for easy sliding?
+support_gap = gap + thin_wall_deduction + sliding_deduction;
 epsilon = 0.01;
 
 pad_thickness = 25.4 / 4; // 1/4"
@@ -84,7 +131,7 @@ black_back_height = white_back_height + black_min_height;
 hollow_width = key_back_width - 2*wall_thickness;
 hollow_height = white_travel;
 support_width = hollow_width - 2*support_gap;
-support_depth = 40;
+support_depth = 60;
 
 hinge_radius = key_back_depth - (screw_hole_depth+wall_thickness+support_gap);
 hinge_height = wall_thickness + 0.5/*for imperfect printing*/;
@@ -93,67 +140,45 @@ $fn=24;
 
 module white_key(left_cutout, right_cutout) {
     translate([-left_cutout,0,0])
-  union() {
-    difference() {
-      union() {
-	// front
-	difference() {
-	  intersection() {
-	    minkowski() {
-		translate([corner_radius,-(white_depth-corner_radius),0])
-	      cube([white_width-2*corner_radius, white_depth-corner_radius, white_travel + white_thickness -corner_radius]);
-	      sphere(r=corner_radius);
-	    }
-	      translate([-epsilon,-(white_depth+epsilon),0])
-	    cube([white_width+2*epsilon, white_depth+epsilon, white_travel + white_thickness +epsilon]);
-	    // the "10" in the following I think should be:
-	    // white_thickness*white_travel/sqrt(white_depth*white_depth+white_travel*white_travel)
-	    // but obviously I made a mistake because that still cuts into the front
-	      rotate([-atan2(white_travel, white_depth),0,0])
-	      translate([0,-white_depth-10,0])
-	    cube([white_width+2*epsilon, white_depth + 10, white_travel + white_thickness]);
+  difference() {
+    union() {
+      // front
+      difference() {
+	intersection() {
+	  minkowski() {
+	      translate([corner_radius,-(white_depth-corner_radius),0])
+	    cube([white_width-2*corner_radius, white_depth-corner_radius, white_travel + white_thickness -corner_radius]);
+	    sphere(r=corner_radius);
 	  }
-	  if (left_cutout > 0) {
-	      translate([-epsilon, epsilon-(black_max_depth + black_gap), -epsilon])
-	    cube([left_cutout + epsilon, black_max_depth + black_gap, white_travel + white_thickness + 2*epsilon]);
-	  }
-	  if (right_cutout > 0) {
-	      translate([white_width - right_cutout, epsilon-(black_max_depth + black_gap), -epsilon])
-	    cube([right_cutout + epsilon, black_max_depth + black_gap, white_travel + white_thickness + 2*epsilon]);
-	  }
+	    translate([-epsilon,-(white_depth+epsilon),0])
+	  cube([white_width+2*epsilon, white_depth+epsilon, white_travel + white_thickness +epsilon]);
+	  // the "10" in the following I think should be:
+	  // white_thickness*white_travel/sqrt(white_depth*white_depth+white_travel*white_travel)
+	  // but obviously I made a mistake because that still cuts into the front
+	    rotate([-atan2(white_travel, white_depth),0,0])
+	    translate([0,-white_depth-10,0])
+	  cube([white_width+2*epsilon, white_depth + 10, white_travel + white_thickness]);
 	}
-	// back
-	  translate([left_cutout + (white_width - left_cutout - right_cutout - key_back_width) / 2, 0, 0])
-	difference() {
-	  cube([key_back_width, key_back_depth, white_back_height]);
-	    translate([key_back_width/2, key_back_depth+epsilon, screw_axis_height])
-	    rotate([90,0,0])
-	  cylinder(r=screw_radius, h=screw_hole_depth+2*epsilon);
+	if (left_cutout > 0) {
+	    translate([-epsilon, epsilon-(black_max_depth + black_gap), -epsilon])
+	  cube([left_cutout + epsilon, black_max_depth + black_gap, white_travel + white_thickness + 2*epsilon]);
+	}
+	if (right_cutout > 0) {
+	    translate([white_width - right_cutout, epsilon-(black_max_depth + black_gap), -epsilon])
+	  cube([right_cutout + epsilon, black_max_depth + black_gap, white_travel + white_thickness + 2*epsilon]);
 	}
       }
-      // hollow
-	translate([left_cutout + (white_width - left_cutout - right_cutout - hollow_width)/2,-(black_max_depth-corner_radius),-epsilon])
-      cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + screw_hole_depth), hollow_height]);
+      // back
+	translate([left_cutout + (white_width - left_cutout - right_cutout - key_back_width) / 2, 0, 0])
+      cube([key_back_width, key_back_depth, white_back_height]);
     }
-    // hinge
-      translate([left_cutout + (white_width - left_cutout - right_cutout - hollow_width)/2,0,0])
-    intersection() {
-      union() {
-	  translate([-epsilon,0,0])
-	  rotate([0,90,0])
-	cylinder(r1=hinge_radius, r2=0, h=hinge_height);
-	  translate([hollow_width+epsilon,0,0])
-	  rotate([0,-90,0])
-	cylinder(r1=hinge_radius, r2=0, h=hinge_height);
-      }
-      union() {
-	  translate([-2*epsilon,0,0])
-	cube([hollow_width+4*epsilon, hinge_radius+epsilon, hinge_radius+epsilon]);
-	  rotate([-atan2(white_travel, white_depth),0,0])
-	  translate([-2*epsilon,-hinge_radius,0])
-	cube([hollow_width+4*epsilon, hinge_radius+epsilon, hinge_radius+epsilon]);
-      }
-    }
+    // hollow
+      translate([left_cutout + (white_width - left_cutout - right_cutout - hollow_width)/2,-(black_max_depth-corner_radius),-epsilon])
+    cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + screw_hole_depth), hollow_height]);
+    // hinge hole
+      translate([-epsilon,0,0])
+      rotate([0,90,0])
+    cylinder(r = skewer_radius + gap, h = white_width + 2*epsilon);
   }
 }
 
@@ -251,31 +276,13 @@ module black_key() {
       rotate([-(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
       translate([-epsilon,-black_max_depth, 0])
     cube([black_width+2*epsilon, key_back_depth + black_max_depth + 10, white_travel]);
-    // back hole
-      translate([key_back_width/2, key_back_depth+epsilon, screw_axis_height])
-      rotate([90,0,0])
-    cylinder(r=screw_radius, h=screw_hole_depth+2*epsilon);
     // hollow
       translate([(black_width - hollow_width)/2,-(black_max_depth-corner_radius),-epsilon])
     cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + screw_hole_depth), hollow_height]);
-  }
-  // hinge
-  intersection() {
-    union() {
-	translate([(black_width - hollow_width)/2-epsilon,0,0])
-	rotate([0,90,0])
-      cylinder(r1=hinge_radius, r2=0, h=hinge_height);
-	translate([black_width-((black_width - hollow_width)/2-epsilon),0,0])
-	rotate([0,-90,0])
-      cylinder(r1=hinge_radius, r2=0, h=hinge_height);
-    }
-    union() {
-	translate([-(hinge_height+epsilon),0,0])
-      cube([black_width+2*hinge_height+2*epsilon, hinge_radius+epsilon, hinge_radius+epsilon]);
-	rotate([-atan2(black_travel, black_max_depth),0,0])
-	translate([-(hinge_height+epsilon),-hinge_radius,0])
-      cube([black_width+2*hinge_height+2*epsilon, hinge_radius+epsilon, hinge_radius+epsilon]);
-    }
+    // hinge hole
+      translate([-epsilon,0,0])
+      rotate([0,90,0])
+    cylinder(r = skewer_radius + gap, h = black_width + 2*epsilon);
   }
 }
 
@@ -350,13 +357,10 @@ module support_wall(x, next_x, next_gap) {
     // front
       translate([-epsilon, -(hollow_height + support_depth - key_back_depth), -hollow_height])
     cube([support_width+2*epsilon, hollow_height, 2*hollow_height]);
-    // hinge pits
+    // hinge hole
       translate([-epsilon,0,0])
       rotate([0,90,0])
-    cylinder(r1=hinge_radius + gap, r2=0, h=hinge_height + gap+epsilon);
-      translate([support_width+epsilon,0,0])
-      rotate([0,-90,0])
-    cylinder(r1=hinge_radius + gap, r2=0, h=hinge_height + gap+epsilon);
+    cylinder(r = skewer_radius + gap, h = support_width + 2*epsilon);
   }
 }
 
@@ -404,50 +408,50 @@ module plated_keys() {
 }
 
 //assembled();
-// difference() { // cutaway
-//   assembled();
-//     translate([0,-40,1])
-//   cube([7,50,30]);
-// }
+ difference() { // cutaway
+   assembled();
+     translate([0,-40,1])
+   cube([7,50,30]);
+ }
 //octave();
 //plated_keys();
-//support();
+support();
 
-//
-// fit test
-//
-
-//  rotate([0,0,40])
-union() {
-  // // plated C key
-  //   translate([0,0,white_travel + white_thickness])
-  //   rotate([0,180,0])
-  // white_key(0, white_width - c_stem_width);
-  // // plated C# key
-  //   translate([0,0,black_min_height + white_travel + white_thickness])
-  //   rotate([0,180,0])
-  //   rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
-  // black_key();
-  // // plated D key
-  //   translate([0,0,white_travel + white_thickness])
-  //   rotate([0,180,0])
-  // white_key(
-  //   d_x - (white_width + white_gap),
-  //   2*white_width + white_gap - (d_sharp_x - black_gap)
-  // );
-  // plated E key
-    translate([0,0,white_travel + white_thickness])
-    rotate([0,180,0])
-  white_key(
-    e_x - 2*(white_width + white_gap),
-    0
-  );
-  // plated support for C-E keys only
-    translate([10,-20,0])
-  intersection() {
-      translate([5,-80,-epsilon])
-    cube([75,60,30]);
-      translate([10, -50, wall_thickness + support_gap])
-    support(true);
-  }
-}
+// //
+// // fit test
+// //
+// 
+// //  rotate([0,0,40])
+// union() {
+//   // // plated C key
+//   //   translate([0,0,white_travel + white_thickness])
+//   //   rotate([0,180,0])
+//   // white_key(0, white_width - c_stem_width);
+//   // // plated C# key
+//   //   translate([0,0,black_min_height + white_travel + white_thickness])
+//   //   rotate([0,180,0])
+//   //   rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
+//   // black_key();
+//   // // plated D key
+//   //   translate([0,0,white_travel + white_thickness])
+//   //   rotate([0,180,0])
+//   // white_key(
+//   //   d_x - (white_width + white_gap),
+//   //   2*white_width + white_gap - (d_sharp_x - black_gap)
+//   // );
+//   // plated E key
+//     translate([0,0,white_travel + white_thickness])
+//     rotate([0,180,0])
+//   white_key(
+//     e_x - 2*(white_width + white_gap),
+//     0
+//   );
+//   // plated support for C-E keys only
+//     translate([10,-20,0])
+//   intersection() {
+//       translate([5,-80,-epsilon])
+//     cube([75,60,30]);
+//       translate([10, -50, wall_thickness + support_gap])
+//     support();
+//   }
+// }

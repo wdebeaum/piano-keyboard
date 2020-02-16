@@ -3,25 +3,28 @@
  * 2020-02-15
  */
 
+// NOTE: this was never printed since I changed strategies before finishing
+
 /* TODO:
 # add measurements for skewers, bobby pins
-- get rid of horizontal screw hole
- - make key back block measurements no longer depend on screw measurements
-- replace it with vertical hole for 1/2 bobby pin
-- add a back plate for the base, with a vertical groove for the other 1/2 bobby pin (and a hole connecting groove to where the other 1/2 goes)
-- make base plate thicker to accommodate skewer holes
-- make horizontal holes in base plate for skewer segments
- - along the pitch axis for connection to other octaves
- - perpendicular, for stability
+# get rid of horizontal screw hole
+ # make key back block measurements no longer depend on screw measurements
+# get rid of cone hinges
+- accommodate pitchwise skewer holes
+ - make base plate slightly thicker
+ - make notches in keys
+? perpendicular skewers for stability
 # make base broader for more key wiggle stability
  - also make it broader in plated form (what went wrong?)
-- how to make this assemblable:
- . replace cone hinges with another skewer
-  ? instead of making base plate thicker, put skewers through supports and add notches in keys to accommodate them
-  > argh, using skewer as hinge means I can't put bobby pin there
- . add vertical grooves in support for cones to travel along during assembly (tighter fit than main hinge sockets)
 ? print base in 2 sections per octave so it'll fit on printer
-? paperclips instead of bobby pins so they don't stick up so much
+# bend bobby pin apart slightly
+# put bobby pin horizontally in slot in middle of support
+# bridge over that slot to limit bobby pin's travel upward and set unpressed key height
+- also have groove in underside of key to accept bobby pin
+# run skewer hinge through now-larger-radius bobby pin U
+ # still not quite large enough; have to put skewer slightly forward of U
+? second pitchwise skewer can run above end of bobby pin, locking it in place (need key notches described above)
+> only need to re-print supports in order to test spring action; can use existing keys without skewers
 */
 
 // measurements taken from my optimus md-1150
@@ -81,8 +84,6 @@ a_x = g_sharp_x + black_width + black_gap;
 a_sharp_x = a_x + a_stem_width + black_gap;
 b_x = a_sharp_x + black_width + black_gap;
 
-screw_radius = 4.1656 / 2; // UTS #8
-
 skewer_radius = 3 / 2; // 3mm diameter skewers
 
 /* bobby pin measurements
@@ -102,7 +103,7 @@ length	|\
 bpin_width = 1.6;
 bpin_thickness = 0.7;
 bpin_end_thickness = 1.7; // max
-bpin_u_diameter = 3.8;
+bpin_u_radius = 3.8 / 2;
 bpin_max_length = 50;
 bpin_min_length = 46;
 bpin_u_m = 17.5;
@@ -120,11 +121,9 @@ support_gap = gap + thin_wall_deduction + sliding_deduction;
 epsilon = 0.01;
 
 pad_thickness = 25.4 / 4; // 1/4"
-screw_axis_height = pad_thickness + screw_radius - (wall_thickness + support_gap) - 0.5/*for imperfect printing*/;
-screw_hole_depth = 2*wall_thickness;
 
 key_back_width = black_width;
-key_back_depth = 6+epsilon;
+key_back_depth = skewer_radius + 2*(gap + wall_thickness);//6+epsilon;
 white_back_height = white_travel + white_thickness;
 black_back_height = white_back_height + black_min_height;
 
@@ -132,9 +131,8 @@ hollow_width = key_back_width - 2*wall_thickness;
 hollow_height = white_travel;
 support_width = hollow_width - 2*support_gap;
 support_depth = 60;
+support_back_depth = skewer_radius + gap + wall_thickness;
 
-hinge_radius = key_back_depth - (screw_hole_depth+wall_thickness+support_gap);
-hinge_height = wall_thickness + 0.5/*for imperfect printing*/;
 
 $fn=24;
 
@@ -174,7 +172,7 @@ module white_key(left_cutout, right_cutout) {
     }
     // hollow
       translate([left_cutout + (white_width - left_cutout - right_cutout - hollow_width)/2,-(black_max_depth-corner_radius),-epsilon])
-    cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + screw_hole_depth), hollow_height]);
+    cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + wall_thickness), hollow_height]);
     // hinge hole
       translate([-epsilon,0,0])
       rotate([0,90,0])
@@ -278,7 +276,7 @@ module black_key() {
     cube([black_width+2*epsilon, key_back_depth + black_max_depth + 10, white_travel]);
     // hollow
       translate([(black_width - hollow_width)/2,-(black_max_depth-corner_radius),-epsilon])
-    cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + screw_hole_depth), hollow_height]);
+    cube([hollow_width, black_max_depth+key_back_depth-(corner_radius + wall_thickness), hollow_height]);
     // hinge hole
       translate([-epsilon,0,0])
       rotate([0,90,0])
@@ -333,8 +331,6 @@ module octave() {
   octave_black_keys();
 }
 
-support_back_depth = key_back_depth-(screw_hole_depth+support_gap)+epsilon;
-
 module support_wall(x, next_x, next_gap) {
     translate([(x + next_x - next_gap - support_width)/2,0,0])
   difference() {
@@ -361,14 +357,37 @@ module support_wall(x, next_x, next_gap) {
       translate([-epsilon,0,0])
       rotate([0,90,0])
     cylinder(r = skewer_radius + gap, h = support_width + 2*epsilon);
+    // bobby pin slot
+      translate([0,2,0]) // FIXME fudge factor for the fact that the ID of the bpin u != the OD of the skewer (also FIXME this blows way out the back of the key)
+      rotate([-11,0,0]) // FIXME figure out this angle from other constraints
+      translate([
+        (support_width - bpin_width)/2 - support_gap,
+	bpin_u_radius+gap-(support_depth+2+epsilon),
+	bpin_u_radius+gap-100
+      ])
+    cube([bpin_width+2*support_gap, support_depth+2+epsilon, 100]); // NOTE: could have used bpin_max_length instead of support_depth, but would have made disassembly hard
   }
+  // DEBUG: bpin ghost
+  %translate([(x + next_x - next_gap - support_width)/2,2,0])
+  rotate([-11,0,0])
+  translate([
+    (support_width - bpin_width)/2,
+    bpin_u_radius-bpin_max_length,
+    bpin_u_radius-bpin_thickness
+  ])
+  cube([bpin_width, bpin_max_length, bpin_thickness]);
 }
 
 // key support with holes for hinges
 module support() {
   // bottom
-    translate([0, -(support_depth - key_back_depth), -(wall_thickness + support_gap)])
-  cube([octave, support_depth, wall_thickness]);
+  difference() {
+      translate([0, -(support_depth - key_back_depth), -(wall_thickness + support_gap)])
+    cube([octave, support_depth, wall_thickness]);
+      translate([-epsilon,0,0])
+      rotate([0,90,0])
+    cylinder(r=skewer_radius + gap, h = octave + 2*epsilon);
+  }
   // walls inside keys
   support_wall(c_x, c_sharp_x, black_gap);
   support_wall(c_sharp_x, d_x, black_gap);
@@ -410,8 +429,8 @@ module plated_keys() {
 //assembled();
  difference() { // cutaway
    assembled();
-     translate([0,-40,1])
-   cube([7,50,30]);
+     translate([0,-60,1])
+   cube([7,70,30]);
  }
 //octave();
 //plated_keys();

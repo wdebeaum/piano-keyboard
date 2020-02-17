@@ -4,18 +4,12 @@
  */
 
 /* TODO:
-# no more skewers (lots of assumptions broken by them)
-# move bpin forward so the U no longer sticks out the back
-# make base broader for more key wiggle stability
- # also make it broader in plated form (what went wrong?)
-? print base in 2 sections per octave so it'll fit on printer
+# go back to shorter supports
+# use support_gap instead of gap for bpin_hole
+? print base in 2-3 sections per octave so it'll fit on printer
 ? make groove in underside of key to accept bobby pin
-*/
-
-/* problems found after trying to print:
-- narrower support walls mean more ooze; bpin doesn't fit
-- longer support walls mean more curl-up
-- larger base means harder to separate from tape bed
+X check math on where bottom of key ends up in relation to base plate... 2017-02-19 seems to have introduced a bigger vertical gap, and a consequently ill-fitting hinge?
+ > no, it just printed badly, curled up
 */
 
 // measurements taken from my optimus md-1150
@@ -142,14 +136,14 @@ module bpin() {
 module bpin_hole() {
   intersection() {
     // NOTE: could have used bpin_max_length instead of support_depth, but would have made disassembly hard
-      translate([0, -support_depth, -(bpin_u_radius + gap)])
-    cube([bpin_width + 2*gap, support_depth, black_back_height]);
+      translate([0, -support_depth, -(bpin_u_radius + support_gap)])
+    cube([bpin_width + 2*support_gap, support_depth, black_back_height]);
       rotate([-bpin_angle,0,0])
-      translate([-epsilon, -support_depth, bpin_u_radius+gap-black_back_height])
-    cube([bpin_width + 2*gap + 2*epsilon, support_depth, black_back_height]);
+      translate([-epsilon, -support_depth, bpin_u_radius+support_gap-black_back_height])
+    cube([bpin_width + 2*support_gap + 2*epsilon, support_depth, black_back_height]);
   }
     rotate([0,90,0])
-  cylinder(r = bpin_u_radius + gap, h = bpin_width + 2*gap);
+  cylinder(r = bpin_u_radius + support_gap, h = bpin_width + 2*support_gap);
 }
 
 module white_key(left_cutout, right_cutout) {
@@ -409,20 +403,20 @@ module support_wall(x, next_x, next_gap) {
     cylinder(r1=hinge_radius + gap, r2=0, h=hinge_height + gap+epsilon);
     // bobby pin slot
       translate([
-        (support_width - (bpin_width + 2*gap)) / 2,
+        (support_width - (bpin_width + 2*support_gap)) / 2,
 	0,
-	bpin_u_radius - gap
+	bpin_u_radius - support_gap
       ])
     bpin_hole();
   }
-  /* DEBUG: bpin ghost
+  // * DEBUG: bpin ghost
   %translate([(x + next_x - next_gap - support_width)/2,0,0])
       translate([
         (support_width - bpin_width)/2,
 	0,
 	bpin_u_radius - gap
       ])
-  bpin();*/
+  bpin();
 }
 
 // key support with holes for hinges
@@ -472,7 +466,7 @@ module plated_keys() {
 //difference() { // cutaway
 //  assembled();
 //    translate([0,-60,1])
-//  cube([7,70,30]);
+//  cube([6,70,30]);
 //}
 //octave();
 //plated_keys();
@@ -500,13 +494,13 @@ union() {
   //   d_x - (white_width + white_gap),
   //   2*white_width + white_gap - (d_sharp_x - black_gap)
   // );
-  // // plated E key
-  //   translate([0,0,white_travel + white_thickness])
-  //   rotate([0,180,0])
-  // white_key(
-  //   e_x - 2*(white_width + white_gap),
-  //   0
-  // );
+  // plated E key
+    translate([0,0,white_travel + white_thickness])
+    rotate([0,180,0])
+  white_key(
+    e_x - 2*(white_width + white_gap),
+    0
+  );
   // plated support for C-E keys only
     translate([10,-20,0])
   intersection() {

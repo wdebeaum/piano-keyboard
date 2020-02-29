@@ -27,6 +27,7 @@ int ioctl_or_die(int fd, unsigned long request, void* arg) {
 #define MAX_OCTAVES 10
 
 int main(int argc, char** argv) {
+  setup_gpio();
   // open the SPI device
   int fd = open(SPIDEV_PATH, O_RDONLY);
   if (fd == -1) {
@@ -41,7 +42,7 @@ int main(int argc, char** argv) {
   uint32_t max_speed_hz = MAX_SPEED_HZ;
   ioctl_or_die(fd, SPI_IOC_WR_MAX_SPEED_HZ, &max_speed_hz);
 
-  uint32_t buf = 0;
+  unsigned char buf[3];
   const int msg_len = 3;
   // the current state of each key switch (two per key, as 24 bits in each
   // octave, from C=(1<<{0,1}) to B=(1<<{22,23}); lower bit comes on first when
@@ -67,18 +68,22 @@ int main(int argc, char** argv) {
     // serial-shift key states from shift registers to raspi, and interpret
     *sets = (1<<SH); // send SH/~LD pin high to SHift
     for (int o = 0; o < MAX_OCTAVES; o++) {
-      int bytes_read = read(fd, &buf, msg_len);
+      int bytes_read = read(fd, buf, msg_len);
       if (bytes_read == -1) {
 	perror("failed to read from spi device");
 	exit(1);
       } else if (bytes_read < msg_len) {
 	fprintf(stderr, "short read: %d out of %d bytes\n", bytes_read, msg_len);
       }
-      // FIXME? assumes uint32_t is big-endian (though the rest of this code assumes we're running on a raspi anyway, so it doesn't matter)
-      if (buf == 0xFFFFFF00) { // pullup resistor indicates end of octave chain
+      // pullup resistor indicates end of octave chain
+      if (buf[0] == 0xFF && buf[1] == 0xFF && buf[2] == 0xFF) {
 	break;
       }
-      uint32_t new_state = buf >> 8;
+      uint32_t new_state =
+        // force big-endian interpretation so that bits go in a consistent order
+        ((uint32_t)buf[2])<<16 |
+	((uint32_t)buf[1])<<8 |
+	(uint32_t)buf[0];
       uint32_t old_state = switch_states[o];
       switch_states[o] = new_state;
       uint32_t changes = new_state ^ old_state;

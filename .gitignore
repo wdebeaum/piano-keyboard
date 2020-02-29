@@ -1,4 +1,11 @@
+# vim
 .*.swp
+
+# gcc
+*.o
+spi2midi
+
+# OpenSCAD/Slic3r
 *.gcode
 *.stl
 

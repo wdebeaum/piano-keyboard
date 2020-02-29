@@ -111,9 +111,9 @@ int main(int argc, char** argv) {
 	}
       }
     }
-    // delay until time for next scan, 1/44100th of a second after start
+    // delay until time for next scan, 128/44100ths of a second after start
     struct timespec later = now;
-    unsigned long nsecs = now.tv_nsec + 22676;
+    unsigned long nsecs = now.tv_nsec + 2902494;
     later.tv_sec += nsecs / 1000000000;
     later.tv_nsec = nsecs % 1000000000;
     for(;;) {

@@ -1,3 +1,6 @@
+// USAGE:
+// ./spi2midi >/dev/snd/midiC1D0
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -96,17 +99,34 @@ int main(int argc, char** argv) {
 	} else if (times_since_change[tsci] < 0x80) {
 	  times_since_change[tsci]++;
 	  if (times_since_change[tsci] == 1 && s & 1 == 1) {
+	    unsigned char note_num = (MAX_OCTAVES - 1 - o) * 12 + s/2;
 	    // key-fully-down switch changed state last scan and stayed there
 	    if (new_state & 1) { // key pressed
 	      // get the time since the key-partly-down switch changed and use
 	      // it to compute velocity
 	      unsigned char velocity = 0x80 - times_since_change[tsci^1];
-	      // TODO emit MIDI event
-	      printf("key %d in octave %d pressed with velocity %d\n",
+	      fprintf(stderr, "key %d in octave %d pressed with velocity %d\n",
 	             s/2, o, (int)velocity);
+	      buf[0] = 0x90;
+	      buf[1] = note_num;
+	      buf[2] = velocity;
 	    } else { // key released
-	      // TODO emit MIDI event
-	      printf("key %d in octave %d released\n", s/2, o);
+	      fprintf(stderr, "key %d in octave %d released\n", s/2, o);
+	      buf[0] = 0x80;
+	      buf[1] = note_num;
+	      buf[2] = 0;
+	    }
+	    // emit MIDI event
+	    int bytes_written = fwrite(buf, 1, 3, stdout);
+	    if (bytes_written < 0) {
+	      perror("failed to write midi event");
+	      exit(1);
+	    } else if (bytes_written != 3) {
+	      fprintf(stderr, "short write of midi event\n");
+	    }
+	    if (fflush(stdout) != 0) {
+	      perror("failed to flush midi event");
+	      exit(1);
 	    }
 	  }
 	}

@@ -90,11 +90,17 @@ int main(int argc, char** argv) {
       for (int s = 0; s < 24; s++, new_state >>= 1, changes >>= 1) {
 	int tsci = o * 24 + s;
 	if (changes & 1) { // switch changed state
-	  if (s & 1 == 1) { // key-fully-down switch changed state
+	  // reset time since this switch changed state
+	  times_since_change[tsci] = 0;
+	// otherwise increment time since this switch changed state (clamped)
+	} else if (times_since_change[tsci] < 0x80) {
+	  times_since_change[tsci]++;
+	  if (times_since_change[tsci] == 1 && s & 1 == 1) {
+	    // key-fully-down switch changed state last scan and stayed there
 	    if (new_state & 1) { // key pressed
 	      // get the time since the key-partly-down switch changed and use
 	      // it to compute velocity
-	      unsigned char velocity = 0x7f - times_since_change[tsci^1];
+	      unsigned char velocity = 0x80 - times_since_change[tsci^1];
 	      // TODO emit MIDI event
 	      printf("key %d in octave %d pressed with velocity %d\n",
 	             s/2, o, (int)velocity);
@@ -103,11 +109,6 @@ int main(int argc, char** argv) {
 	      printf("key %d in octave %d released\n", s/2, o);
 	    }
 	  }
-	  // reset time since this switch changed state
-	  times_since_change[tsci] = 0;
-	// otherwise increment time since this switch changed state (clamped)
-	} else if (times_since_change[tsci] < 0x7f) {
-	  times_since_change[tsci]++;
 	}
       }
     }

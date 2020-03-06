@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name piano-keyboard-pcb-v2)(type KiCad)(uri ${KIPRJMOD}/piano-keyboard-pcb-v2.pretty)(options "")(descr ""))
+)

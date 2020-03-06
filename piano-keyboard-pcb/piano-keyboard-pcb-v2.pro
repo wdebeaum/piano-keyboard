@@ -1,4 +1,4 @@
-update=Sun 23 Feb 2020 03:00:22 PM EST
+update=Sun 01 Mar 2020 08:27:51 PM EST
 version=1
 last_client=kicad
 [general]
@@ -59,3 +59,15 @@ SolderMaskClearance=0.0508
 SolderMaskMinWidth=0.1016
 SolderPasteClearance=0
 SolderPasteRatio=-0
+[pcbnew/Netclasses]
+[pcbnew/Netclasses/1]
+Name=PWR
+Clearance=0.254
+TrackWidth=0.508
+ViaDiameter=0.762
+ViaDrill=0.381
+uViaDiameter=0.762
+uViaDrill=0.381
+dPairWidth=0.254
+dPairGap=0.254
+dPairViaGap=0.25

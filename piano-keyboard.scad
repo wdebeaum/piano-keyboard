@@ -4,13 +4,13 @@
  */
 
 /* TODO:
-- increase bpin radius/gap so bpin fits all the way back in its slot
-- one more crosshatch under base, across pcb supports (they curled, and they're stronger than they need to be)
-? increase gap between top edge of pcb and support walls (this might just be because of curl)
-- give horizontal skewer holes pointy tops so they don't sag and obstruct skewer
-? also increase their radius
-- decrease pcb support post radius slightly to account for ooze
-- print keys separately from base so their curling force doesn't add up and defeat the tape adhesive
+# increase bpin radius/gap so bpin fits all the way back in its slot
+# one more crosshatch under base, across pcb supports (they curled, and they're stronger than they need to be)
+# increase gap between top edge of pcb and support walls (this might just be because of curl)
+# give horizontal skewer holes pointy tops so they don't sag and obstruct skewer
+# also increase their radius
+# decrease pcb support post radius slightly to account for ooze
+# print keys separately from base so their curling force doesn't add up and defeat the tape adhesive
 */
 
 // measurements taken from my optimus md-1150
@@ -103,14 +103,14 @@ length	|\
 bpin_width = 1.6;
 bpin_thickness = 0.7;
 bpin_end_thickness = 1.7; // max
-bpin_u_radius = 3.8 / 2;
+bpin_u_radius = 4.3 / 2; // measured when unaltered: 3.8 / 2;
 bpin_max_length = 50;
 bpin_min_length = 46;
 bpin_u_m = 17.5;
 bpin_m_length = bpin_min_length - bpin_u_m;
 bpin_m_pitch = 22 / 4;
 
-bpin_angle = 8.75; // after unbending
+bpin_angle = 8.3; // after unbending
 
 // skewer measurements
 
@@ -168,9 +168,9 @@ support_width = hollow_width - 2*support_gap;
 support_depth = 50;
 support_back_depth = 3*wall_thickness;
 
-pcb_peg_radius = pcb_hole_radius - gap;
+pcb_peg_radius = pcb_hole_radius - (gap + sliding_deduction);
 
-skewer_hole_radius = skewer_radius + gap /* + sliding_deduction ? */;
+skewer_hole_radius = skewer_radius + gap + sliding_deduction;
 
 $fn=24;
 
@@ -471,7 +471,7 @@ module support_wall(x, next_x, next_gap) {
 }
 
 module pcb_peg() {
-    translate([pcb_x_fudge, - (support_depth - key_back_depth + gap), -(support_base_height + support_gap)])
+    translate([pcb_x_fudge, - (support_depth - key_back_depth + support_gap), -(support_base_height + support_gap)])
   union() {
     cylinder(r=pcb_peg_radius, h=support_base_height);
     cylinder(r=pcb_peg_radius + wall_thickness, h=support_base_height - (pcb_thickness + gap));
@@ -481,7 +481,7 @@ module pcb_peg() {
 module switch_pad_clearance() {
     translate([
       -0.05*25.4,
-      -0.31*25.4 - (support_depth - key_back_depth + gap),
+      -0.31*25.4 - (support_depth - key_back_depth + support_gap),
       -0.1*25.4 - (support_gap + pcb_thickness)])
   cube([0.1*25.4, 0.3*25.4, 0.1*25.4]);
 }
@@ -493,13 +493,23 @@ module support() {
   difference() {
     cube([octave-gap, support_depth, support_base_height]);
     // front pitchwise skewer hole
-      translate([-epsilon, skewer_hole_radius+5*wall_thickness, skewer_hole_radius+wall_thickness])
+      translate([-epsilon, skewer_hole_radius+5*wall_thickness, skewer_hole_radius+wall_thickness/2-epsilon])
       rotate([0,90,0])
-    cylinder(r=skewer_hole_radius, h=octave+2*epsilon);
+    union() {
+      cylinder(r=skewer_hole_radius, h=octave+2*epsilon);
+        translate([-sqrt(2)*skewer_hole_radius/2, 0, octave/2+epsilon])
+	rotate([0,0,45])
+      cube([skewer_hole_radius, skewer_hole_radius, octave+2*epsilon], center=true);
+    }
     // back pitchwise skewer hole
-      translate([-epsilon, support_depth - (skewer_hole_radius+5*wall_thickness), skewer_hole_radius+wall_thickness])
+      translate([-epsilon, support_depth - (skewer_hole_radius+5*wall_thickness), skewer_hole_radius+wall_thickness/2-epsilon])
       rotate([0,90,0])
-    cylinder(r=skewer_hole_radius, h=octave+2*epsilon);
+    union() {
+      cylinder(r=skewer_hole_radius, h=octave+2*epsilon);
+        translate([-sqrt(2)*skewer_hole_radius/2, 0, octave/2+epsilon])
+	rotate([0,0,45])
+      cube([skewer_hole_radius, skewer_hole_radius, octave+2*epsilon], center=true);
+    }
     // bottom crosshatches to mitigate curl
     // pitchwise crosshatch
       translate([-epsilon, support_depth / 2, 0])
@@ -530,75 +540,91 @@ module support() {
   support_wall(a_sharp_x, b_x, black_gap);
   support_wall(b_x, octave, white_gap);
   // pcb pegs
-  translate([pcb_hole_1_x, pcb_hole_1_y, 0]) pcb_peg();
   difference() {
-      translate([0, 0, -(support_base_height + support_gap)])
-    linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
-      polygon(points=[
-	[0, -(support_depth - key_back_depth - epsilon)],
-	[2*(pcb_hole_1_x+pcb_x_fudge), - (support_depth - key_back_depth - epsilon)],
-	[pcb_hole_1_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
-	 pcb_hole_1_y - (support_depth - key_back_depth + gap)],
-	[pcb_hole_1_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
-	 pcb_hole_1_y - (support_depth - key_back_depth + gap)]
-      ]);
+    union() {
+      translate([pcb_hole_1_x, pcb_hole_1_y, 0]) pcb_peg();
+      difference() {
+	  translate([0, 0, -(support_base_height + support_gap)])
+	linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
+	  polygon(points=[
+	    [0, -(support_depth - key_back_depth - epsilon)],
+	    [2*(pcb_hole_1_x+pcb_x_fudge), - (support_depth - key_back_depth - epsilon)],
+	    [pcb_hole_1_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
+	     pcb_hole_1_y - (support_depth - key_back_depth + support_gap)],
+	    [pcb_hole_1_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
+	     pcb_hole_1_y - (support_depth - key_back_depth + support_gap)]
+	  ]);
+	}
+	  translate([(c_x + c_sharp_x)/2 + pcb_x_fudge, 0, 0])
+	switch_pad_clearance();
+      }
+      translate([pcb_hole_2_x, pcb_hole_2_y, 0]) pcb_peg();
+      difference() {
+	  translate([0, 0, -(support_base_height + support_gap)])
+	linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
+	  polygon(points=[
+	    [pcb_hole_2_x + pcb_x_fudge - black_width,
+	     -(support_depth - key_back_depth - epsilon)],
+	    [pcb_hole_2_x + pcb_x_fudge + black_width,
+	     -(support_depth - key_back_depth - epsilon)],
+	    [pcb_hole_2_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
+	     pcb_hole_2_y - (support_depth - key_back_depth + support_gap)],
+	    [pcb_hole_2_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
+	     pcb_hole_2_y - (support_depth - key_back_depth + support_gap)]
+	  ]);
+	}
+	  translate([(d_sharp_x + e_x)/2 + pcb_x_fudge, 0, 0])
+	switch_pad_clearance();
+      }
+      translate([pcb_hole_3_x, pcb_hole_3_y, 0]) pcb_peg();
+      difference() {
+	  translate([0, 0, -(support_base_height + support_gap)])
+	linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
+	  polygon(points=[
+	    [pcb_hole_3_x + pcb_x_fudge - black_width*2/3,
+	     -(support_depth - key_back_depth - epsilon)],
+	    [pcb_hole_3_x + pcb_x_fudge + black_width*2/3,
+	     -(support_depth - key_back_depth - epsilon)],
+	    [pcb_hole_3_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
+	     pcb_hole_3_y - (support_depth - key_back_depth + support_gap)],
+	    [pcb_hole_3_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
+	     pcb_hole_3_y - (support_depth - key_back_depth + support_gap)]
+	  ]);
+	}
+	  translate([(g_x + g_sharp_x)/2 + pcb_x_fudge, 0, 0])
+	switch_pad_clearance();
+      }
+      translate([pcb_hole_4_x, pcb_hole_4_y, 0]) pcb_peg();
+      difference() {
+	  translate([0, 0, -(support_base_height + support_gap)])
+	linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
+	  polygon(points=[
+	    [pcb_hole_4_x + pcb_x_fudge - black_width*2/3,
+	     -(support_depth - key_back_depth - epsilon)],
+	    [pcb_hole_4_x + pcb_x_fudge + black_width*2/3,
+	     -(support_depth - key_back_depth - epsilon)],
+	    [pcb_hole_4_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
+	     pcb_hole_4_y - (support_depth - key_back_depth + support_gap)],
+	    [pcb_hole_4_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
+	     pcb_hole_4_y - (support_depth - key_back_depth + support_gap)]
+	  ]);
+	}
+	  translate([(a_sharp_x + b_x)/2 + pcb_x_fudge, 0, 0])
+	switch_pad_clearance();
+      }
     }
-      translate([(c_x + c_sharp_x)/2 + pcb_x_fudge, 0, 0])
-    switch_pad_clearance();
-  }
-  translate([pcb_hole_2_x, pcb_hole_2_y, 0]) pcb_peg();
-  difference() {
-      translate([0, 0, -(support_base_height + support_gap)])
-    linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
-      polygon(points=[
-	[pcb_hole_2_x + pcb_x_fudge - black_width,
-	 -(support_depth - key_back_depth - epsilon)],
-	[pcb_hole_2_x + pcb_x_fudge + black_width,
-	 -(support_depth - key_back_depth - epsilon)],
-	[pcb_hole_2_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
-	 pcb_hole_2_y - (support_depth - key_back_depth + gap)],
-	[pcb_hole_2_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
-	 pcb_hole_2_y - (support_depth - key_back_depth + gap)]
-      ]);
-    }
-      translate([(d_sharp_x + e_x)/2 + pcb_x_fudge, 0, 0])
-    switch_pad_clearance();
-  }
-  translate([pcb_hole_3_x, pcb_hole_3_y, 0]) pcb_peg();
-  difference() {
-      translate([0, 0, -(support_base_height + support_gap)])
-    linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
-      polygon(points=[
-	[pcb_hole_3_x + pcb_x_fudge - black_width*2/3,
-	 -(support_depth - key_back_depth - epsilon)],
-	[pcb_hole_3_x + pcb_x_fudge + black_width*2/3,
-	 -(support_depth - key_back_depth - epsilon)],
-	[pcb_hole_3_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
-	 pcb_hole_3_y - (support_depth - key_back_depth + gap)],
-	[pcb_hole_3_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
-	 pcb_hole_3_y - (support_depth - key_back_depth + gap)]
-      ]);
-    }
-      translate([(g_x + g_sharp_x)/2 + pcb_x_fudge, 0, 0])
-    switch_pad_clearance();
-  }
-  translate([pcb_hole_4_x, pcb_hole_4_y, 0]) pcb_peg();
-  difference() {
-      translate([0, 0, -(support_base_height + support_gap)])
-    linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
-      polygon(points=[
-	[pcb_hole_4_x + pcb_x_fudge - black_width*2/3,
-	 -(support_depth - key_back_depth - epsilon)],
-	[pcb_hole_4_x + pcb_x_fudge + black_width*2/3,
-	 -(support_depth - key_back_depth - epsilon)],
-	[pcb_hole_4_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
-	 pcb_hole_4_y - (support_depth - key_back_depth + gap)],
-	[pcb_hole_4_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
-	 pcb_hole_4_y - (support_depth - key_back_depth + gap)]
-      ]);
-    }
-      translate([(a_sharp_x + b_x)/2 + pcb_x_fudge, 0, 0])
-    switch_pad_clearance();
+    // pitchwise crosshatch
+      translate([
+        octave/2,
+	-(support_depth - key_back_depth +
+	  support_base_height-(wall_thickness + pcb_thickness + gap)),
+	-(support_base_height + support_gap)])
+      rotate([0,90,0])
+      rotate([0,0,45])
+    cube([sqrt(2)*(support_base_height-(wall_thickness + pcb_thickness + gap)),
+          sqrt(2)*(support_base_height-(wall_thickness + pcb_thickness + gap)),
+	  octave+2*epsilon],
+	 center=true);
   }
 }
 
@@ -623,8 +649,8 @@ module assembled() {
   //support();
   support_low_half();
   support_high_half();
-    %translate([-25.4 + pcb_x_fudge, 25.4 - (support_depth - key_back_depth + gap), -0.8 - support_gap])
-  import("piano-keyboard-pcb-v2/piano-keyboard-pcb-v2.stl");
+    %translate([-25.4 + pcb_x_fudge, 25.4 - (support_depth - key_back_depth + support_gap), -0.8 - support_gap])
+  import("piano-keyboard-pcb/piano-keyboard-pcb-v2.stl");
 }
 
 module plated_white_keys() {
@@ -659,32 +685,48 @@ module plated_keys() {
 // fit test
 //
 
+////  rotate([0,0,40])
+//union() {
+//  // // plated C key
+//  //   translate([0,0,white_travel + white_thickness])
+//  //   rotate([0,180,0])
+//  // white_key(0, white_width - c_stem_width);
+//  // // plated C# key
+//  //   translate([0,0,black_min_height + white_travel + white_thickness])
+//  //   rotate([0,180,0])
+//  //   rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
+//  // black_key();
+//  // // plated D key
+//  //   translate([0,0,white_travel + white_thickness])
+//  //   rotate([0,180,0])
+//  // white_key(
+//  //   d_x - (white_width + white_gap),
+//  //   2*white_width + white_gap - (d_sharp_x - black_gap)
+//  // );
+//  // plated E key
+//    translate([0,0,white_travel + white_thickness])
+//    rotate([0,180,0])
+//  white_key(
+//    e_x - 2*(white_width + white_gap),
+//    0
+//  );
+//  // plated support_low_half
+//    translate([20,-50, support_base_height + support_gap])
+//  support_low_half();
+//}
+
+//
+// fit test 2, separate base and key
+//
+
+  translate([-50,-50, support_base_height + support_gap])
+support_high_half();
+
+// plated A key
 //  rotate([0,0,40])
-union() {
-  // // plated C key
-  //   translate([0,0,white_travel + white_thickness])
-  //   rotate([0,180,0])
-  // white_key(0, white_width - c_stem_width);
-  // // plated C# key
-  //   translate([0,0,black_min_height + white_travel + white_thickness])
-  //   rotate([0,180,0])
-  //   rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
-  // black_key();
-  // // plated D key
-  //   translate([0,0,white_travel + white_thickness])
-  //   rotate([0,180,0])
-  // white_key(
-  //   d_x - (white_width + white_gap),
-  //   2*white_width + white_gap - (d_sharp_x - black_gap)
-  // );
-  // plated E key
-    translate([0,0,white_travel + white_thickness])
-    rotate([0,180,0])
-  white_key(
-    e_x - 2*(white_width + white_gap),
-    0
-  );
-  // plated support_low_half
-    translate([20,-50, support_base_height + support_gap])
-  support_low_half();
-}
+//  translate([0,0,white_travel + white_thickness])
+//  rotate([0,180,0])
+//white_key(
+//  a_x - 5*(white_width + white_gap),
+//  6*white_width + 5*white_gap - (a_sharp_x - black_gap)
+//);

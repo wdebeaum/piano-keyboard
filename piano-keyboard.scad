@@ -1,26 +1,16 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-03-04
+ * 2020-03-21
  */
 
 /* TODO:
-# go back to shorter supports
-# use support_gap instead of gap for bpin_hole
-# print base in 2-3 sections per octave so it'll fit on printer
-X make groove in underside of key to accept bobby pin
- > seems unnecessary
-X check math on where bottom of key ends up in relation to base plate... 2017-02-19 seems to have introduced a bigger vertical gap, and a consequently ill-fitting hinge?
- > no, it just printed badly, curled up
-# thicker base to accommodate pcb thickness
-# pcb supports and mounting holes (or pins?)
-# skewers pitchwise through base (now I have room)
-# mitigate base curl
- . ripple edges
- . latticework instead of solid base
- # coarse crosshatch on bottom side of base (but not all the way through) maybe 1 or 2 pitchwise cuts and 2-4 perpendicular
-  # triangular cross-section
-  . square cross-section
-  . round cross-section
+- increase bpin radius/gap so bpin fits all the way back in its slot
+- one more crosshatch under base, across pcb supports (they curled, and they're stronger than they need to be)
+? increase gap between top edge of pcb and support walls (this might just be because of curl)
+- give horizontal skewer holes pointy tops so they don't sag and obstruct skewer
+? also increase their radius
+- decrease pcb support post radius slightly to account for ooze
+- print keys separately from base so their curling force doesn't add up and defeat the tape adhesive
 */
 
 // measurements taken from my optimus md-1150

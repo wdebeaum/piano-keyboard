@@ -1,16 +1,17 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-03-21
+ * 2020-03-22
  */
 
 /* TODO:
-# increase bpin radius/gap so bpin fits all the way back in its slot
-# one more crosshatch under base, across pcb supports (they curled, and they're stronger than they need to be)
-# increase gap between top edge of pcb and support walls (this might just be because of curl)
-# give horizontal skewer holes pointy tops so they don't sag and obstruct skewer
-# also increase their radius
-# decrease pcb support post radius slightly to account for ooze
-# print keys separately from base so their curling force doesn't add up and defeat the tape adhesive
+- increase bpin radius/gap even more, so bpin fits all the way back in its slot
+? make crosshatch under pcb supports slightly thinner for more strength
+- how to keep everything from tipping when I press a key?
+ ? once I get all the keys on, it won't unless I press all of them (not sure, depends on how they balance)
+ ? once I get multiple octaves connected together, it won't (still not sure; puts more stress on connectors)
+ ? put weight on the back
+ ? extend support on the front
+  ? glue perpendicular skewers under base (in crosshatches?)
 */
 
 // measurements taken from my optimus md-1150

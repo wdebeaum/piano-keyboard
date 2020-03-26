@@ -4,14 +4,18 @@
  */
 
 /* TODO:
-- increase bpin radius/gap even more, so bpin fits all the way back in its slot
+# increase bpin radius/gap even more, so bpin fits all the way back in its slot
 ? make crosshatch under pcb supports slightly thinner for more strength
 - how to keep everything from tipping when I press a key?
  ? once I get all the keys on, it won't unless I press all of them (not sure, depends on how they balance)
+  > the white keys balance around the middle of the pcb, so maybe?
  ? once I get multiple octaves connected together, it won't (still not sure; puts more stress on connectors)
  ? put weight on the back
  ? extend support on the front
-  ? glue perpendicular skewers under base (in crosshatches?)
+  ? glue perpendicular skewers under base
+   X in crosshatches
+    > would be obstructed by parallel skewers (and by pcb components for 2/4)
+   - under pcb supports
 */
 
 // measurements taken from my optimus md-1150
@@ -104,14 +108,14 @@ length	|\
 bpin_width = 1.6;
 bpin_thickness = 0.7;
 bpin_end_thickness = 1.7; // max
-bpin_u_radius = 4.3 / 2; // measured when unaltered: 3.8 / 2;
+bpin_u_radius = 5 / 2; // measured when unaltered: 3.8 / 2;
 bpin_max_length = 50;
 bpin_min_length = 46;
 bpin_u_m = 17.5;
 bpin_m_length = bpin_min_length - bpin_u_m;
 bpin_m_pitch = 22 / 4;
 
-bpin_angle = 8.3; // after unbending
+bpin_angle = 7.4; // after unbending
 
 // skewer measurements
 

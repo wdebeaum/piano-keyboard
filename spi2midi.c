@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
   unsigned char buf[3];
   const int msg_len = 3;
   // the current state of each key switch (two per key, as 24 bits in each
-  // octave, from C=(1<<{0,1}) to B=(1<<{22,23}); lower bit comes on first when
-  // key is pressed)
+  // octave, from C=(1<<{0,1}) to B=(1<<{22,23}); higher bit comes on first
+  // when key is pressed)
   uint32_t switch_states[MAX_OCTAVES];
   memset(switch_states, 0, MAX_OCTAVES*sizeof(uint32_t));
   // the number of scans elapsed since the state of each switch changed
@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
 	// otherwise increment time since this switch changed state (clamped)
 	} else if (times_since_change[tsci] < 0x80) {
 	  times_since_change[tsci]++;
-	  if (times_since_change[tsci] == 1 && s & 1 == 1) {
+	  if (times_since_change[tsci] == 1 && s & 1 == 0) {
 	    unsigned char note_num = (MAX_OCTAVES - 1 - o) * 12 + s/2;
 	    // key-fully-down switch changed state last scan and stayed there
 	    if (new_state & 1) { // key pressed

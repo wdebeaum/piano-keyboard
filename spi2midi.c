@@ -93,20 +93,25 @@ int main(int argc, char** argv) {
       for (int s = 0; s < 24; s++, new_state >>= 1, changes >>= 1) {
 	int tsci = o * 24 + s;
 	if (changes & 1) { // switch changed state
+	  fprintf(stderr, "byte %d bit %d in octave %d changed to %d after %d scans\n",
+	          s>>3, s&7, o, new_state&1, times_since_change[tsci]);
 	  // reset time since this switch changed state
 	  times_since_change[tsci] = 0;
 	// otherwise increment time since this switch changed state (clamped)
 	} else if (times_since_change[tsci] < 0x80) {
 	  times_since_change[tsci]++;
-	  if (times_since_change[tsci] == 1 && s & 1 == 0) {
-	    unsigned char note_num = (MAX_OCTAVES - 1 - o) * 12 + s/2;
+	  if (times_since_change[tsci] == 1 &&
+	      s & 1 == 0 // key-fully-down bits are even, have 0 in the 1s place
+	     ) {
 	    // key-fully-down switch changed state last scan and stayed there
+	    unsigned char note_num = (MAX_OCTAVES - 1 - o) * 12 + s/2;
 	    if (new_state & 1) { // key pressed
 	      // get the time since the key-partly-down switch changed and use
 	      // it to compute velocity
-	      unsigned char velocity = 0x80 - times_since_change[tsci^1];
+	      int kpdi = tsci^1; // key-partly-down bits toggle the 1s place
+	      unsigned char velocity = 0x80 - times_since_change[kpdi];
 	      fprintf(stderr, "key %d in octave %d pressed with velocity %d\n",
-	             s/2, o, (int)velocity);
+		      s/2, o, (int)velocity);
 	      buf[0] = 0x90;
 	      buf[1] = note_num;
 	      buf[2] = velocity;

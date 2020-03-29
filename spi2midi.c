@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
 	break;
       }
       uint32_t new_state =
-        // force big-endian interpretation so that bits go in a consistent order
+        // force little-endian interpretation so that bits go in a consistent order
         ((uint32_t)buf[2])<<16 |
 	((uint32_t)buf[1])<<8 |
 	(uint32_t)buf[0];
@@ -93,15 +93,15 @@ int main(int argc, char** argv) {
       for (int s = 0; s < 24; s++, new_state >>= 1, changes >>= 1) {
 	int tsci = o * 24 + s;
 	if (changes & 1) { // switch changed state
-	  fprintf(stderr, "byte %d bit %d in octave %d changed to %d after %d scans\n",
-	          s>>3, s&7, o, new_state&1, times_since_change[tsci]);
+	  /*fprintf(stderr, "byte %d bit %d in octave %d changed to %d after %d scans (tsci=%d)\n",
+	          s>>3, s&7, o, new_state&1, times_since_change[tsci], tsci);*/
 	  // reset time since this switch changed state
 	  times_since_change[tsci] = 0;
 	// otherwise increment time since this switch changed state (clamped)
 	} else if (times_since_change[tsci] < 0x80) {
 	  times_since_change[tsci]++;
 	  if (times_since_change[tsci] == 1 &&
-	      s & 1 == 0 // key-fully-down bits are even, have 0 in the 1s place
+	      (s&1) == 0 // key-fully-down bits are even, have 0 in the 1s place
 	     ) {
 	    // key-fully-down switch changed state last scan and stayed there
 	    unsigned char note_num = (MAX_OCTAVES - 1 - o) * 12 + s/2;

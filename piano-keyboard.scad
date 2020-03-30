@@ -1,21 +1,22 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-03-22
+ * 2020-03-30
  */
 
 /* TODO:
 # increase bpin radius/gap even more, so bpin fits all the way back in its slot
-? make crosshatch under pcb supports slightly thinner for more strength
-- how to keep everything from tipping when I press a key?
+X make crosshatch under pcb supports slightly thinner for more strength
+# how to keep everything from tipping when I press a key?
  ? once I get all the keys on, it won't unless I press all of them (not sure, depends on how they balance)
   > the white keys balance around the middle of the pcb, so maybe?
  ? once I get multiple octaves connected together, it won't (still not sure; puts more stress on connectors)
  ? put weight on the back
- ? extend support on the front
+ # extend support on the front
   ? glue perpendicular skewers under base
    X in crosshatches
     > would be obstructed by parallel skewers (and by pcb components for 2/4)
    - under pcb supports
+  # glue plastic base down to larger cardboard base (corrugations perpendicular)
 */
 
 // measurements taken from my optimus md-1150
@@ -715,17 +716,17 @@ module plated_keys() {
 //    e_x - 2*(white_width + white_gap),
 //    0
 //  );
-//  // plated support_low_half
-//    translate([20,-50, support_base_height + support_gap])
-//  support_low_half();
+  // plated support_low_half
+    translate([20,-50, support_base_height + support_gap])
+  support_low_half();
 //}
 
 //
 // fit test 2, separate base and key
 //
 
-  translate([-50,-50, support_base_height + support_gap])
-support_high_half();
+//  translate([-50,-50, support_base_height + support_gap])
+//support_high_half();
 
 // plated A key
 //  rotate([0,0,40])

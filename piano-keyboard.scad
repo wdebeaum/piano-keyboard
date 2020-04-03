@@ -1,23 +1,7 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-03-30
+ * 2020-04-02
  */
-
-/* TODO:
-# increase bpin radius/gap even more, so bpin fits all the way back in its slot
-X make crosshatch under pcb supports slightly thinner for more strength
-# how to keep everything from tipping when I press a key?
- ? once I get all the keys on, it won't unless I press all of them (not sure, depends on how they balance)
-  > the white keys balance around the middle of the pcb, so maybe?
- ? once I get multiple octaves connected together, it won't (still not sure; puts more stress on connectors)
- ? put weight on the back
- # extend support on the front
-  ? glue perpendicular skewers under base
-   X in crosshatches
-    > would be obstructed by parallel skewers (and by pcb components for 2/4)
-   - under pcb supports
-  # glue plastic base down to larger cardboard base (corrugations perpendicular)
-*/
 
 // measurements taken from my optimus md-1150
 octave = 162.5;
@@ -716,9 +700,9 @@ module plated_keys() {
 //    e_x - 2*(white_width + white_gap),
 //    0
 //  );
-  // plated support_low_half
-    translate([20,-50, support_base_height + support_gap])
-  support_low_half();
+//  // plated support_low_half
+//    translate([20,-50, support_base_height + support_gap])
+//  support_low_half();
 //}
 
 //
@@ -736,3 +720,9 @@ module plated_keys() {
 //  a_x - 5*(white_width + white_gap),
 //  6*white_width + 5*white_gap - (a_sharp_x - black_gap)
 //);
+
+// plated C key
+  rotate([0,0,40])
+  translate([0,0,white_travel + white_thickness])
+  rotate([0,180,0])
+white_key(0, white_width - c_stem_width);

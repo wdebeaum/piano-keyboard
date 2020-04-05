@@ -672,48 +672,13 @@ module plated_keys() {
 //support();
 
 //
-// fit test
-//
-
-////  rotate([0,0,40])
-//union() {
-//  // // plated C key
-//  //   translate([0,0,white_travel + white_thickness])
-//  //   rotate([0,180,0])
-//  // white_key(0, white_width - c_stem_width);
-//  // // plated C# key
-//  //   translate([0,0,black_min_height + white_travel + white_thickness])
-//  //   rotate([0,180,0])
-//  //   rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
-//  // black_key();
-//  // // plated D key
-//  //   translate([0,0,white_travel + white_thickness])
-//  //   rotate([0,180,0])
-//  // white_key(
-//  //   d_x - (white_width + white_gap),
-//  //   2*white_width + white_gap - (d_sharp_x - black_gap)
-//  // );
-//  // plated E key
-//    translate([0,0,white_travel + white_thickness])
-//    rotate([0,180,0])
-//  white_key(
-//    e_x - 2*(white_width + white_gap),
-//    0
-//  );
-//  // plated support_low_half
-//    translate([20,-50, support_base_height + support_gap])
-//  support_low_half();
-//}
-
-//
-// fit test 2, separate base and key
+// fit tests
 //
 
 //  translate([-50,-50, support_base_height + support_gap])
 //support_high_half();
 
-// plated A key
-//  rotate([0,0,40])
+//// plated A key
 //  translate([0,0,white_travel + white_thickness])
 //  rotate([0,180,0])
 //white_key(
@@ -721,8 +686,23 @@ module plated_keys() {
 //  6*white_width + 5*white_gap - (a_sharp_x - black_gap)
 //);
 
-// plated C key
-  rotate([0,0,40])
+//// plated C key
+//  translate([0,0,white_travel + white_thickness])
+//  rotate([0,180,0])
+//white_key(0, white_width - c_stem_width);
+
+// plated D key
   translate([0,0,white_travel + white_thickness])
   rotate([0,180,0])
-white_key(0, white_width - c_stem_width);
+white_key(
+  d_x - (white_width + white_gap),
+  2*white_width + white_gap - (d_sharp_x - black_gap)
+);
+// plated E key
+  translate([45,key_back_depth-white_depth,white_travel + white_thickness])
+  rotate([0,0,180])
+  rotate([0,180,0])
+white_key(
+  e_x - 2*(white_width + white_gap),
+  0
+);

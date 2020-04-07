@@ -78,15 +78,16 @@ int main(int argc, char** argv) {
       } else if (bytes_read < msg_len) {
 	fprintf(stderr, "short read: %d out of %d bytes\n", bytes_read, msg_len);
       }
+      //fprintf(stderr, "buf = %x %x %x\n", (int)buf[0], (int)buf[1], (int)buf[2]);
       // pullup resistor indicates end of octave chain
       if (buf[0] == 0xFF && buf[1] == 0xFF && buf[2] == 0xFF) {
 	break;
       }
       uint32_t new_state =
-        // force little-endian interpretation so that bits go in a consistent order
-        ((uint32_t)buf[2])<<16 |
+        // force big-endian interpretation so that bits go in a consistent order
+        ((uint32_t)buf[0])<<16 |
 	((uint32_t)buf[1])<<8 |
-	(uint32_t)buf[0];
+	(uint32_t)buf[2];
       uint32_t old_state = switch_states[o];
       switch_states[o] = new_state;
       uint32_t changes = new_state ^ old_state;
@@ -104,14 +105,14 @@ int main(int argc, char** argv) {
 	      (s&1) == 0 // key-fully-down bits are even, have 0 in the 1s place
 	     ) {
 	    // key-fully-down switch changed state last scan and stayed there
-	    unsigned char note_num = (MAX_OCTAVES - 1 - o) * 12 + s/2;
+	    unsigned char note_num = (o + 1) * 12 - (s>>1) - 1;
 	    if (new_state & 1) { // key pressed
 	      // get the time since the key-partly-down switch changed and use
 	      // it to compute velocity
 	      int kpdi = tsci^1; // key-partly-down bits toggle the 1s place
 	      unsigned char velocity = 0x80 - times_since_change[kpdi];
-	      fprintf(stderr, "key %d in octave %d pressed with velocity %d\n",
-		      s/2, o, (int)velocity);
+	      fprintf(stderr, "key %d in octave %d (bit %d, note %d) pressed with velocity %d\n",
+		      s/2, o, s, (int)note_num, (int)velocity);
 	      buf[0] = 0x90;
 	      buf[1] = note_num;
 	      buf[2] = velocity;

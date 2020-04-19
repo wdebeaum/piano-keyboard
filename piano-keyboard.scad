@@ -1,6 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-04-02
+ * 2020-04-12
  */
 
 // measurements taken from my optimus md-1150
@@ -675,8 +675,8 @@ module plated_keys() {
 // fit tests
 //
 
-//  translate([-50,-50, support_base_height + support_gap])
-//support_high_half();
+  translate([-50,-50, support_base_height + support_gap])
+support_high_half();
 
 //// plated A key
 //  translate([0,0,white_travel + white_thickness])
@@ -691,18 +691,18 @@ module plated_keys() {
 //  rotate([0,180,0])
 //white_key(0, white_width - c_stem_width);
 
-// plated D key
-  translate([0,0,white_travel + white_thickness])
-  rotate([0,180,0])
-white_key(
-  d_x - (white_width + white_gap),
-  2*white_width + white_gap - (d_sharp_x - black_gap)
-);
-// plated E key
-  translate([45,key_back_depth-white_depth,white_travel + white_thickness])
-  rotate([0,0,180])
-  rotate([0,180,0])
-white_key(
-  e_x - 2*(white_width + white_gap),
-  0
-);
+//// plated D key
+//  translate([0,0,white_travel + white_thickness])
+//  rotate([0,180,0])
+//white_key(
+//  d_x - (white_width + white_gap),
+//  2*white_width + white_gap - (d_sharp_x - black_gap)
+//);
+//// plated E key
+//  translate([45,key_back_depth-white_depth,white_travel + white_thickness])
+//  rotate([0,0,180])
+//  rotate([0,180,0])
+//white_key(
+//  e_x - 2*(white_width + white_gap),
+//  0
+//);

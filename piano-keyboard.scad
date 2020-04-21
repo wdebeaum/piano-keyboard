@@ -1,6 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-04-12
+ * 2020-04-19
  */
 
 // measurements taken from my optimus md-1150
@@ -675,8 +675,8 @@ module plated_keys() {
 // fit tests
 //
 
-  translate([-50,-50, support_base_height + support_gap])
-support_high_half();
+//  translate([-50,-50, support_base_height + support_gap])
+//support_high_half();
 
 //// plated A key
 //  translate([0,0,white_travel + white_thickness])
@@ -706,3 +706,19 @@ support_high_half();
 //  e_x - 2*(white_width + white_gap),
 //  0
 //);
+
+// plated F key
+  translate([60,0,white_travel + white_thickness])
+  rotate([0,180,0])
+white_key(
+  0,
+  4*white_width + 3*white_gap - (f_sharp_x - black_gap)
+);
+// plated G key
+  translate([0,key_back_depth-white_depth,white_travel + white_thickness])
+  rotate([0,0,180])
+  rotate([0,180,0])
+white_key(
+  g_x - 4*(white_width + white_gap),
+  5*white_width + 4*white_gap - (g_sharp_x - black_gap)
+);

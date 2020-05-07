@@ -1,6 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-05-03
+ * 2020-05-06
  */
 
 // measurements taken from my optimus md-1150
@@ -106,6 +106,23 @@ bpin_angle = 7.4; // after unbending
 
 skewer_radius = 3 / 2; // 3mm diameter skewers
 
+// M3 screw measurements
+
+/*   |    | head radius
+      _________  ____
+     /         \ head height
+     |_________| ____
+        <   >     ^
+	<   >     threads height
+	<___>    _V__
+       |  | threads radius
+*/
+
+screw_threads_radius = 3/2;
+screw_threads_height = 6;
+screw_head_radius = 5/2;
+screw_head_height = 2;
+
 // electronics measurements
 
 pcb_thickness = 1.6;
@@ -133,36 +150,58 @@ pcb_hole_radius = 3.2 / 2;
 
 // end measurements
 
+// parameters that depend on printer capabilities
+
+// how thick should walls be, in general?
 wall_thickness = 1;
-white_thickness = 2*corner_radius;
+// size of gap between parts that are meant to fit together but not slide easily
 gap = 0.3;
-thin_wall_deduction = 0.2;/* for imperfect printing */
+// additional gap for thin walls that tend to ooze and become thicker than
+// designed
+thin_wall_deduction = 0.2;
+// additional gap for parts that are meant to slide easily past each other
 sliding_deduction = 0.3;
-support_gap = gap + thin_wall_deduction + sliding_deduction;
+// how much small vertical holes shrink (additional radius to compensate)
+small_v_hole_shrinkage = 0.25;
+
+// small value used to avoid coinciding surfaces for CSG operations
 epsilon = 0.01;
 
-pad_thickness = 25.4 / 4; // 1/4"
+// use many facets for cylinders
+$fn=24;
 
+// common computed values
+
+// gap between keys and their supports
+support_gap = gap + thin_wall_deduction + sliding_deduction;
+
+// thickness of top of white keys (relevant at thin end toward player)
+white_thickness = 2*corner_radius;
+
+// key hinge dimensions
 hinge_radius = 2*wall_thickness;
 hinge_height = wall_thickness + 0.5/*for imperfect printing*/;
 
+// dimensions of extra chunk at back of each key, behind hinge
 key_back_width = black_width;
 key_back_depth = hinge_radius + wall_thickness + support_gap + wall_thickness;
 white_back_height = white_travel + white_thickness;
 black_back_height = white_back_height + black_min_height;
 
+// dimensions of hollow underside of each key
 hollow_width = key_back_width - 2*wall_thickness;
 hollow_height = white_travel;
+
+// dimensions of key supports and base
 support_base_height = pcb_thickness + chip_thickness;
 support_width = hollow_width - 2*support_gap;
 support_depth = 50;
 support_back_depth = 3*wall_thickness;
 
-pcb_peg_radius = pcb_hole_radius - (gap + sliding_deduction);
-
 skewer_hole_radius = skewer_radius + gap + sliding_deduction;
 
-$fn=24;
+support_hole_ir = screw_threads_radius + gap + small_v_hole_shrinkage;
+support_hole_or = support_hole_ir + wall_thickness;
 
 module bpin() {
     translate([0,-(bpin_min_length - bpin_u_radius),-bpin_u_radius])
@@ -366,6 +405,24 @@ module black_key() {
   }
 }
 
+module key_a_sharp() {
+  difference() {
+    black_key();
+      rotate([-atan2(black_travel, black_max_depth),0,0])
+      translate([
+        black_width - (wall_thickness + epsilon),
+	pcb_hole_4_y - (support_depth - key_back_depth + support_gap)
+	  - (screw_head_radius + support_gap),
+	-epsilon
+      ])
+    cube([
+      wall_thickness + 2*epsilon,
+      (screw_head_radius + support_gap) * 2,
+      screw_head_height + epsilon
+    ]);
+  }
+}
+
 module octave_white_keys() {
   translate([c_x,0,0]) white_key(0, white_width - c_stem_width);
     translate([d_x,0,0])
@@ -405,7 +462,10 @@ module octave_black_keys() {
   translate([d_sharp_x,0,0]) black_key();
   translate([f_sharp_x,0,0]) black_key();
   translate([g_sharp_x,0,0]) black_key();
-  translate([a_sharp_x,0,0]) black_key();
+    translate([a_sharp_x,0,0])
+    // rotate A# to show gap accommodating screw
+    rotate([atan2(black_travel, black_max_depth),0,0])
+  key_a_sharp();
 }
 
 module octave() {
@@ -460,12 +520,14 @@ module support_wall(x, next_x, next_gap) {
   bpin();*/
 }
 
-module pcb_peg() {
+module support_hole_outside() {
     translate([pcb_x_fudge, - (support_depth - key_back_depth + support_gap), -(support_base_height + support_gap)])
-  union() {
-    cylinder(r=pcb_peg_radius, h=support_base_height);
-    cylinder(r=pcb_peg_radius + wall_thickness, h=support_base_height - (pcb_thickness + gap));
-  }
+  cylinder(r=support_hole_or, h=support_base_height - (pcb_thickness + gap));
+}
+
+module support_hole_inside() {
+    translate([pcb_x_fudge, - (support_depth - key_back_depth + support_gap), -(support_base_height + support_gap + epsilon)])
+  cylinder(r=support_hole_ir, h=support_base_height + 2*epsilon);
 }
 
 module switch_pad_clearance() {
@@ -529,26 +591,26 @@ module support() {
   support_wall(a_x, a_sharp_x, black_gap);
   support_wall(a_sharp_x, b_x, black_gap);
   support_wall(b_x, octave, white_gap);
-  // pcb pegs
+  // pcb supports with screw holes
   difference() {
     union() {
-      translate([pcb_hole_1_x, pcb_hole_1_y, 0]) pcb_peg();
+      translate([pcb_hole_1_x, pcb_hole_1_y, 0]) support_hole_outside();
       difference() {
 	  translate([0, 0, -(support_base_height + support_gap)])
 	linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
 	  polygon(points=[
 	    [0, -(support_depth - key_back_depth - epsilon)],
 	    [2*(pcb_hole_1_x+pcb_x_fudge), - (support_depth - key_back_depth - epsilon)],
-	    [pcb_hole_1_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
+	    [pcb_hole_1_x + pcb_x_fudge + support_hole_or,
 	     pcb_hole_1_y - (support_depth - key_back_depth + support_gap)],
-	    [pcb_hole_1_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
+	    [pcb_hole_1_x + pcb_x_fudge - support_hole_or,
 	     pcb_hole_1_y - (support_depth - key_back_depth + support_gap)]
 	  ]);
 	}
 	  translate([(c_x + c_sharp_x)/2 + pcb_x_fudge, 0, 0])
 	switch_pad_clearance();
       }
-      translate([pcb_hole_2_x, pcb_hole_2_y, 0]) pcb_peg();
+      translate([pcb_hole_2_x, pcb_hole_2_y, 0]) support_hole_outside();
       difference() {
 	  translate([0, 0, -(support_base_height + support_gap)])
 	linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
@@ -557,16 +619,16 @@ module support() {
 	     -(support_depth - key_back_depth - epsilon)],
 	    [pcb_hole_2_x + pcb_x_fudge + black_width,
 	     -(support_depth - key_back_depth - epsilon)],
-	    [pcb_hole_2_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
+	    [pcb_hole_2_x + pcb_x_fudge + support_hole_or,
 	     pcb_hole_2_y - (support_depth - key_back_depth + support_gap)],
-	    [pcb_hole_2_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
+	    [pcb_hole_2_x + pcb_x_fudge - support_hole_or,
 	     pcb_hole_2_y - (support_depth - key_back_depth + support_gap)]
 	  ]);
 	}
 	  translate([(d_sharp_x + e_x)/2 + pcb_x_fudge, 0, 0])
 	switch_pad_clearance();
       }
-      translate([pcb_hole_3_x, pcb_hole_3_y, 0]) pcb_peg();
+      translate([pcb_hole_3_x, pcb_hole_3_y, 0]) support_hole_outside();
       difference() {
 	  translate([0, 0, -(support_base_height + support_gap)])
 	linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
@@ -575,16 +637,16 @@ module support() {
 	     -(support_depth - key_back_depth - epsilon)],
 	    [pcb_hole_3_x + pcb_x_fudge + black_width*2/3,
 	     -(support_depth - key_back_depth - epsilon)],
-	    [pcb_hole_3_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
+	    [pcb_hole_3_x + pcb_x_fudge + support_hole_or,
 	     pcb_hole_3_y - (support_depth - key_back_depth + support_gap)],
-	    [pcb_hole_3_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
+	    [pcb_hole_3_x + pcb_x_fudge - support_hole_or,
 	     pcb_hole_3_y - (support_depth - key_back_depth + support_gap)]
 	  ]);
 	}
 	  translate([(g_x + g_sharp_x)/2 + pcb_x_fudge, 0, 0])
 	switch_pad_clearance();
       }
-      translate([pcb_hole_4_x, pcb_hole_4_y, 0]) pcb_peg();
+      translate([pcb_hole_4_x, pcb_hole_4_y, 0]) support_hole_outside();
       difference() {
 	  translate([0, 0, -(support_base_height + support_gap)])
 	linear_extrude(height=support_base_height - (pcb_thickness + gap)) {
@@ -593,9 +655,9 @@ module support() {
 	     -(support_depth - key_back_depth - epsilon)],
 	    [pcb_hole_4_x + pcb_x_fudge + black_width*2/3,
 	     -(support_depth - key_back_depth - epsilon)],
-	    [pcb_hole_4_x + pcb_x_fudge + pcb_peg_radius + wall_thickness,
+	    [pcb_hole_4_x + pcb_x_fudge + support_hole_or,
 	     pcb_hole_4_y - (support_depth - key_back_depth + support_gap)],
-	    [pcb_hole_4_x + pcb_x_fudge - (pcb_peg_radius + wall_thickness),
+	    [pcb_hole_4_x + pcb_x_fudge - support_hole_or,
 	     pcb_hole_4_y - (support_depth - key_back_depth + support_gap)]
 	  ]);
 	}
@@ -603,16 +665,21 @@ module support() {
 	switch_pad_clearance();
       }
     }
+    // support screw holes
+    translate([pcb_hole_1_x, pcb_hole_1_y, 0]) support_hole_inside();
+    translate([pcb_hole_2_x, pcb_hole_2_y, 0]) support_hole_inside();
+    translate([pcb_hole_3_x, pcb_hole_3_y, 0]) support_hole_inside();
+    translate([pcb_hole_4_x, pcb_hole_4_y, 0]) support_hole_inside();
     // pitchwise crosshatch
+    pcb_crosshatch_height = support_base_height-(2*wall_thickness + pcb_thickness + gap);
       translate([
         octave/2,
-	-(support_depth - key_back_depth +
-	  support_base_height-(wall_thickness + pcb_thickness + gap)),
+	-(support_depth - key_back_depth + pcb_crosshatch_height),
 	-(support_base_height + support_gap)])
       rotate([0,90,0])
       rotate([0,0,45])
-    cube([sqrt(2)*(support_base_height-(wall_thickness + pcb_thickness + gap)),
-          sqrt(2)*(support_base_height-(wall_thickness + pcb_thickness + gap)),
+    cube([sqrt(2)*pcb_crosshatch_height,
+          sqrt(2)*pcb_crosshatch_height,
 	  octave+2*epsilon],
 	 center=true);
   }
@@ -634,6 +701,12 @@ module support_high_half() {
   }
 }
 
+module screw() {
+  cylinder(r=screw_head_radius, h=screw_head_height);
+    translate([0,0,-6])
+  cylinder(r=screw_threads_radius, h=screw_threads_height);
+}
+
 module assembled() {
   octave();
   //support();
@@ -641,6 +714,13 @@ module assembled() {
   support_high_half();
     %translate([-25.4 + pcb_x_fudge, 25.4 - (support_depth - key_back_depth + support_gap), -0.8 - support_gap])
   import("piano-keyboard-pcb/piano-keyboard-pcb-v2.stl");
+    %translate([pcb_x_fudge, - (support_depth - key_back_depth + support_gap), gap - support_gap])
+  union() {
+    translate([pcb_hole_1_x, pcb_hole_1_y, 0]) screw();
+    translate([pcb_hole_2_x, pcb_hole_2_y, 0]) screw();
+    translate([pcb_hole_3_x, pcb_hole_3_y, 0]) screw();
+    translate([pcb_hole_4_x, pcb_hole_4_y, 0]) screw();
+  }
 }
 
 module plated_white_keys() {
@@ -661,7 +741,7 @@ module plated_keys() {
   plated_black_keys();
 }
 
-//assembled();
+assembled();
 //difference() { // cutaway
 //  assembled();
 //    translate([0,-60,1])
@@ -739,13 +819,13 @@ module plated_keys() {
 //  0
 //);
 
-  translate([0,0,black_min_height + white_travel + white_thickness])
-  rotate([0,180,0])
-  rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
-union() {
-  black_key();
-    translate([30,0,0])
-  black_key();
-    translate([60,0,0])
-  black_key();
-}
+//  translate([0,0,black_min_height + white_travel + white_thickness])
+//  rotate([0,180,0])
+//  rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
+//union() {
+//  black_key();
+//    translate([30,0,0])
+//  black_key();
+//    translate([60,0,0])
+//  black_key();
+//}

@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
 	      (s&1) == 0 // key-fully-down bits are even, have 0 in the 1s place
 	     ) {
 	    // key-fully-down switch changed state last scan and stayed there
-	    unsigned char note_num = (o + 1) * 12 - (s>>1) - 1;
+	    unsigned char note_num = (o + 1 +5/*TODO octave selector*/) * 12 - (s>>1) - 1;
 	    if (new_state & 1) { // key pressed
 	      // get the time since the key-partly-down switch changed and use
 	      // it to compute velocity
@@ -138,9 +138,10 @@ int main(int argc, char** argv) {
 	}
       }
     }
-    // delay until time for next scan, 128/44100ths of a second after start
+    // delay until time for next scan, 32 CD audio samples (1/44100 second)
+    // after start
     struct timespec later = now;
-    unsigned long nsecs = now.tv_nsec + 2902494;
+    unsigned long nsecs = now.tv_nsec + 725623;
     later.tv_sec += nsecs / 1000000000;
     later.tv_nsec = nsecs % 1000000000;
     for(;;) {

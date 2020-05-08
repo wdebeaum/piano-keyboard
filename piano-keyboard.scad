@@ -1,6 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-05-06
+ * 2020-05-08
  */
 
 // measurements taken from my optimus md-1150
@@ -148,6 +148,9 @@ pcb_hole_4_y =-1.05	*25.4;
 
 pcb_hole_radius = 3.2 / 2;
 
+// 22 AWG wire
+wire_radius = 0.644/2;
+
 // end measurements
 
 // parameters that depend on printer capabilities
@@ -203,6 +206,7 @@ skewer_hole_radius = skewer_radius + gap + sliding_deduction;
 support_hole_ir = screw_threads_radius + gap + small_v_hole_shrinkage;
 support_hole_or = support_hole_ir + wall_thickness;
 
+// bobby pin (for showing assembly)
 module bpin() {
     translate([0,-(bpin_min_length - bpin_u_radius),-bpin_u_radius])
   cube([bpin_width, bpin_min_length - bpin_u_radius, bpin_thickness]);
@@ -213,6 +217,7 @@ module bpin() {
   cylinder(r = bpin_u_radius, h = bpin_width);
 }
 
+// hole in support for bobby pin
 module bpin_hole() {
   intersection() {
     // NOTE: could have used bpin_max_length instead of support_depth, but would have made disassembly hard
@@ -226,6 +231,8 @@ module bpin_hole() {
   cylinder(r = bpin_u_radius + support_gap, h = bpin_width + 2*support_gap);
 }
 
+// generic white key with parameters for how much is cut out of each side to
+// accommodate adjacent black keys
 module white_key(left_cutout, right_cutout) {
     translate([-left_cutout,0,0])
   union() {
@@ -287,6 +294,7 @@ module white_key(left_cutout, right_cutout) {
   }
 }
 
+// generic black key; used for all except A#
 module black_key() {
   /* no-radius version
     translate([0,0,white_travel + white_thickness])
@@ -405,6 +413,8 @@ module black_key() {
   }
 }
 
+// special black key for A#, with a cutout for a screw I couldn't quite get to
+// align with the existing hollow in the key
 module key_a_sharp() {
   difference() {
     black_key();
@@ -423,40 +433,68 @@ module key_a_sharp() {
   }
 }
 
-module octave_white_keys() {
-  translate([c_x,0,0]) white_key(0, white_width - c_stem_width);
-    translate([d_x,0,0])
+//
+// each white key, with left and right cutouts computed
+//
+
+module key_c() {
+  white_key(0, white_width - c_stem_width);
+}
+
+module key_d() {
   white_key(
     d_x - (white_width + white_gap),
     2*white_width + white_gap - (d_sharp_x - black_gap)
   );
-    translate([e_x,0,0])
+}
+
+module key_e() {
   white_key(
     e_x - 2*(white_width + white_gap),
     0
   );
-    translate([f_x,0,0])
+}
+
+module key_f() {
   white_key(
     0,
     4*white_width + 3*white_gap - (f_sharp_x - black_gap)
   );
-    translate([g_x,0,0])
+}
+
+module key_g() {
   white_key(
     g_x - 4*(white_width + white_gap),
     5*white_width + 4*white_gap - (g_sharp_x - black_gap)
   );
-    translate([a_x,0,0])
+}
+
+module key_a() {
   white_key(
     a_x - 5*(white_width + white_gap),
     6*white_width + 5*white_gap - (a_sharp_x - black_gap)
   );
-    translate([b_x,0,0])
+}
+
+module key_b() {
   white_key(
     b_x - 6*(white_width + white_gap),
     0
   );
 }
 
+// all white keys, as assembled
+module octave_white_keys() {
+  translate([c_x,0,0]) key_c();
+  translate([d_x,0,0]) key_d();
+  translate([e_x,0,0]) key_e();
+  translate([f_x,0,0]) key_f();
+  translate([g_x,0,0]) key_g();
+  translate([a_x,0,0]) key_a();
+  translate([b_x,0,0]) key_b();
+}
+
+// all black keys, as assembled
 module octave_black_keys() {
   translate([c_sharp_x,0,0]) black_key();
   translate([d_sharp_x,0,0]) black_key();
@@ -464,15 +502,17 @@ module octave_black_keys() {
   translate([g_sharp_x,0,0]) black_key();
     translate([a_sharp_x,0,0])
     // rotate A# to show gap accommodating screw
-    rotate([atan2(black_travel, black_max_depth),0,0])
+    //rotate([atan2(black_travel, black_max_depth),0,0])
   key_a_sharp();
 }
 
+// all keys, as assembled
 module octave() {
   octave_white_keys();
   octave_black_keys();
 }
 
+// wall supporting one key, with a slot to insert the bobby pin (spring) into
 module support_wall(x, next_x, next_gap) {
     translate([(x + next_x - next_gap - support_width)/2,0,0])
   difference() {
@@ -510,26 +550,60 @@ module support_wall(x, next_x, next_gap) {
       ])
     bpin_hole();
   }
-  /* DEBUG: bpin ghost
-  %translate([(x + next_x - next_gap - support_width)/2,0,0])
-      translate([
-        (support_width - bpin_width)/2,
-	0,
-	bpin_u_radius - gap
-      ])
-  bpin();*/
 }
 
+// bpin and wires positioned to align with support_wall with same params
+module bpin_assembled(x, next_x, next_gap) {
+    translate([(x + next_x - next_gap - support_width)/2, 0, 0])
+  union() {
+      translate([(support_width - bpin_width)/2, 0, bpin_u_radius - gap])
+    bpin();
+    // wires
+    // (hardcoded approximate paths, YMMV)
+      translate([support_width / 2, key_back_depth-support_depth-support_gap, 0])
+    union() {
+      // common
+        translate([0, -0.06*25.4, -0.05*25.4 - (support_gap + pcb_thickness)])
+      cylinder(r=wire_radius, h=4.5);
+        translate([0, -0.06*25.4, bpin_thickness])
+        rotate([-90,0,0])
+      cylinder(r=wire_radius, h=20);
+      // full press
+        translate([0, -0.16*25.4, -0.05*25.4 - (support_gap + pcb_thickness)])
+      cylinder(r=wire_radius, h=6.7);
+        translate([0, -0.16*25.4, 3])
+        rotate([-90,0,0])
+      cylinder(r=wire_radius, h=15);
+        translate([0, 15-0.16*25.4, 3])
+        rotate([-70,0,0])
+      cylinder(r=wire_radius, h=3);
+      // pre-press
+        translate([0, -0.26*25.4, -0.05*25.4 - (support_gap + pcb_thickness)])
+      cylinder(r=wire_radius, h=4);
+        translate([0, -0.26*25.4, 4-0.05*25.4 - (support_gap + pcb_thickness)])
+        rotate([60,0,0])
+      cylinder(r=wire_radius, h=5);
+        translate([0, -4.5-0.26*25.4, 3])
+        rotate([-70,0,0])
+      cylinder(r=wire_radius, h=14);
+    }
+  }
+}
+
+// outer part of screw hole in PCB supports
 module support_hole_outside() {
     translate([pcb_x_fudge, - (support_depth - key_back_depth + support_gap), -(support_base_height + support_gap)])
   cylinder(r=support_hole_or, h=support_base_height - (pcb_thickness + gap));
 }
 
+// inner part of screw hole in PCB supports (negative)
 module support_hole_inside() {
     translate([pcb_x_fudge, - (support_depth - key_back_depth + support_gap), -(support_base_height + support_gap + epsilon)])
   cylinder(r=support_hole_ir, h=support_base_height + 2*epsilon);
 }
 
+// hole in PCB supports to allow clearance for switch wires poking through the
+// bottom of the PCB
 module switch_pad_clearance() {
     translate([
       -0.05*25.4,
@@ -538,7 +612,7 @@ module switch_pad_clearance() {
   cube([0.1*25.4, 0.3*25.4, 0.1*25.4]);
 }
 
-// key support with holes for hinges
+// complete support for all keys and PCB, with base, walls, and PCB supports
 module support() {
   // bottom
     translate([0, -(support_depth - key_back_depth), -(support_base_height + support_gap)])
@@ -685,6 +759,44 @@ module support() {
   }
 }
 
+// all bpins positioned to align with support()
+module bpins() {
+  bpin_assembled(c_x, c_sharp_x, black_gap);
+  bpin_assembled(c_sharp_x, d_x, black_gap);
+  bpin_assembled(d_x, d_sharp_x, black_gap);
+  bpin_assembled(d_sharp_x, e_x, black_gap);
+  bpin_assembled(e_x, f_x, white_gap);
+  bpin_assembled(f_x, f_sharp_x, black_gap);
+  bpin_assembled(f_sharp_x, g_x, black_gap);
+  bpin_assembled(g_x, g_sharp_x, black_gap);
+  bpin_assembled(g_sharp_x, a_x, black_gap);
+  bpin_assembled(a_x, a_sharp_x, black_gap);
+  bpin_assembled(a_sharp_x, b_x, black_gap);
+  bpin_assembled(b_x, octave, white_gap);
+}
+
+// both skewers positioned to align with support()
+module skewers() {
+    translate([0, -(support_depth - key_back_depth), -(support_base_height + support_gap)])
+  union() {
+    // front pitchwise skewer hole
+      translate([10, skewer_hole_radius+5*wall_thickness, skewer_hole_radius+wall_thickness/2])
+      rotate([0,90,0])
+    cylinder(r=skewer_radius, h=octave);
+    // back pitchwise skewer hole
+      translate([-10, support_depth - (skewer_hole_radius+5*wall_thickness), skewer_hole_radius+wall_thickness/2])
+      rotate([0,90,0])
+    cylinder(r=skewer_radius, h=octave+2*epsilon);
+  }
+}
+
+//
+// For smaller printers that can't print the whole support(), we split it into
+// two halves: C-F and F#-B. Even if the full support would technically fit in
+// your printer, these still may be useful for avoiding pitchwise curl.
+//
+
+// support for C-F
 module support_low_half() {
   intersection() {
     support();
@@ -693,6 +805,7 @@ module support_low_half() {
   }
 }
 
+// support for F#-B
 module support_high_half() {
   intersection() {
     support();
@@ -701,20 +814,16 @@ module support_high_half() {
   }
 }
 
+// screws for affixing the PCB to the support, for viewing assembly
 module screw() {
   cylinder(r=screw_head_radius, h=screw_head_height);
     translate([0,0,-6])
   cylinder(r=screw_threads_radius, h=screw_threads_height);
 }
 
-module assembled() {
-  octave();
-  //support();
-  support_low_half();
-  support_high_half();
-    %translate([-25.4 + pcb_x_fudge, 25.4 - (support_depth - key_back_depth + support_gap), -0.8 - support_gap])
-  import("piano-keyboard-pcb/piano-keyboard-pcb-v2.stl");
-    %translate([pcb_x_fudge, - (support_depth - key_back_depth + support_gap), gap - support_gap])
+// all screws in assembled position
+module screws() {
+    translate([pcb_x_fudge, - (support_depth - key_back_depth + support_gap), gap - support_gap])
   union() {
     translate([pcb_hole_1_x, pcb_hole_1_y, 0]) screw();
     translate([pcb_hole_2_x, pcb_hole_2_y, 0]) screw();
@@ -723,109 +832,166 @@ module assembled() {
   }
 }
 
-module plated_white_keys() {
-    translate([0,0,white_travel + white_thickness])
-    rotate([0,180,0])
-  octave_white_keys();
+// the PCB itself, for viewing assembly
+module pcb() {
+    translate([-25.4 + pcb_x_fudge, 25.4 - (support_depth - key_back_depth + support_gap), -0.8 - support_gap])
+  import("piano-keyboard-pcb/piano-keyboard-pcb-v2.stl");
 }
 
-module plated_black_keys() {
+// corrugated cardboard under base, corrugations aligned with keys
+module cardboard() {
+  cardboard_thickness = 3; // a guess
+    translate([0, -white_depth, -(cardboard_thickness + gap + support_base_height + support_gap)])
+  cube([octave, key_back_depth + white_depth, cardboard_thickness]);
+}
+
+// all parts (including non-printed) in assembled position
+module assembled() {
+  // printed parts
+  octave();
+  // choose one: one full support or two half supports
+  //support();
+  support_low_half();
+  support_high_half();
+  // non-printed parts
+  %pcb();
+  // TODO: show switch wires
+  %screws();
+  %bpins();
+  %skewers();
+  %cardboard();
+}
+
+// all parts assembled, with cutaway for viewing internal features
+module cutaway() {
+  difference() {
+    assembled();
+      translate([0,-60,1])
+    cube([6,70,30]);
+  }
+}
+
+// flip white keys upside down so they can be printed without much overhang
+module plate_white_keys() {
+    translate([0,0,white_travel + white_thickness])
+    rotate([0,180,0])
+  children();
+}
+
+// plate a white key and flip it around the Z axis in order to nest it with
+// another white key and make better use of space
+module plate_white_key_backwards() {
+    translate([0, key_back_depth - white_depth, 0])
+    rotate([0,0,180])
+  plate_white_keys() {
+    children();
+  }
+}
+
+// all white keys plated, for printers with lots of space and no curling issues
+module plated_white_keys() {
+  plate_white_keys() {
+    octave_white_keys();
+  }
+}
+
+// flip black keys upside down so they can be printed without much overhang
+module plate_black_keys() {
     translate([0,0,black_min_height + white_travel + white_thickness])
     rotate([0,180,0])
     rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
-  octave_black_keys();
+  children();
 }
 
+// all black keys plated, in positions compatible with plated_white_keys()
+module plated_black_keys() {
+  plate_black_keys() {
+    octave_black_keys();
+  }
+}
+
+// all keys plated, for printers with lots of space and no curling issues
 module plated_keys() {
   plated_white_keys();
   plated_black_keys();
 }
 
-assembled();
-//difference() { // cutaway
-//  assembled();
-//    translate([0,-60,1])
-//  cube([6,70,30]);
-//}
-//octave();
-//plated_keys();
+// all black keys plated, but packed a little closer for smaller printers
+module packed_plated_black_keys() {
+  plate_black_keys() {
+    for(x=[0:25:75]) {
+      translate([x,0,0]) black_key();
+    }
+    translate([100,0,0]) key_a_sharp();
+  }
+}
+
+//
+// white keys plated two at a time and positioned to avoid curling and space
+// issues
+// (there are an odd number, so C is plated alone)
+//
+
+module plated_key_c() {
+  plate_white_keys() { key_c(); }
+}
+
+module plated_keys_de() {
+  plate_white_keys() { key_d(); }
+    translate([45,0,0])
+  plate_white_key_backwards() { key_e(); }
+}
+
+module plated_keys_fg() {
+    translate([60,0,0])
+  plate_white_keys() { key_f(); }
+  plate_white_key_backwards() { key_g(); }
+}
+
+module plated_keys_ab() {
+  plate_white_keys() { key_a(); }
+    translate([45,0,0])
+  plate_white_key_backwards() { key_b(); }
+}
+
+//
+// recommended printing order
+// (uncomment one line at a time)
+//
+
+// use black filament first (black keys are less fiddly, so get them out of the
+// way)
+
+//packed_plated_black_keys();
+
+// switch to white filament (but no need to push it all the way through; color
+// isn't important for support)
+
+// choose one: one full support or two half supports
 //support();
-
-//
-// fit tests
-//
-
-//  translate([-50,-50, support_base_height + support_gap])
+// -- OR --
+//support_low_half();
 //support_high_half();
 
-//// plated A key
-//  translate([0,0,white_travel + white_thickness])
-//  rotate([0,180,0])
-//white_key(
-//  a_x - 5*(white_width + white_gap),
-//  6*white_width + 5*white_gap - (a_sharp_x - black_gap)
-//);
+// after one support print, check that things fit:
+// - black keys on support walls
+// - bobby pins inside support walls (unbend the pins a bit first)
+// - M3 screws inside PCB supports
+// Note that it may be necessary to shave/sand down some high spots to get
+// things to move smoothly, and to get bobby pins to go all the way back. But
+// make sure not to completely remove the hinge bumps on the keys. It's OK to
+// shave them slightly in order to affect the Z angle of the key as it sits on
+// the support, and make it not grind on one side of the support or the other.
 
-//// plated C key
-//  translate([0,0,white_travel + white_thickness])
-//  rotate([0,180,0])
-//white_key(0, white_width - c_stem_width);
+// white keys, two at a time
+//plated_key_c(); // (check that white key fits on support before proceeding)
+//plated_keys_de();
+//plated_keys_fg();
+//plated_keys_ab();
 
-//// plated D key
-//  translate([0,0,white_travel + white_thickness])
-//  rotate([0,180,0])
-//white_key(
-//  d_x - (white_width + white_gap),
-//  2*white_width + white_gap - (d_sharp_x - black_gap)
-//);
-//// plated E key
-//  translate([45,key_back_depth-white_depth,white_travel + white_thickness])
-//  rotate([0,0,180])
-//  rotate([0,180,0])
-//white_key(
-//  e_x - 2*(white_width + white_gap),
-//  0
-//);
+//
+// show assembled by default
+//
 
-//// plated F key
-//  translate([60,0,white_travel + white_thickness])
-//  rotate([0,180,0])
-//white_key(
-//  0,
-//  4*white_width + 3*white_gap - (f_sharp_x - black_gap)
-//);
-//// plated G key
-//  translate([0,key_back_depth-white_depth,white_travel + white_thickness])
-//  rotate([0,0,180])
-//  rotate([0,180,0])
-//white_key(
-//  g_x - 4*(white_width + white_gap),
-//  5*white_width + 4*white_gap - (g_sharp_x - black_gap)
-//);
-
-//// plated A key
-//  translate([0,0,white_travel + white_thickness])
-//  rotate([0,180,0])
-//white_key(
-//  a_x - 5*(white_width + white_gap),
-//  6*white_width + 5*white_gap - (a_sharp_x - black_gap)
-//);
-//// plated B key
-//  translate([45,key_back_depth-white_depth,white_travel + white_thickness])
-//  rotate([0,0,180])
-//  rotate([0,180,0])
-//white_key(
-//  b_x - 6*(white_width + white_gap),
-//  0
-//);
-
-//  translate([0,0,black_min_height + white_travel + white_thickness])
-//  rotate([0,180,0])
-//  rotate([(atan2(black_max_height-black_min_height, black_min_depth) /* fudge factor? */+5*epsilon),0,0])
-//union() {
-//  black_key();
-//    translate([30,0,0])
-//  black_key();
-//    translate([60,0,0])
-//  black_key();
-//}
+assembled();
+//cutaway();

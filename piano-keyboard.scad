@@ -1,6 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-05-16
+ * 2020-05-17
  */
 
 // measurements taken from my optimus md-1150
@@ -155,6 +155,8 @@ wire_radius = 0.644/2;
 
 // parameters that depend on printer capabilities
 
+// height of a single layer of extrusion
+layer_height = 0.4;
 // how thick should walls be, in general?
 wall_thickness = 1;
 // size of gap between parts that are meant to fit together but not slide easily
@@ -652,6 +654,10 @@ module support() {
       cylinder(r=support_base_height-wall_thickness, h=support_depth+2*epsilon, $fn=4);
     }
   }
+  // make sure top layer of base is contiguous, not split by skewer hole
+  // teardrop peaks
+    translate([0, -(support_depth - key_back_depth), -(layer_height + support_gap)])
+  cube([octave-gap, support_depth, layer_height]);
   // walls inside keys
   support_wall(c_x, c_sharp_x, black_gap);
   support_wall(c_sharp_x, d_x, black_gap);

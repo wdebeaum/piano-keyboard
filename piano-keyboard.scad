@@ -1,6 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-05-08
+ * 2020-05-16
  */
 
 // measurements taken from my optimus md-1150
@@ -203,7 +203,7 @@ support_back_depth = 3*wall_thickness;
 
 skewer_hole_radius = skewer_radius + gap + sliding_deduction;
 
-support_hole_ir = screw_threads_radius + gap + small_v_hole_shrinkage;
+support_hole_ir = screw_threads_radius + small_v_hole_shrinkage; // NOTE: no gap so threads bite
 support_hole_or = support_hole_ir + wall_thickness;
 
 // bobby pin (for showing assembly)

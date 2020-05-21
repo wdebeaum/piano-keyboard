@@ -1,6 +1,6 @@
 /* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
- * 2020-05-17
+ * 2020-05-21
  */
 
 // measurements taken from my optimus md-1150
@@ -933,6 +933,23 @@ module packed_plated_black_keys() {
   }
 }
 
+// C# and D#, plated, with some distance to avoid curling
+module plated_black_keys_low_half() {
+  plate_black_keys() {
+    black_key();
+    translate([45,0,0]) black_key();
+  }
+}
+
+// F#, G#, A#, plated, with some distance to avoid curling
+module plated_black_keys_high_half() {
+  plate_black_keys() {
+    black_key();
+    translate([45,0,0]) black_key();
+    translate([90,0,0]) key_a_sharp();
+  }
+}
+
 //
 // white keys plated two at a time and positioned to avoid curling and space
 // issues
@@ -969,7 +986,11 @@ module plated_keys_ab() {
 // use black filament first (black keys are less fiddly, so get them out of the
 // way)
 
+// choose one: all black keys at once, or in two prints to avoid curling
 //packed_plated_black_keys();
+// -- OR --
+//plated_black_keys_low_half();
+//plated_black_keys_high_half();
 
 // switch to white filament (but no need to push it all the way through; color
 // isn't important for support)

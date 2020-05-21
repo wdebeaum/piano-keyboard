@@ -13,6 +13,9 @@ $(GOAL): $(OFILES)
 %.o: %.c $(HFILES)
 	$(CC) -c $(CFLAGS) $<
 
+README.html: README.md
+	markdown_py -f $@ -e utf-8 -x tables $<
+
 clean:
-	rm -f $(GOAL) $(OFILES)
+	rm -f $(GOAL) $(OFILES) README.html
 

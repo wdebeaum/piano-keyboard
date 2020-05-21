@@ -3,6 +3,10 @@
  * 2020-05-21
  */
 
+//
+// measurements
+//
+
 // measurements taken from my optimus md-1150
 octave = 162.5;
 white_width = 21.8;
@@ -153,7 +157,9 @@ wire_radius = 0.644/2;
 
 // end measurements
 
+//
 // parameters that depend on printer capabilities
+//
 
 // height of a single layer of extrusion
 layer_height = 0.4;
@@ -175,7 +181,9 @@ epsilon = 0.01;
 // use many facets for cylinders
 $fn=24;
 
+//
 // common computed values
+//
 
 // gap between keys and their supports
 support_gap = gap + thin_wall_deduction + sliding_deduction;
@@ -207,6 +215,10 @@ skewer_hole_radius = skewer_radius + gap + sliding_deduction;
 
 support_hole_ir = screw_threads_radius + small_v_hole_shrinkage; // NOTE: no gap so threads bite
 support_hole_or = support_hole_ir + wall_thickness;
+
+//
+// parts
+//
 
 // bobby pin (for showing assembly)
 module bpin() {

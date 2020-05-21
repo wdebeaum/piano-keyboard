@@ -61,3 +61,6 @@ _autosave-*
 
 # VRML export
 *.wrl
+
+# md->html
+README.html

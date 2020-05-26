@@ -33,6 +33,8 @@ Quantities shown here are for one octave (though you probably want to make at le
 | `key_a` | 1 | A key |
 | `key_b` | 1 | B key |
 
+These total about 40cm<sup>3</sup> of black plastic, 60cm<sup>3</sup> of white plastic, and 50cm<sup>3</sup> of additional plastic of any color (the color of the supports doesn't matter).
+
 ### Electronic components
 
 | Ref. | Qty | Mfg. part no. | Digikey part no. | Description |
@@ -57,10 +59,10 @@ Note that you might want to order 3 more resistors for the whole keyboard, so yo
 | ~30cm | Stranded copper wire | Cut from old telephone cord |
 | ~60cm | 22 AWG solid copper wire | I got mine from Adafruit |
 | 162.5×138.8mm | Corrugated cardboard | Cut from shipping boxes |
-| ??? | Solder | been using the same spool forever... |
-| ??? | Acetone | Grocery store, nail care section ("nail polish remover") |
-| ??? | Cotton swab | Grocery store, probably near the acetone |
-| ??? | Superglue | Grocery store, housewares section |
+| 141 joints' worth | Solder | been using the same spool forever... |
+| ~6 | Cotton swab | Grocery store, probably near the acetone |
+| enough to soak the swabs | Acetone | Grocery store, nail care section ("nail polish remover") |
+| ~16 drops | Superglue | Grocery store, housewares section |
 
 ### Summary image
 
@@ -106,16 +108,18 @@ Cut off the excess leads from the resistor and capacitors, and optionally save t
 
 Make the switches from the bobby pins and wire, and solder them to the top side of the board (opposite all the other components):
 
- - Unbend the bobby pin slightly, so that it fits snugly in the slots in the support, and takes an appropriate amount of force to push down.
+ - Unbend the bobby pin slightly, so that it fits snugly in the slots in the support, and takes an appropriate amount of force to push down. If it doesn't go in all the way, try reaming out the slot with a drill bit to remove any extra blobs of plastic that may be interfering (especially from the top, where the bridging might have sagged into the slot).<br>![making the pin fit](images/making_pin_fit.jpg)
  - Remove any coating from the wavy (bottom) side of the bobby pin where you'll be soldering, and from the inside of the straight (top) side where the other wires will make contact when the switch is closed. You can do this with acetone and a cotton swab. Don't remove the coating from the bulbs on the ends or they'll fall off and leave you with a sharp edge. Also don't inhale the acetone.
- - Cut 2-3cm of uninsulated stranded copper wire and wrap one end around the wavy side of the bobby pin, with enough of the end of the wire hanging over the end of the pin so that you can poke it through the hole closest to the edge of the PCB. Solder the wire and the pin together where you wrapped it.
+ - Cut 2-3cm of uninsulated stranded copper wire and wrap one end around the wavy side of the bobby pin, with enough of the end of the wire hanging over the end of the pin so that you can poke it through the hole closest to the edge of the PCB. Solder the wire and the pin together where you wrapped it.<br>![preparing the bobby pin](images/preparing_bobby_pin.jpg)
  - Solder that wire into that hole, making sure that the bottom side of the bobby pin ends right about where the PCB begins (no overlap, maybe a 1mm gap). If the wire is too short, the pin won't go all the way into its slot; if it's too long, it will arch up and interfere with the other wires.
  - Strip the ends of a ~2cm piece of solid copper wire, and solder it into the middle hole. You can reuse the leads cut off of the resistor and capacitors for some of these.
- - Similarly use ~3cm of solid copper wire with the last hole.
+ - Similarly use ~3.5cm of solid copper wire with the last hole.<br>![wire lengths](images/wire_lengths.jpg)
  - Bend the shorter, middle wire straight into the middle of the bobby pin, with the free end bent up a little.
  - Bend the longer wire away from the bobby pin, along the board, and then make a sharp U-shaped bend up and back towards the middle of the bobby pin, not as far as the shorter wire. Again, bend the free end up, a little less than the shorter wire.
 
-You might want to save the wire bending steps for when the PCB is inserted into the plastic support. The goal is for the bobby pin, when pressed down, to make contact with the long wire first, and then the short wire. The U-bend in the long wire makes it so it can spring back instead of being permanently bent down when you first press the key. It will take some testing and iteration to get this right for each key. You can use an extra bobby pin or two as tools to help you adjust the positions of the wires while they are inside the support.
+![bent wires](images/wires_bent.jpg)
+
+The wire bending doesn't have to be perfect for now; save that for when the PCB is inserted into the plastic support. The goal is for the bobby pin, when pressed down, to make contact with the long wire first, and then the short wire. The U-bend in the long wire makes it so it can spring back instead of being permanently bent down when you first press the key.
 
 Note that the C and G keys have screw holes near where the longer wire is soldered. The U-bend in the longer wires for these keys should just about touch the screw heads. In general the U-bends for all the keys need to be tight in order to avoid having the key push down on the wire there and make it lose contact with the bobby pin.
 
@@ -123,11 +127,18 @@ After you're finished soldering, it's a good idea to check for short circuits wi
 
 ### Final Assembly
 
-At this point, you should be sure that all the keys fit on their supports and slide freely.
+At this point, you should be sure that all the keys fit on their supports and slide freely. But leave the keys off for the next step.
 
 #### Insert PCB into support
 
-Line up all the bobby pins in their slots in the support, and start pushing them in. If you printed the support in two halves, you can do this one half at a time to make it easier. Be careful not to break the stranded wires connecting the pins to the PCB. You can use the top of one of the white keys as a tool to push on the top sides of all the pins at once, to make them go in evenly. Note that if the switch wires stick out of the bottom side of the board a little, they might catch on the part of the support under the PCB. You can wiggle the PCB up and down a little to get past this, and get the wires that stick out into the depressions for them in the PCB support struts. Push the bobby pins and PCB all the way in, so the back edge of the PCB is up against the front of the main part of the support. You should be able to see the back of the pins through the holes in the backs of the support walls. If you need to undo this step later you can poke another pin through those holes from the back, to loosen the pins.
+Line up all the bobby pins in their slots in the support, and start pushing them in. If you printed the support in two halves, you can do this one half at a time to make it easier. Be careful not to break the stranded wires connecting the pins to the PCB. You can use the top of one of the white keys as a tool to push on the top sides of all the pins at once, to make them go in evenly. Be patient. Note that if the switch wires stick out of the bottom side of the board a little, they might catch on the part of the support under the PCB. You can wiggle the PCB up and down a little to get past this, and get the wires that stick out into the depressions for them in the PCB support struts. Push the bobby pins and PCB all the way in, so the back edge of the PCB is up against the front of the main part of the support.
+
+![inserting one pin](images/inserting_bobby_pin.gif)
+![half the switches inserted](images/half_the_switches_inserted.jpg)
+
+You should be able to see the back of the pins through the holes in the backs of the support walls. If you need to undo this step later you can poke another pin through those holes from the back, to loosen the pins.
+
+![ejecting a pin from the back](images/ejecting_bobby_pin.gif)
 
 #### Secure supports and PCB
 
@@ -135,9 +146,13 @@ Insert the skewers in the two horizontal holes in the bottom of the support (now
 
 Insert the four screws through the PCB and into the corresponding holes in the support. You might need to use some force when screwing them in for the first time, in order to cut the threads into the plastic. Do this on a surface you don't care about the finish of, just in case the screws poke out a little from the bottom of the support.
 
+![skewers and screws inserted](images/skewers_and_screws_inserted.jpg)
+
 #### Check switches
 
-Make sure the switch wires are bent properly (see PCB instructions above). If you already bent them into place, check them again, since inserting the PCB into the support might have knocked them out of alignment. Look into the bobby pin slot from the front and press down on the top of the pin with your finger, so you can see if and when the wires make contact with the pin. You might also want to connect the electronics at this point so you can see when connections are being made that way.
+Make sure the switch wires are bent properly (see PCB instructions above), since inserting the PCB into the support might have knocked them out of alignment. Look into the bobby pin slot from the front and press down on the top of the pin with your finger, so you can see if and when the wires make contact with the pin. You might also want to connect the electronics at this point so you can see when connections are being made that way. It will take some testing and iteration to get this right for each key. You can use an extra bobby pin or two as tools to help you adjust the positions of the wires while they are inside the support.
+
+![adjusting the switch wires for C♯ key with another bobby pin](images/tuning_switch.jpg)
 
 #### Attach keys
 
@@ -148,6 +163,8 @@ If you printed the support in two halves, check that the F key doesn't noisily r
 #### Attach cardboard
 
 Cut a rectangular piece of corrugated cardboard, 162.5mm × 138.8mm (these measurements are `echo`'d by OpenSCAD when you show the default `assembled();` scene). Cut it so that the corrugations run parallel to the keys (along the Y dimension). This cardboard helps the keyboard not to tip forward when you play chords, so you don't want it to fold up along the X dimension.
+
+![cardboard cut to size](images/cardboard_cut.jpg)
 
 Turn the keyboard upside down and put a small amount of glue on each of the bottom surfaces (and on the skewers if they're still loose). Press the cardboard onto the glued surfaces, taking care to align the back corners of the support with the back corners of the cardboard. Turn the keyboard right side up again and let the glue set.
 

@@ -63,6 +63,6 @@ _autosave-*
 *.wrl
 
 # md->html
-README.html
+*.html
 
 printrbot/

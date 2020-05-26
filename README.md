@@ -4,7 +4,7 @@ By William de Beaumont
 
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
-![two octave modules being connected](data:image/gif;base64,R0lGODlhQQA+AIABAAAAAP///yH/C05FVFNDQVBFMi4wAwEAAAAh+QQAZAD/ACwAAAAAQQA+AAAC/oSPicHtD6OcQVlFs963mz0dYORdI7WcVYmpzfemHNu6K3zjKJ2oupzL8BYAnyiGO0qGwBOwp2E2nTLlTloU6hy97AwLmua8USwZchZbteaQVTwyr9Fv+FW+pf/md3y4/odnRzJIKPjEx1CIdCjiBWXz0NhkkhdI5MfoQQUFBjnW8VUlpQjJw2YKVloX2sfKAgr6uGn4KWuh+YG7uitZk9vKSyv8aeI7BNxLTFP7m9o1p3r8S7xcxqynzNVpuwQ7bZx9tLhMGdpdbTR8m4Q+ph5etE6tGVeSK7sNZ+k9v1tDz8W3cPXwRRpoStwscgpxQSvVbCE/N0wkKeqnhGE5k1g/KGoEh+mcPF4YJ3qEdi+LtoL2KrU6VavlP1ow0XACiGFkzmAHg7XQ5aimQJc79elilwgVN5qYkCYtOapThRtTdQp1tQZg1RVVSSk193NV1408QfJpCnEqWWxmz2pTeVROW35BxXLl2ijZGaMwkrxYe6rs375k9gI+5C0ICb6TAtJRe/FwYxRi88hrfI/y3a8FAAAh+QQAZAD/ACwAAAAAQQA+AAAC/oSPicHtD6OcQVlFs963mw2GjneJJkha50qlKguP7rJ+MTPTZxLnev0L+Q4mYoMnGhqFOgxHCXg+mkEJNPq04WjLFjTZdWaVRao2c+0ezzIiFpVmb9Vr+iTenNorewh+aSZX9vfGd4a0Qyj3Izb2dxdY6LXwGNEIZnRlaHepgfg1V7UpOQmYFrpHCsnoM4r1AhTUivpRMkg31EaSWAXqaguHWOdBO0wpaCX2uqsXibwq65LMJewJ+9sxTf3sZxv1jd1Jq2qtLO2qzd3snXktHsrEbkOsqx5c4sQ83kNcvW36Dk0uHIbWabnm6NwbXOZEQZvBp0JBS8IcUhxoLN2hhng5xtUiF/Bhx3B9qgmECM6NPoMcj1HbRLIkuYsYeBy0meKGJngjYymUOO/juVs4P22BGdPkSSSNlqX0SK/cp5pz6iQFJpLNN5ULq8bJSkoowa5cdxqUBbSWxIgEr670aOmI3LU3CRljyDSZW5QI5W4d0Wbv10leBA+eElHdVkXZ/KDphqAAADs=)
+![two octave modules being connected](images/two_octaves_connecting.gif)
 
 ## Description
 
@@ -62,6 +62,10 @@ Note that you might want to order 3 more resistors for the whole keyboard, so yo
 | ??? | Cotton swab | Grocery store, probably near the acetone |
 | ??? | Superglue | Grocery store, housewares section |
 
+### Summary image
+
+![picture of the parts listed above, laid out on a table](images/all_parts.jpg)
+
 ## Building Instructions
 
 ### Plastic Parts
@@ -88,13 +92,15 @@ The circuit is designed in [KiCAD](https://kicad-pcb.org/). You can open the pro
 
 All the components on the PCB are through-hole soldered. Everything except for the switches (i.e. wires) goes on the bottom. I recommend leaving the switches for last, and doing everything else in order from thinnest to thickest:
 
- - Connectors J1-2. Do the male connector J1 first, while it's plugged into the female connector, to make sure there's enough space between the pins and the board.
+ - Connectors J1-2. Do the male connector J1 first, while it's plugged into the female connector, to make sure there's enough space between the pins and the board.<br>![how to solder J1](images/soldering_j1.jpg)
  - Resistor R1.
  - Chips U1-3. Note that these set the maximum height of the board.
  - Capacitors C1-3. These are about the same height; if not, bend them over a little.
- - Resistor networks RN1-3. These are slightly taller than the chips, but you can bend them over slightly before soldering. I recommend bending them away from the adjacent chips, so that the pins poking through the other side go towards the chips, and thus towards the middle of the key they're under. This should make them fit in the hollow in the bottom of the key when it's pressed.
+ - Resistor networks RN1-3. These are slightly taller than the chips, but you can bend them over slightly before soldering. I recommend bending them away from the adjacent chips, so that the pins poking through the other side go towards the chips, and thus towards the middle of the key they're under. This should make them fit in the hollow in the bottom of the key when it's pressed.<br>![how to bend RN1-3](images/bending_rn.jpg)
 
 Cut off the excess leads from the resistor and capacitors, and optionally save them for later.
+
+![board with most components soldered and leads trimmed](images/most_soldered.jpg)
 
 #### Make switches on the top
 

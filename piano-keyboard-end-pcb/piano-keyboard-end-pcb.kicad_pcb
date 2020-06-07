@@ -725,7 +725,7 @@
       (net 3 /A1-MOD))
     (pad 3 thru_hole circle (at 0 -5 180) (size 1.8 1.8) (drill 1) (layers *.Cu *.Mask)
       (net 1 GND))
-    (model ${KISYS3DMOD}/Potentiometer_THT.3dshapes/Potentiometer_Bourns_PTV09A-2_Single_Horizontal.wrl
+    (model ${KIPRJMOD}/Potentiometer_Bourns_PTV09A-2_Single_Horizontal.wrl
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -784,7 +784,7 @@
       (net 4 /A0-PITCH))
     (pad 3 thru_hole circle (at 0 -5 180) (size 1.8 1.8) (drill 1) (layers *.Cu *.Mask)
       (net 1 GND))
-    (model ${KISYS3DMOD}/Potentiometer_THT.3dshapes/Potentiometer_Bourns_PTV09A-2_Single_Horizontal.wrl
+    (model ${KIPRJMOD}/Potentiometer_Bourns_PTV09A-2_Single_Horizontal.wrl
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))

@@ -1,4 +1,4 @@
-(module Switchcraft_RA49B11 (layer F.Cu) (tedit 5EDC411C)
+(module Switchcraft_RA49B11 (layer F.Cu) (tedit 5EDD385B)
   (fp_text reference REF** (at 0 10.922) (layer F.SilkS)
     (effects (font (size 1 1) (thickness 0.15)))
   )
@@ -20,4 +20,9 @@
   (pad T thru_hole circle (at -4.7498 5.08) (size 4.1656 4.1656) (drill 2.0828) (layers *.Cu *.Mask))
   (pad S thru_hole circle (at -4.7498 -12.7) (size 4.1656 4.1656) (drill 2.0828) (layers *.Cu *.Mask))
   (pad "" np_thru_hole circle (at 0 0) (size 3.2512 3.2512) (drill 3.2512) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/piano-keyboard-end-pcb.pretty/Switchcraft_RA49B11.wrl
+    (at (xyz 0 0 0))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )

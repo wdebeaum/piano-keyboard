@@ -51,8 +51,8 @@ screw2_x = 0.67*25.4;
 screw2_y = -2.9*25.4;
 
 // buttons
-button_radius = 0.138*25.4/2;
-button_thickness = 0.335*25.4;
+button_radius = 3.51/2;
+button_thickness = 5;
 // button centers:
 //    x1  x2  x3
 // y1     sw1

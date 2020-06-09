@@ -27,16 +27,7 @@
   - two holes in left side of enclosure, near top, to poke other ends of wire through
 */
 
-//
-// printer-dependent parameters (see also octave.scad)
-//
-
-wall_thickness = 1;
-gap = 0.3;
-thin_wall_deduction = 0.2;
-sliding_deduction = 0.3;
-epsilon = 0.01;
-$fn=24;
+include <common.scad>;
 
 //
 // locations and sizes of PCB features
@@ -48,7 +39,6 @@ $fn=24;
 // the board itself
 pcb_width = 1.62*25.4;
 pcb_height = 3.23*25.4;
-pcb_thickness = 1.6;
 
 // Teensy 4.0
 teensy_min_x = 0.87*25.4;

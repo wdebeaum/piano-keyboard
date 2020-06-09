@@ -3,6 +3,8 @@
  * 2020-05-21
  */
 
+include <common.scad>;
+
 //
 // measurements
 //
@@ -106,30 +108,8 @@ bpin_m_pitch = 22 / 4;
 
 bpin_angle = 7.4; // after unbending
 
-// skewer measurements
-
-skewer_radius = 3 / 2; // 3mm diameter skewers
-
-// M3 screw measurements
-
-/*   |    | head radius
-      _________  ____
-     /         \ head height
-     |_________| ____
-        <   >     ^
-	<   >     threads height
-	<___>    _V__
-       |  | threads radius
-*/
-
-screw_threads_radius = 3/2;
-screw_threads_height = 6;
-screw_head_radius = 5/2;
-screw_head_height = 2;
-
 // electronics measurements
 
-pcb_thickness = 1.6;
 // this is what the TI datasheet says:
 //chip_thickness = 2*2.54; // 2/10 inch
 // this is what I measured (includes wide part of pins extending below plastic)
@@ -150,36 +130,9 @@ pcb_hole_3_y =-0.60	*25.4;
 pcb_hole_4_x = 5.75	*25.4;
 pcb_hole_4_y =-1.05	*25.4;
 
-pcb_hole_radius = 3.2 / 2;
-
-// 22 AWG wire
-wire_radius = 0.644/2;
+//pcb_hole_radius = 3.2 / 2; // unused
 
 // end measurements
-
-//
-// parameters that depend on printer capabilities
-//
-
-// height of a single layer of extrusion
-layer_height = 0.4;
-// how thick should walls be, in general?
-wall_thickness = 1;
-// size of gap between parts that are meant to fit together but not slide easily
-gap = 0.3;
-// additional gap for thin walls that tend to ooze and become thicker than
-// designed
-thin_wall_deduction = 0.2;
-// additional gap for parts that are meant to slide easily past each other
-sliding_deduction = 0.3;
-// how much small vertical holes shrink (additional radius to compensate)
-small_v_hole_shrinkage = 0.25;
-
-// small value used to avoid coinciding surfaces for CSG operations
-epsilon = 0.01;
-
-// use many facets for cylinders
-$fn=24;
 
 //
 // common computed values
@@ -210,11 +163,6 @@ support_base_height = pcb_thickness + chip_thickness;
 support_width = hollow_width - 2*support_gap;
 support_depth = 50;
 support_back_depth = 3*wall_thickness;
-
-skewer_hole_radius = skewer_radius + gap + sliding_deduction;
-
-support_hole_ir = screw_threads_radius + small_v_hole_shrinkage; // NOTE: no gap so threads bite
-support_hole_or = support_hole_ir + wall_thickness;
 
 //
 // parts
@@ -830,13 +778,6 @@ module support_high_half() {
       translate([f_sharp_x, -(300 - key_back_depth - epsilon), -(support_base_height + support_gap + epsilon)])
     cube([octave - f_sharp_x - gap + epsilon, 300,300]);
   }
-}
-
-// screws for affixing the PCB to the support, for viewing assembly
-module screw() {
-  cylinder(r=screw_head_radius, h=screw_head_height);
-    translate([0,0,-6])
-  cylinder(r=screw_threads_radius, h=screw_threads_height);
 }
 
 // all screws in assembled position

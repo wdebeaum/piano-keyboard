@@ -21,7 +21,7 @@
  - taper top and left sides towards back, where teensy is
   - left side taper must be 45° to be printable
  - pitch bend knob torsion spring
-  - two slots in knob opposite finger notch, to loop wire through
+  # two slots in knob opposite finger notch, to loop wire through
   - wire wraps around center post at least once
   - wire makes 90° bend to right on other side of knob, so knob can push wire into enclosure
   - two holes in left side of enclosure, near top, to poke other ends of wire through
@@ -214,7 +214,40 @@ module knob() {
 	// finger notch
 	  translate([-(knob_radius+finger_radius-finger_depth), 0, -epsilon])
 	cylinder(r=finger_radius, h=knob_width+2*epsilon);
-	// TODO anchor for torson spring for pitch bend knob
+	// anchor for torson spring for pitch bend knob
+	// bottom hole
+	  translate([
+	    knob_radius - (knob_wall_thickness+1),
+	    -(wire_radius+gap),
+	    (knob_width - (wall_thickness + 4*(wire_radius+gap)))/2
+	  ])
+	cube([
+	  knob_wall_thickness+1/*fudge for curvature*/,
+	  2*(wire_radius+gap),
+	  2*(wire_radius+gap)
+	]);
+	// top hole
+	  translate([
+	    knob_radius - (knob_wall_thickness+1),
+	    -(wire_radius+gap),
+	    (knob_width + wall_thickness)/2
+	  ])
+	cube([
+	  knob_wall_thickness+1/*fudge for curvature*/,
+	  2*(wire_radius+gap),
+	  2*(wire_radius+gap)
+	]);
+	// outer trench
+	  translate([
+	    knob_radius - 2*(wire_radius+gap),
+	    -(wire_radius+gap),
+	    (knob_width - (wall_thickness+4*(wire_radius+gap)))/2
+	  ])
+	cube([
+	  2*(wire_radius+gap)+epsilon,
+	  2*(wire_radius+gap),
+	  wall_thickness+4*(wire_radius+gap)
+	]);
       }
       // inner post
       cylinder(r=pot_shaft_radius+gap+wall_thickness, h=knob_width);

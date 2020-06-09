@@ -79,12 +79,14 @@ button_y6 = -2.47*25.4;
 
 // potentiometers
 pot_shaft_radius = 6/2;
-pot_shaft_max_x = 0;
-pot_shaft_length = 20;
+pot_shaft_max_x = 0.005*25.4;
+pot_shaft_length = 20-8; // quoted as 8mm, but that includes pot body
 pot_shaft_min_x = pot_shaft_max_x - pot_shaft_length;
-pot1_y = -1.35*25.4;
-pot2_y = -2.9*25.4;
-pot_z = 0.394*25.4;
+pot_flat_length = 7;
+pot_flat_depth = 6-4.5; // how far in from where the circumference would be otherwise
+pot1_shaft_y = -1.35*25.4;
+pot2_shaft_y = -2.9*25.4;
+pot_shaft_z = 0.394*25.4;
 
 // sustain pedal jack
 sus_radius = 0.1875*25.4;
@@ -96,6 +98,18 @@ sus_z = 0.492*25.4;
 top_component_thickness = 0.708*25.4;
 // ditto for components on bottom (J5)
 bottom_component_thickness = 0.1*25.4;
+
+//
+// other parameters
+//
+
+knob_radius = 15;
+knob_width = pot_shaft_length - (wall_thickness+2*(gap+sliding_deduction));
+knob_min_x = pot_shaft_min_x;
+// use thicker outer wall for knobs so that the gap doesn't show much
+knob_wall_thickness = 5;
+finger_radius = 5;
+finger_depth = 2;
 
 //
 // non-printed parts
@@ -116,51 +130,101 @@ module pcb() {
 // basic enclosure sketch
 //
 
-%pcb();
-difference() {
-  electronics_height = pcb_height + teensy_height + teensy_min_y;
-  electronics_thickness = top_component_thickness + pcb_thickness + bottom_component_thickness;
-  electronics_min_z = -(pcb_thickness + bottom_component_thickness);
-  // main body
-    translate([-(gap+wall_thickness), -(pcb_height+gap+wall_thickness), electronics_min_z-(gap+wall_thickness)])
-  cube([pcb_width+gap+wall_thickness, electronics_height+2*(gap+wall_thickness), electronics_thickness+2*(gap+wall_thickness)]);
-  // main hollow
-    translate([-gap, -(pcb_height+gap), electronics_min_z-gap])
-  cube([pcb_width+gap+epsilon, electronics_height+2*gap, electronics_thickness+2*gap]);
-  hole_thickness = wall_thickness+2*epsilon;
-  // hole for usb receptacle
-    translate([usb_min_x-gap, usb_max_y-hole_thickness+epsilon, usb_min_z-gap])
-  cube([usb_width+2*gap, hole_thickness, usb_thickness+2*gap]);
-  // hole for led (light pipe?)
-    translate([teensy_led_x, teensy_led_y, top_component_thickness+gap-epsilon])
-  cylinder(r=teensy_led_radius, h=hole_thickness);
-  // hole for sustain pedal jack
-    translate([sus_x, sus_y-gap+epsilon, sus_z])
-    rotate([90,0,0])
-  cylinder(r=sus_radius+gap, h=hole_thickness);
-  // holes for pots
-    translate([epsilon-gap, pot1_y, pot_z])
-    rotate([0,-90,0])
-  cylinder(r=pot_shaft_radius+gap+sliding_deduction, h=hole_thickness);
-    translate([epsilon-gap, pot2_y, pot_z])
-    rotate([0,-90,0])
-  cylinder(r=pot_shaft_radius+gap+sliding_deduction, h=hole_thickness);
-  // holes for button stalks
-    translate([0, 0, top_component_thickness+gap-epsilon])
-  union() {
-      translate([button_x2, button_y1, 0])
-    cylinder(r=button_radius, h=hole_thickness);
-      translate([button_x2, button_y2, 0])
-    cylinder(r=button_radius, h=hole_thickness);
-      translate([button_x1, button_y3, 0])
-    cylinder(r=button_radius, h=hole_thickness);
-      translate([button_x3, button_y3, 0])
-    cylinder(r=button_radius, h=hole_thickness);
-      translate([button_x2, button_y4, 0])
-    cylinder(r=button_radius, h=hole_thickness);
-      translate([button_x1, button_y5, 0])
-    cylinder(r=button_radius, h=hole_thickness);
-      translate([button_x2, button_y6, 0])
-    cylinder(r=button_radius, h=hole_thickness);
+module enclosure_sketch() {
+  difference() {
+    electronics_height = pcb_height + teensy_height + teensy_min_y;
+    electronics_thickness = top_component_thickness + pcb_thickness + bottom_component_thickness;
+    electronics_min_z = -(pcb_thickness + bottom_component_thickness);
+    // main body
+      translate([-(gap+wall_thickness), -(pcb_height+gap+wall_thickness), electronics_min_z-(gap+wall_thickness)])
+    cube([pcb_width+gap+wall_thickness, electronics_height+2*(gap+wall_thickness), electronics_thickness+2*(gap+wall_thickness)]);
+    // main hollow
+      translate([-gap, -(pcb_height+gap), electronics_min_z-gap])
+    cube([pcb_width+gap+epsilon, electronics_height+2*gap, electronics_thickness+2*gap]);
+    hole_thickness = wall_thickness+2*epsilon;
+    // hole for usb receptacle
+      translate([usb_min_x-gap, usb_max_y-hole_thickness+epsilon, usb_min_z-gap])
+    cube([usb_width+2*gap, hole_thickness, usb_thickness+2*gap]);
+    // hole for led (light pipe?)
+      translate([teensy_led_x, teensy_led_y, top_component_thickness+gap-epsilon])
+    cylinder(r=teensy_led_radius, h=hole_thickness);
+    // hole for sustain pedal jack
+      translate([sus_x, sus_y-gap+epsilon, sus_z])
+      rotate([90,0,0])
+    cylinder(r=sus_radius+gap, h=hole_thickness);
+    // holes for pots
+      translate([epsilon-gap, pot1_shaft_y, pot_shaft_z])
+      rotate([0,-90,0])
+    cylinder(r=pot_shaft_radius+gap+sliding_deduction, h=hole_thickness);
+      translate([epsilon-gap, pot2_shaft_y, pot_shaft_z])
+      rotate([0,-90,0])
+    cylinder(r=pot_shaft_radius+gap+sliding_deduction, h=hole_thickness);
+    // holes for button stalks
+      translate([0, 0, top_component_thickness+gap-epsilon])
+    union() {
+	translate([button_x2, button_y1, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x2, button_y2, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x1, button_y3, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x3, button_y3, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x2, button_y4, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x1, button_y5, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x2, button_y6, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+    }
   }
 }
+
+//
+// mod/pitch pot knob
+//
+
+module knob() {
+  difference() {
+    union() {
+      // outer body
+      difference() {
+	cylinder(r=knob_radius, h=knob_width);
+	  translate([0,0,wall_thickness])
+	cylinder(r=knob_radius-knob_wall_thickness, h=knob_width-wall_thickness+epsilon);
+	// finger notch
+	  translate([-(knob_radius+finger_radius-finger_depth), 0, -epsilon])
+	cylinder(r=finger_radius, h=knob_width+2*epsilon);
+	// TODO anchor for torson spring for pitch bend knob
+      }
+      // inner post
+      cylinder(r=pot_shaft_radius+gap+wall_thickness, h=knob_width);
+    }
+    // shaft hole
+      translate([0,0,-epsilon])
+    difference() {
+      cylinder(r=pot_shaft_radius+gap, h=knob_width+2*epsilon);
+      // flat
+	rotate([0,0,-90])
+        translate([
+	  -(pot_shaft_radius+gap+epsilon),
+	  pot_shaft_radius+gap-pot_flat_depth,
+	  -2*epsilon
+	])
+      cube([
+        2*(pot_shaft_radius+gap+epsilon),
+        2*(pot_shaft_radius+gap+epsilon),
+        pot_flat_length - gap + 2*epsilon
+      ]);
+    }
+  }
+}
+
+%pcb();
+enclosure_sketch();
+  translate([pot_shaft_min_x, pot1_shaft_y, pot_shaft_z])
+  rotate([0,90,0])
+knob();
+  translate([pot_shaft_min_x, pot2_shaft_y, pot_shaft_z])
+  rotate([0,90,0])
+knob();

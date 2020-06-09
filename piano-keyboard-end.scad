@@ -1,4 +1,7 @@
+//
 // printer-dependent parameters (see also piano-keyboard.scad)
+//
+
 wall_thickness = 1;
 gap = 0.3;
 thin_wall_deduction = 0.2;
@@ -6,7 +9,10 @@ sliding_deduction = 0.3;
 epsilon = 0.01;
 $fn=24;
 
+//
 // locations and sizes of PCB features
+//
+
 // reference point is top left corner of PCB; Y is inverted from KiCAD
 // x->width, y->height, z->thickness
 
@@ -72,8 +78,10 @@ button_y5 = -2.28*25.4;
 button_y6 = -2.47*25.4;
 
 // potentiometers
-pot_radius = 0.134*25.4;
-pot_x = 0;
+pot_shaft_radius = 6/2;
+pot_shaft_max_x = 0;
+pot_shaft_length = 20;
+pot_shaft_min_x = pot_shaft_max_x - pot_shaft_length;
 pot1_y = -1.35*25.4;
 pot2_y = -2.9*25.4;
 pot_z = 0.394*25.4;
@@ -89,6 +97,10 @@ top_component_thickness = 0.708*25.4;
 // ditto for components on bottom (J5)
 bottom_component_thickness = 0.1*25.4;
 
+//
+// non-printed parts
+//
+
 module pcb() {
     translate([0,0,-pcb_thickness/2])
   import("piano-keyboard-end-pcb/piano-keyboard-end-pcb.stl");
@@ -99,6 +111,10 @@ module pcb() {
     translate([usb_min_x, usb_max_y - usb_height, usb_min_z])
   cube([usb_width, usb_height, usb_thickness]);
 }
+
+//
+// basic enclosure sketch
+//
 
 %pcb();
 difference() {
@@ -125,10 +141,10 @@ difference() {
   // holes for pots
     translate([epsilon-gap, pot1_y, pot_z])
     rotate([0,-90,0])
-  cylinder(r=pot_radius+gap+sliding_deduction, h=hole_thickness);
+  cylinder(r=pot_shaft_radius+gap+sliding_deduction, h=hole_thickness);
     translate([epsilon-gap, pot2_y, pot_z])
     rotate([0,-90,0])
-  cylinder(r=pot_radius+gap+sliding_deduction, h=hole_thickness);
+  cylinder(r=pot_shaft_radius+gap+sliding_deduction, h=hole_thickness);
   // holes for button stalks
     translate([0, 0, top_component_thickness+gap-epsilon])
   union() {

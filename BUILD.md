@@ -4,7 +4,7 @@
 
 ### Plastic Parts
 
-The keys and their support structure can be printed on a 3D printer. Open `piano-keyboard.scad` in [OpenSCAD](https://www.openscad.org/). By default this shows one assembled octave, including ghosts for the non-printed parts. You can also see a version with a cutaway in the C key to show how things fit together, by commenting out `assembled();` and uncommenting `cutaway();`, at the end of the file.
+The keys and their support structure can be printed on a 3D printer. Open `octave.scad` in [OpenSCAD](https://www.openscad.org/). By default this shows one assembled octave, including ghosts for the non-printed parts. You can also see a version with a cutaway in the C key to show how things fit together, by commenting out `assembled();` and uncommenting `cutaway();`, at the end of the file.
 
 You may need to adjust some parameters in the section labeled "parameters that depend on printer capabilities". I use an original [Printrbot](https://reprap.org/wiki/Printrbot), printing in ABS plastic onto blue painter's tape with a coating of ABS glue (made by dissolving waste ABS in a small amount of acetone to make it just gooey enough to spread). The Printrbot has a relatively small print bed (~ 124mm × 144mm, the white keys just barely fit), and printing in ABS onto tape means I have to worry a lot about prints curling up due to differential thermal contraction, especially with long thin pieces like piano keys. I also tend to have problems with close-fitting parts, solved with the `gap` parameter and a few others for specific situations. These issues are why I don't include my STL files here, only the original OpenSCAD file; you really should make your own STLs.
 
@@ -20,7 +20,7 @@ Be careful when testing the bobby pins in their slots. They can shoot out sudden
 
 ### Printed Circuit Board (PCB)
 
-The circuit is designed in [KiCAD](https://kicad-pcb.org/). You can open the project file `piano-keyboard-pcb/piano-keyboard-pcb-v2.pro` in KiCAD and use it to export Gerber files if you need to. I used [OSH Park](https://oshpark.com/)'s 2-layer prototype service, which accepts `.kicad_pcb` files directly. I got 3 copies of this board, unpopulated, for $44.45 delivered (this was by far the most expensive part, except for my own labor).
+The circuit is designed in [KiCAD](https://kicad-pcb.org/). You can open the project file `octave-pcb/piano-keyboard-pcb-v2.pro` in KiCAD and use it to export Gerber files if you need to. I used [OSH Park](https://oshpark.com/)'s 2-layer prototype service, which accepts `.kicad_pcb` files directly. I got 3 copies of this board, unpopulated, for $44.45 delivered (this was by far the most expensive part, except for my own labor).
 
 #### Solder components to the bottom
 

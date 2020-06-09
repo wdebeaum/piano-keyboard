@@ -1,4 +1,4 @@
-/* piano-keyboard-end.scad - controls at the left end of piano-keyboard.scad
+/* end.scad - controls at the left end of octave.scad
  * William de Beaumont
  * 2020-06-08
  */
@@ -28,7 +28,7 @@
 */
 
 //
-// printer-dependent parameters (see also piano-keyboard.scad)
+// printer-dependent parameters (see also octave.scad)
 //
 
 wall_thickness = 1;
@@ -146,7 +146,7 @@ finger_depth = 2;
 
 module pcb() {
     translate([0,0,-pcb_thickness/2])
-  import("piano-keyboard-end-pcb/piano-keyboard-end-pcb.stl");
+  import("end-pcb/piano-keyboard-end-pcb.stl");
   // teensy
     translate([teensy_min_x, teensy_min_y, teensy_min_z])
   cube([teensy_width, teensy_height, teensy_thickness]);

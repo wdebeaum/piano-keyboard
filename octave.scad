@@ -1,4 +1,4 @@
-/* piano-keyboard.scad - piano keyboard with dimensions copied from my midi keyboard
+/* octave.scad - one octave of piano keyboard with dimensions copied from my midi keyboard
  * William de Beaumont
  * 2020-05-21
  */
@@ -853,7 +853,7 @@ module screws() {
 // the PCB itself, for viewing assembly
 module pcb() {
     translate([-25.4 + pcb_x_fudge, 25.4 - (support_depth - key_back_depth + support_gap), -0.8 - support_gap])
-  import("piano-keyboard-pcb/piano-keyboard-pcb-v2.stl");
+  import("octave-pcb/piano-keyboard-pcb-v2.stl");
 }
 
 // corrugated cardboard under base, corrugations aligned with keys

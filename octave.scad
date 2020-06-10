@@ -110,10 +110,6 @@ bpin_angle = 7.4; // after unbending
 
 // electronics measurements
 
-// this is what the TI datasheet says:
-//chip_thickness = 2*2.54; // 2/10 inch
-// this is what I measured (includes wide part of pins extending below plastic)
-chip_thickness = (5/32) * 25.4; // 5/32 inch
 // half of the 7/100 inch I shaved off the left side of the PCB to account for
 // forgetting about the fact that the gap between keys is on the right side of
 // the keys only when doing the above echo to get key stem centers in inches
@@ -159,7 +155,6 @@ hollow_width = key_back_width - 2*wall_thickness;
 hollow_height = white_travel;
 
 // dimensions of key supports and base
-support_base_height = pcb_thickness + chip_thickness;
 support_width = hollow_width - 2*support_gap;
 support_depth = 50;
 support_back_depth = 3*wall_thickness;

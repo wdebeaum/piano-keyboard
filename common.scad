@@ -55,6 +55,10 @@ screw_head_height = 2;
 // electronics measurements
 
 pcb_thickness = 1.6;
+// this is what the TI datasheet says:
+//chip_thickness = 2*2.54; // 2/10 inch
+// this is what I measured (includes wide part of pins extending below plastic)
+chip_thickness = (5/32) * 25.4; // 5/32 inch
 
 // 22 AWG wire
 wire_radius = 0.644/2;
@@ -67,6 +71,8 @@ skewer_hole_radius = skewer_radius + gap + sliding_deduction;
 
 support_hole_ir = screw_threads_radius + small_v_hole_shrinkage; // NOTE: no gap so threads bite
 support_hole_or = support_hole_ir + wall_thickness;
+
+support_base_height = pcb_thickness + chip_thickness;
 
 //
 // common parts

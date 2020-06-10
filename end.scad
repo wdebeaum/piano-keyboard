@@ -1,29 +1,30 @@
 /* end.scad - controls at the left end of octave.scad
  * William de Beaumont
- * 2020-06-09
+ * 2020-06-10
  */
 
 /* TODO:
- - print most of enclosure on its left side
- - print part around buttons and screws separately, upside down
-  - extend it all the way down towards the buttons and screw holes
-  - make a lip around its edge so it holds down the rest of the top
- - recess the corresponding lip in the rest of the top so the two parts of the top are flush
-  - must take care to leave room for sus pedal jack
- - print button extensions horizontally, with triangular cross-section to prevent rotation
-  - make user ends of arrow buttons triangular too, pointing out from the center
-  - make clear button end rectangular
+ # print most of enclosure on its left side
+ # print part around buttons and screws separately, upside down
+  # extend it all the way down towards the buttons and screw holes
+  # make a lip around its edge so it holds down the rest of the top
+ # recess the corresponding lip in the rest of the top so the two parts of the top are flush
+  # must take care to leave room for sus pedal jack
+ # print button extensions horizontally, with triangular cross-section to prevent rotation
+  # make user ends of arrow buttons triangular too, pointing out from the center
+  # make clear button end rectangular
+ - make button hole shapes match button shaft shapes (triangular and rectangular, not circular)
  # extend holes for sus pedal jack and USB receptacle out towards the right to enable assembly
  # add upside-down shelves along PCB edges
- ? add ribs around inside top corners
+ X add ribs around inside top corners
  # remove most of bottom side (esp. around screw holes); use glued-on cardboard instead
- ? add skewer hole corresponding to the front one on octave (will it fit under teensy?)
+ # add skewer hole corresponding to the front one on octave (will it fit under teensy?)
  # taper top and left sides towards back, where teensy is
   # left side taper must be 45° to be printable
  - pitch bend knob torsion spring
   # two slots in knob opposite finger notch, to loop wire through
-  - wire wraps around center post at least once
-  - wire makes 90° bend to right on other side of knob, so knob can push wire into enclosure
+  > wire wraps around center post at least once
+  > wire makes 90° bend to right on other side of knob, so knob can push wire into enclosure
   - two holes in left side of enclosure, near top, to poke other ends of wire through
 */
 
@@ -76,8 +77,10 @@ screw2_x = 0.67*25.4;
 screw2_y = -2.9*25.4;
 
 // buttons
-button_radius = 3.51/2;
-button_thickness = 5;
+button_radius = 3.51/2; // radius of the part of the button that moves
+button_thickness = 5; // height of the top of the button above the pcb
+button_travel = 0.010; // how much the button goes down when pressed
+button_width = 6; // width and height of the square box the button is in
 // button centers:
 //    x1  x2  x3
 // y1     sw1
@@ -110,9 +113,10 @@ pot_base_width = 9.7; // along edge of pcb
 
 // sustain pedal jack
 sus_radius = 0.1875*25.4;
-sus_x = 1.2730*25.4;
+sus_x = 1.2730*25.4; // center x
 sus_y = -pcb_height;
 sus_z = 0.492*25.4;
+sus_min_x = 0.96*25.4; // left x
 
 // max height above pcb of any component (sustain pedal jack)
 top_component_thickness = 0.708*25.4;
@@ -120,8 +124,12 @@ top_component_thickness = 0.708*25.4;
 //bottom_component_thickness = 0.1*25.4; //unused
 
 //
-// other parameters
+// other parameters and computed values
 //
+
+electronics_height = pcb_height + teensy_height + teensy_min_y;
+electronics_thickness = top_component_thickness + support_base_height;
+electronics_min_z = -support_base_height;
 
 knob_radius = 15;
 knob_width = pot_shaft_length - (wall_thickness+2*(gap+sliding_deduction));
@@ -131,7 +139,25 @@ knob_wall_thickness = 5;
 finger_radius = 5;
 finger_depth = 2;
 
+button_shaft_length = button_travel + wall_thickness + top_component_thickness - button_thickness;
+
 shelf_width = 1.5; // not wide enough to interfere with solder joints around pcb edges
+
+skewer_x = pcb_width/2; // start in middle of pcb width
+skewer_length = skewer_x+10; // stick out 1cm from right side
+skewer_y = // this depends on a lot of stuff that only it depends on in this file, so I'll just use the numbers without naming all of them:
+  -(
+  5*wall_thickness // distance from front edge of octave support to center of front skewer
+  +gap+thin_wall_deduction+sliding_deduction // support_gap; distance from back edge of octave pcb to front edge of support
+  +0.83*25.4 // distance from back of octave pcb to back of connector
+  )
+  +1.08*25.4 // distance from back of end pcb to back of connector to octave
+  ;
+skewer_z = skewer_hole_radius+wall_thickness/2 - support_base_height;
+
+button_panel_x = button_x2;
+button_panel_y = button_y3;
+button_panel_radius = button_panel_y - screw2_y + support_hole_or + gap + wall_thickness;
 
 //
 // non-printed parts
@@ -149,14 +175,11 @@ module pcb() {
 }
 
 //
-// enclosure
+// main enclosure
 //
 
 module enclosure() {
   difference() {
-    electronics_height = pcb_height + teensy_height + teensy_min_y;
-    electronics_thickness = top_component_thickness + support_base_height;
-    electronics_min_z = -support_base_height;
     // main body
       translate([-(gap+wall_thickness), -(pcb_height+gap+wall_thickness), electronics_min_z-epsilon])
     cube([pcb_width+gap+wall_thickness, electronics_height+2*(gap+wall_thickness), electronics_thickness+gap+wall_thickness+epsilon]);
@@ -164,8 +187,8 @@ module enclosure() {
       translate([-gap, -(pcb_height+gap), electronics_min_z-gap])
     cube([pcb_width+gap+epsilon, pcb_height+2*gap, electronics_thickness+2*gap]);
     // teensy hollow
-      translate([teensy_min_x-gap, teensy_min_y, electronics_min_z-gap])
-    cube([pcb_width-teensy_min_x+gap+epsilon, teensy_height+gap, -electronics_min_z+usb_min_z+usb_thickness+2*gap]);
+      translate([teensy_min_x-gap, teensy_min_y, 0])
+    cube([pcb_width-teensy_min_x+gap+epsilon, teensy_height+gap, usb_min_z+usb_thickness+gap]);
     hole_thickness = wall_thickness+2*epsilon;
     // top left bevel
       translate([teensy_min_x-(gap+wall_thickness),teensy_min_y+teensy_height+gap+wall_thickness,0])
@@ -177,6 +200,10 @@ module enclosure() {
       rotate([-27.1,0,0]) // manually tuned so edges line up
       translate([0,0,50])
     cube([100,100,100], center=true);
+    // front skewer hole (end doesn't reach far enough back for the back one)
+      translate([skewer_x-gap,skewer_y,skewer_z])
+      rotate([0,90,0])
+    cylinder(r=skewer_hole_radius/*+small_v_hole_shrinkage*/, h=skewer_length+gap);
     // hole for usb receptacle
       translate([usb_min_x-gap, usb_max_y-hole_thickness+epsilon, usb_min_z-gap])
     cube([usb_width+2*gap /*extend for assemblability*/+50, hole_thickness, usb_thickness+2*gap]);
@@ -197,24 +224,9 @@ module enclosure() {
       translate([epsilon-gap, pot2_shaft_y, pot_shaft_z])
       rotate([0,-90,0])
     cylinder(r=pot_shaft_radius+gap+sliding_deduction, h=hole_thickness);
-    // holes for button stalks
-      translate([0, 0, top_component_thickness+gap-epsilon])
-    union() {
-	translate([button_x2, button_y1, 0])
-      cylinder(r=button_radius, h=hole_thickness);
-	translate([button_x2, button_y2, 0])
-      cylinder(r=button_radius, h=hole_thickness);
-	translate([button_x1, button_y3, 0])
-      cylinder(r=button_radius, h=hole_thickness);
-	translate([button_x3, button_y3, 0])
-      cylinder(r=button_radius, h=hole_thickness);
-	translate([button_x2, button_y4, 0])
-      cylinder(r=button_radius, h=hole_thickness);
-	translate([button_x1, button_y5, 0])
-      cylinder(r=button_radius, h=hole_thickness);
-	translate([button_x2, button_y6, 0])
-      cylinder(r=button_radius, h=hole_thickness);
-    }
+    // hole for button panel
+      translate([button_panel_x, button_panel_y, top_component_thickness-epsilon])
+    cylinder(r=button_panel_radius+gap, h=hole_thickness+gap, $fn=48);
   }
   // shelves around edge of pcb
   // ..bottom
@@ -239,20 +251,127 @@ module enclosure() {
     cube([100,pot_base_width+2*gap,100], center=true);
   }
   // ..top
-  // ....under pcb and teensy, with top left bevel
-  difference() {
-      translate([-(gap+epsilon), -shelf_width+gap+epsilon, -support_base_height])
-    cube([pcb_width+gap+epsilon, shelf_width+teensy_min_y+teensy_height+epsilon, support_base_height-(pcb_thickness+gap)]);
-    // top left bevel
-      translate([teensy_min_x-(gap+wall_thickness),teensy_min_y+teensy_height+gap+wall_thickness,0])
-      rotate([0,0,-45])
-      translate([-50,0,0])
-    cube([100,100,100], center=true);
-  }
+  // ....under pcb
+    translate([-(gap+epsilon), -shelf_width+gap+epsilon, -support_base_height])
+  cube([skewer_x+epsilon, shelf_width+gap+epsilon, support_base_height-(pcb_thickness+gap)]);
   // ....over pcb
     translate([-(gap+epsilon), -shelf_width+gap+epsilon, gap])
   cube([teensy_min_x+epsilon, shelf_width+epsilon, shelf_width]);
   // TODO? shelves around teensy (I don't know its position as accurately, nor how wide its shelves should be)
+  // shelf around button panel
+  difference() {
+    $fn=48;
+    intersection() {
+	translate([button_panel_x, button_panel_y, top_component_thickness-wall_thickness])
+      cylinder(r=button_panel_radius+gap+wall_thickness, h=wall_thickness+gap+epsilon);
+	translate([-(gap+wall_thickness), -(pcb_height+gap+wall_thickness), electronics_min_z-epsilon])
+      cube([pcb_width+gap+wall_thickness, electronics_height+2*(gap+wall_thickness), electronics_thickness+gap+wall_thickness+epsilon]);
+    }
+    // center hole
+      translate([button_panel_x, button_panel_y, top_component_thickness-wall_thickness-epsilon])
+    cylinder(r=button_panel_radius-wall_thickness, h=wall_thickness+gap+3*epsilon);
+      translate([button_panel_x, button_panel_y, top_component_thickness-epsilon])
+    cylinder(r=button_panel_radius+gap, h=gap+3*epsilon);
+    // cutout for sustain pedal jack
+      translate([sus_min_x - gap, button_panel_y - (button_panel_radius + wall_thickness + epsilon), top_component_thickness-wall_thickness-epsilon])
+    cube([gap + pcb_width - sus_min_x + epsilon, button_panel_radius + epsilon, wall_thickness+gap+3*epsilon]);
+  }
+}
+
+module plated_enclosure() {
+    rotate([0,-90,0])
+    translate([wall_thickness+gap,0,0])
+  enclosure();
+}
+
+//
+// top panel with holes for buttons and screws
+//
+
+module screw_post() {
+    translate([0, 0, gap])
+  difference() {
+    cylinder(r=support_hole_or, h=top_component_thickness+epsilon);
+      translate([0,0,-epsilon])
+    cylinder(r=support_hole_ir, h=screw_threads_height);
+  }
+}
+
+module button_panel() {
+  difference() {
+    union() {
+      intersection() {
+	  translate([button_panel_x, button_panel_y, top_component_thickness+gap])
+	cylinder(r=button_panel_radius, h=wall_thickness, $fn=48);
+	  translate([-(gap+wall_thickness), -(pcb_height+gap+wall_thickness), electronics_min_z-epsilon])
+	cube([pcb_width+gap+wall_thickness, electronics_height+2*(gap+wall_thickness), electronics_thickness+gap+wall_thickness+epsilon]);
+      }
+      // button shaft guides
+      button_shaft_guide_height = top_component_thickness - button_thickness + epsilon;
+      // ...horizontal
+        translate([
+	  button_x1 - button_width/2,
+	  button_y3 - button_width/2,
+	  button_thickness + gap
+	])
+      cube([
+        button_width + button_x3 - button_x1,
+	button_width,
+	button_shaft_guide_height
+      ]);
+      // ...vertical
+        translate([
+	  button_x2 - button_width/2,
+	  button_y6 - button_width/2,
+	  button_thickness + gap
+	])
+      cube([
+        button_width,
+	button_width + button_y1 - button_y6,
+	button_shaft_guide_height
+      ]);
+      // ...lower left
+        translate([
+	  button_x1 - button_width/2,
+	  button_y5 - button_width/2,
+	  button_thickness + gap
+	])
+      cube([
+        button_width/2 + button_x2 - button_x1,
+	button_width/2 + button_y3 - button_y5,
+	button_shaft_guide_height
+      ]);
+    }
+    // holes for button shafts
+      translate([0, 0, button_thickness+gap-epsilon])
+    union() {
+      // TODO use triangular holes (except x1/y5)
+      hole_thickness = button_shaft_length+2*epsilon;
+	translate([button_x2, button_y1, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x2, button_y2, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x1, button_y3, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x3, button_y3, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x2, button_y4, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x1, button_y5, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+	translate([button_x2, button_y6, 0])
+      cylinder(r=button_radius, h=hole_thickness);
+    }
+  }
+  // screw hole posts
+  translate([screw1_x, screw1_y, 0]) screw_post();
+  translate([screw2_x, screw2_y, 0]) screw_post();
+}
+
+module plated_button_panel() {
+    translate([60,0,top_component_thickness+gap+wall_thickness])
+    rotate([0,180,0])
+  button_panel();
 }
 
 //
@@ -328,17 +447,89 @@ module knob() {
   }
 }
 
-%pcb();
-  %translate([screw1_x,screw1_y,-(pcb_thickness+gap)])
-  rotate([180,0,0])
-screw();
-  %translate([screw2_x,screw2_y,-(pcb_thickness+gap)])
-  rotate([180,0,0])
-screw();
-enclosure();
-  translate([pot_shaft_min_x, pot1_shaft_y, pot_shaft_z])
-  rotate([0,90,0])
-knob();
-  translate([pot_shaft_min_x, pot2_shaft_y, pot_shaft_z])
-  rotate([0,90,0])
-knob();
+module rect_button() {
+  intersection() {
+    union() {
+      // user side flat
+        translate([-(button_radius+wall_thickness),-wall_thickness,0])
+      cube([2*(button_radius+wall_thickness), wall_thickness, button_radius]);
+      // shaft
+        translate([-button_radius, -epsilon, 0])
+      cube([2*button_radius, button_shaft_length+epsilon, button_radius]);
+      // pcb side retention
+        translate([0,button_shaft_length,0])
+        rotate([0,0,45])
+	translate([-(button_radius+gap)/sqrt(2), -(button_radius+gap)/sqrt(2), 0])
+      cube([2*(button_radius+gap)/sqrt(2),2*(button_radius+gap)/sqrt(2),layer_height]);
+    }
+      translate([-50,-wall_thickness,0])
+    cube([100, button_shaft_length+wall_thickness, 100]);
+  }
+}
+
+module triangle_button() {
+  intersection() {
+    union() {
+      // user side flat
+        rotate([0,45,0])
+        translate([-(button_radius+wall_thickness),-wall_thickness,-(button_radius+wall_thickness)])
+      cube([2*(button_radius+wall_thickness), wall_thickness, 2*(button_radius+wall_thickness)]);
+      // shaft
+        rotate([0,45,0])
+	translate([-button_radius,-epsilon,-button_radius])
+      cube([2*button_radius, button_shaft_length+epsilon, 2*button_radius]);
+      // pcb side retention
+        translate([0,button_shaft_length,0])
+        rotate([0,0,45])
+	translate([-(button_radius+gap), -(button_radius+gap), 0])
+      cube([2*(button_radius+gap),2*(button_radius+gap),layer_height]);
+    }
+      translate([-50,-wall_thickness,0])
+    cube([100, button_shaft_length+wall_thickness, 100]);
+  }
+}
+
+module white_plated() {
+  plated_enclosure();
+  plated_button_panel();
+}
+
+module black_plated() {
+    translate([0,0,0])
+  knob();
+    translate([0,-40,0])
+  knob();
+    translate([40,-25,0])
+  rect_button();
+  for(x=[30:10:50]) {
+      translate([x,-5,0])
+    triangle_button();
+      translate([x,-45,0])
+    triangle_button();
+  }
+}
+
+module assembled() {
+  %pcb();
+    %translate([screw1_x,screw1_y,-(pcb_thickness+gap)])
+    rotate([180,0,0])
+  screw();
+    %translate([screw2_x,screw2_y,-(pcb_thickness+gap)])
+    rotate([180,0,0])
+  screw();
+  enclosure();
+  button_panel();
+    %translate([skewer_x, skewer_y, skewer_z])
+    rotate([0,90,0])
+  cylinder(r=skewer_radius, h=skewer_length);
+    translate([pot_shaft_min_x, pot1_shaft_y, pot_shaft_z])
+    rotate([0,90,0])
+  knob();
+    translate([pot_shaft_min_x, pot2_shaft_y, pot_shaft_z])
+    rotate([0,90,0])
+  knob();
+}
+
+//assembled();
+white_plated();
+//black_plated();

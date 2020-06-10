@@ -21,11 +21,11 @@
  # add skewer hole corresponding to the front one on octave (will it fit under teensy?)
  # taper top and left sides towards back, where teensy is
   # left side taper must be 45° to be printable
- - pitch bend knob torsion spring
+ # pitch bend knob torsion spring
   # two slots in knob opposite finger notch, to loop wire through
   > wire wraps around center post at least once
   > wire makes 90° bend to right on other side of knob, so knob can push wire into enclosure
-  - two holes in left side of enclosure, near top, to poke other ends of wire through
+  # two holes in left side of enclosure, near top, to poke other ends of wire through
 */
 
 include <common.scad>;
@@ -224,6 +224,9 @@ module enclosure() {
       translate([epsilon-gap, pot2_shaft_y, pot_shaft_z])
       rotate([0,-90,0])
     cylinder(r=pot_shaft_radius+gap+sliding_deduction, h=hole_thickness);
+    // hole for pitch bend torsion spring anchoring
+      translate([-(wall_thickness+gap+epsilon), pot2_shaft_y-2*(wire_radius+gap), top_component_thickness - wall_thickness - 2*(wire_radius+gap)])
+    cube([hole_thickness, 4*(wire_radius+gap), 2*(wire_radius+gap)]);
     // hole for button panel
       translate([button_panel_x, button_panel_y, top_component_thickness-epsilon])
     cylinder(r=button_panel_radius+gap, h=hole_thickness+gap, $fn=48);

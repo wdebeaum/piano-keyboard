@@ -3,31 +3,6 @@
  * 2020-06-10
  */
 
-/* TODO:
- # print most of enclosure on its left side
- # print part around buttons and screws separately, upside down
-  # extend it all the way down towards the buttons and screw holes
-  # make a lip around its edge so it holds down the rest of the top
- # recess the corresponding lip in the rest of the top so the two parts of the top are flush
-  # must take care to leave room for sus pedal jack
- # print button extensions horizontally, with triangular cross-section to prevent rotation
-  # make user ends of arrow buttons triangular too, pointing out from the center
-  # make clear button end rectangular
- # make button hole shapes match button shaft shapes (triangular and rectangular, not circular)
- # extend holes for sus pedal jack and USB receptacle out towards the right to enable assembly
- # add upside-down shelves along PCB edges
- X add ribs around inside top corners
- # remove most of bottom side (esp. around screw holes); use glued-on cardboard instead
- # add skewer hole corresponding to the front one on octave (will it fit under teensy?)
- # taper top and left sides towards back, where teensy is
-  # left side taper must be 45° to be printable
- # pitch bend knob torsion spring
-  # two slots in knob opposite finger notch, to loop wire through
-  > wire wraps around center post at least once
-  > wire makes 90° bend to right on other side of knob, so knob can push wire into enclosure
-  # two holes in left side of enclosure, near top, to poke other ends of wire through
-*/
-
 include <common.scad>;
 
 //

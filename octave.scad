@@ -787,20 +787,20 @@ module screws() {
 }
 
 // the PCB itself, for viewing assembly
-module pcb() {
+module octave_pcb() {
     translate([-25.4 + pcb_x_fudge, 25.4 - (support_depth - key_back_depth + support_gap), -0.8 - support_gap])
   import("octave-pcb/piano-keyboard-pcb-v2.stl");
 }
 
 // corrugated cardboard under base, corrugations aligned with keys
-module cardboard() {
+module octave_cardboard() {
     translate([0, -white_depth, -(cardboard_thickness + gap + support_base_height + support_gap)])
   cube([octave, key_back_depth + white_depth, cardboard_thickness]);
   echo(cardboard_x=octave, cardboard_y=key_back_depth+white_depth);
 }
 
 // all parts (including non-printed) in assembled position
-module assembled() {
+module assembled_octave() {
   // printed parts
   octave();
   // choose one: one full support or two half supports
@@ -808,18 +808,18 @@ module assembled() {
   support_low_half();
   support_high_half();
   // non-printed parts
-  %pcb();
+  %octave_pcb();
   // TODO: show switch wires
   %screws();
   %bpins();
   %skewers();
-  %cardboard();
+  %octave_cardboard();
 }
 
 // all parts assembled, with cutaway for viewing internal features
 module cutaway() {
   difference() {
-    assembled();
+    assembled_octave();
       translate([0,-60,1])
     cube([6,70,30]);
   }
@@ -968,5 +968,5 @@ module plated_keys_ab() {
 // show assembled by default
 //
 
-assembled();
+assembled_octave();
 //cutaway();

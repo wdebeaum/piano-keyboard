@@ -123,7 +123,7 @@ skewer_x = pcb_width/2; // start in middle of pcb width
 skewer_length = skewer_x+10; // stick out 1cm from right side
 skewer_y = // this depends on a lot of stuff that only it depends on in this file, so I'll just use the numbers without naming all of them:
   -(
-  5*wall_thickness // distance from front edge of octave support to center of front skewer
+  4*wall_thickness // distance from front edge of octave support to center of front skewer (thought this was 5*wt, but empirically it's 4?)
   +gap+thin_wall_deduction+sliding_deduction // support_gap; distance from back edge of octave pcb to front edge of support
   +0.83*25.4 // distance from back of octave pcb to back of connector
   )
@@ -139,7 +139,7 @@ button_panel_radius = button_panel_y - screw2_y + support_hole_or + gap + wall_t
 // non-printed parts
 //
 
-module pcb() {
+module end_pcb() {
     translate([0,0,-pcb_thickness/2])
   import("end-pcb/piano-keyboard-end-pcb.stl");
   // teensy
@@ -150,7 +150,7 @@ module pcb() {
   cube([usb_width, usb_height, usb_thickness]);
 }
 
-module cardboard() {
+module end_cardboard() {
   difference() {
       translate([
 	-(wall_thickness+gap),
@@ -532,8 +532,8 @@ module black_plated() {
   }
 }
 
-module assembled() {
-  %pcb();
+module assembled_end() {
+  %end_pcb();
     %translate([screw1_x,screw1_y,-(pcb_thickness+gap)])
     rotate([180,0,0])
   screw();
@@ -558,9 +558,9 @@ module assembled() {
     translate([pot_shaft_min_x, pot2_shaft_y, pot_shaft_z])
     rotate([0,90,0])
   knob();
-  %cardboard();
+  %end_cardboard();
 }
 
-assembled();
+assembled_end();
 //white_plated();
 //black_plated();

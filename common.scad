@@ -63,6 +63,8 @@ chip_thickness = (5/32) * 25.4; // 5/32 inch
 // 22 AWG wire
 wire_radius = 0.644/2;
 
+cardboard_thickness = 3; // a guess
+
 //
 // common computed values
 //

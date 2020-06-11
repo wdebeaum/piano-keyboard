@@ -794,7 +794,6 @@ module pcb() {
 
 // corrugated cardboard under base, corrugations aligned with keys
 module cardboard() {
-  cardboard_thickness = 3; // a guess
     translate([0, -white_depth, -(cardboard_thickness + gap + support_base_height + support_gap)])
   cube([octave, key_back_depth + white_depth, cardboard_thickness]);
   echo(cardboard_x=octave, cardboard_y=key_back_depth+white_depth);

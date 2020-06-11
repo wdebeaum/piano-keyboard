@@ -150,6 +150,26 @@ module pcb() {
   cube([usb_width, usb_height, usb_thickness]);
 }
 
+module cardboard() {
+  difference() {
+      translate([
+	-(wall_thickness+gap),
+	-(wall_thickness+gap+pcb_height),
+	-(support_base_height+gap+cardboard_thickness)
+      ])
+    cube([
+      wall_thickness+gap+pcb_width,
+      2*(wall_thickness+gap)+pcb_height+teensy_height+teensy_min_y,
+      cardboard_thickness
+    ]);
+    // top left bevel
+      translate([teensy_min_x-(gap+wall_thickness),teensy_min_y+teensy_height+gap+wall_thickness,0])
+      rotate([0,0,-45])
+      translate([-50,0,0])
+    cube([100,100,100], center=true);
+  }
+}
+
 //
 // main enclosure
 //
@@ -538,6 +558,7 @@ module assembled() {
     translate([pot_shaft_min_x, pot2_shaft_y, pot_shaft_z])
     rotate([0,90,0])
   knob();
+  %cardboard();
 }
 
 assembled();

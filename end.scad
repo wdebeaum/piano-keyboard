@@ -4,6 +4,7 @@
  */
 
 include <common.scad>;
+include <logo.scad>;
 
 //
 // locations and sizes of PCB features
@@ -254,6 +255,10 @@ module enclosure() {
       translate([sus_min_x - gap, button_panel_y - (button_panel_radius + wall_thickness + epsilon), top_component_thickness-wall_thickness-epsilon])
     cube([gap + pcb_width - sus_min_x + epsilon, button_panel_radius + epsilon, wall_thickness+gap+3*epsilon]);
   }
+  // logo on top
+    translate([25,3,top_component_thickness+gap+wall_thickness])
+    rotate([0,0,180])
+  logo();
 }
 
 module plated_enclosure() {

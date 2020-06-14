@@ -94,7 +94,7 @@ void setup() {
 
 void loop() {
   unsigned long now = micros();
-  SPI.transfer(B11111110); // load key state into shift regs on last bit
+  SPI.transfer(B11111101); // load key state into shift regs on penultimate bit
 
   // read state of control buttons on end, and sustain pedal
   byte new_button_states = SPI.transfer(B11111111);

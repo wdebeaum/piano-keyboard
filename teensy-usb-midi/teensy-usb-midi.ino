@@ -31,21 +31,21 @@ int current_reg;
 // potentiometer
 struct Pot {
   int pin;
-  int old;
-  int sum;
-  int minimum;
-  int center;
-  int center_midi;
-  int maximum;
+  long old;
+  long sum;
+  long minimum;
+  long center;
+  long center_midi;
+  long maximum;
 };
 
 Pot pitch_bend;
 Pot modulation;
 
-void init_pot(Pot& pot, int center_midi, int pin) {
+void init_pot(Pot& pot, long center_midi, int pin) {
   pot.pin = pin;
   pinMode(pin, INPUT_DISABLE); // disable jumps around logic transition levels
-  int val = analogRead(pin);
+  long val = analogRead(pin);
   pot.old = val;
   pot.sum = 0;
   pot.minimum = val;
@@ -55,26 +55,26 @@ void init_pot(Pot& pot, int center_midi, int pin) {
 }
 
 // return a midi control value corresponding to the read value of the pot
-int pot_midi_value(Pot& pot, int val) {
+int pot_midi_value(Pot& pot, long val) {
   if (val < pot.center) {
     return (val - pot.minimum) * pot.center_midi / (pot.center - pot.minimum);
   } else {
-    return (val -  pot.center) * pot.center_midi / (pot.maximum - pot.center);
+    return (val - pot.center) * pot.center_midi / (pot.maximum - pot.center) + pot.center_midi;
   }
 }
 
 // return new midi value if it changed enough to warrant a message about it;
 // otherwise return -1
-int update_pot(Pot& pot) {
-  int val = analogRead(pot.pin);
+long update_pot(Pot& pot) {
+  long val = analogRead(pot.pin);
   pot.sum += val;
   if (scan_count == 0) { // 256 scans since last computed value
     val = pot.sum / 256;
     pot.sum = 0;
-    byte old_midi_val = pot_midi_value(pot, pot.old);
+    long old_midi_val = pot_midi_value(pot, pot.old);
     if (pot.minimum > val) pot.minimum = val;
     if (pot.maximum < val) pot.maximum = val;
-    byte new_midi_val = pot_midi_value(pot, val);
+    long new_midi_val = pot_midi_value(pot, val);
     if (old_midi_val != new_midi_val) {
       pot.old = val;
       return new_midi_val;

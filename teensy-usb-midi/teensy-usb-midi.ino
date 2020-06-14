@@ -5,6 +5,7 @@
 
 #define MAX_OCTAVES 10
 
+byte scan_count;
 unsigned long switch_states[MAX_OCTAVES];
 byte times_since_change[MAX_OCTAVES*24];
 byte old_button_states;
@@ -30,6 +31,7 @@ int current_reg;
 // potentiometer
 struct Pot {
   int old;
+  int sum;
   int minimum;
   int center;
   int center_midi;
@@ -41,6 +43,7 @@ Pot modulation;
 
 void init_pot(Pot& pot, int center_midi, int val) {
   pot.old = val;
+  pot.sum = 0;
   pot.minimum = val;
   pot.center = val;
   pot.center_midi = center_midi;
@@ -59,20 +62,27 @@ int pot_midi_value(Pot& pot, int val) {
 // return new midi value if it changed enough to warrant a message about it;
 // otherwise return -1
 int update_pot(Pot& pot, int val) {
-  byte old_midi_val = pot_midi_value(pot, pot.old);
-  if (pot.minimum > val) pot.minimum = val;
-  if (pot.maximum < val) pot.maximum = val;
-  byte new_midi_val = pot_midi_value(pot, val);
-  if (old_midi_val != new_midi_val) {
-    return new_midi_val;
-  } else {
-    return -1;
+  pot.sum += val;
+  if (scan_count == 0) { // 256 scans since last computed value
+    val = pot.sum / 256;
+    pot.sum = 0;
+    byte old_midi_val = pot_midi_value(pot, pot.old);
+    if (pot.minimum > val) pot.minimum = val;
+    if (pot.maximum < val) pot.maximum = val;
+    byte new_midi_val = pot_midi_value(pot, val);
+    if (old_midi_val != new_midi_val) {
+      pot.old = val;
+      return new_midi_val;
+    } else {
+      return -1;
+    }
   }
 }
 
 void setup() {
   SPI.begin();
   SPI.beginTransaction(SPISettings(30000000, MSBFIRST, SPI_MODE1));
+  scan_count = 0;
   memset(switch_states, 0, MAX_OCTAVES*sizeof(long));
   memset(times_since_change, 0, MAX_OCTAVES*24);
   old_button_states = 0;
@@ -93,6 +103,7 @@ void setup() {
 }
 
 void loop() {
+  scan_count++;
   unsigned long now = micros();
   SPI.transfer(B11111101); // load key state into shift regs on penultimate bit
 

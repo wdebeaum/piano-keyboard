@@ -81,6 +81,8 @@ int update_pot(Pot& pot) {
     } else {
       return -1;
     }
+  } else {
+    return -1;
   }
 }
 

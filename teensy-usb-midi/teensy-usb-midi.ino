@@ -30,6 +30,7 @@ int current_reg;
 
 // potentiometer
 struct Pot {
+  int pin;
   int old;
   int sum;
   int minimum;
@@ -41,7 +42,10 @@ struct Pot {
 Pot pitch_bend;
 Pot modulation;
 
-void init_pot(Pot& pot, int center_midi, int val) {
+void init_pot(Pot& pot, int center_midi, int pin) {
+  pot.pin = pin;
+  pinMode(pin, INPUT_DISABLE); // disable jumps around logic transition levels
+  int val = analogRead(pin);
   pot.old = val;
   pot.sum = 0;
   pot.minimum = val;
@@ -61,7 +65,8 @@ int pot_midi_value(Pot& pot, int val) {
 
 // return new midi value if it changed enough to warrant a message about it;
 // otherwise return -1
-int update_pot(Pot& pot, int val) {
+int update_pot(Pot& pot) {
+  int val = analogRead(pot.pin);
   pot.sum += val;
   if (scan_count == 0) { // 256 scans since last computed value
     val = pot.sum / 256;
@@ -98,8 +103,8 @@ void setup() {
   regs[CHANNEL_REG].small_step = 1;
   regs[CHANNEL_REG].large_step = 4; // only 16 channels; 4 is half the bits
   regs[CHANNEL_REG].maximum = 0xf;
-  init_pot(pitch_bend, 0x1fff, analogRead(PIN_A0));
-  init_pot(modulation, 0x3f, analogRead(PIN_A1));
+  init_pot(pitch_bend, 0x1fff, PIN_A0);
+  init_pot(modulation, 0x3f, PIN_A1);
 }
 
 void loop() {
@@ -213,11 +218,11 @@ void loop() {
   }
 
   // read knob states
-  int new_pitch_bend = update_pot(pitch_bend, analogRead(PIN_A0));
+  int new_pitch_bend = update_pot(pitch_bend);
   if (new_pitch_bend >= 0) { // changed
     usbMIDI.sendPitchBend(new_pitch_bend, regs[CHANNEL_REG].value);
   }
-  int new_modulation = update_pot(modulation, analogRead(PIN_A1));
+  int new_modulation = update_pot(modulation);
   if (new_modulation >= 0) { // changed
     usbMIDI.sendControlChange(0x01, new_modulation, regs[CHANNEL_REG].value);
   }

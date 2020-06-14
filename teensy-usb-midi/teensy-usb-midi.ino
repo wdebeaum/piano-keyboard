@@ -1,8 +1,5 @@
 #include <SPI.h>
 
-// from https://github.com/joshnishikawa/MIDIcontroller
-#include <MIDIcontroller.h>
-
 #define MAX_OCTAVES 10
 
 byte scan_count;

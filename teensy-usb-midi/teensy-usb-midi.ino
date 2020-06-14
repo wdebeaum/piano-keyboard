@@ -65,8 +65,8 @@ int pot_midi_value(Pot& pot, long val) {
 long update_pot(Pot& pot) {
   long val = analogRead(pot.pin);
   pot.sum += val;
-  if (scan_count == 0) { // 256 scans since last computed value
-    val = pot.sum / 256;
+  if (scan_count % 64 == 0) { // 64 scans since last computed value
+    val = pot.sum / 64;
     pot.sum = 0;
     long old_midi_val = pot_midi_value(pot, pot.old);
     if (pot.minimum > val) pot.minimum = val;

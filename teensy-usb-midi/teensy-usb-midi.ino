@@ -115,9 +115,17 @@ void loop() {
   unsigned long now = micros();
   // load key state into shift regs
   digitalWrite(9, LOW);
-  delayMicroseconds(1); // min ~20ns
+  // (need ~20ns between settings; experimentally doing 6500 long multiplications gives me ~22ns)
+  int delay1, delay2=3;
+  for (delay1 = 0; delay1 < 6500; delay1++)
+    delay2 *= delay1;
+  // alternatively, just wait as few microseconds as possible:
+  //delayMicroseconds(1);
   digitalWrite(9, HIGH);
-  delayMicroseconds(1); // min ~20ns
+  // ~20ns
+  for (delay1 = 0; delay1 < 6500; delay1++)
+    delay2 *= delay1;
+  // delayMicroseconds(1);
   // also tried this, to be able to use MOSI instead of a separate digital pin, but it has timing issues when >2 octaves are connected
   //SPI.transfer(B11111101);
   // read state of control buttons on end, and sustain pedal

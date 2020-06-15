@@ -25,6 +25,9 @@ struct Reg {
 Reg regs[NUM_REGS];
 int current_reg;
 
+// usbMIDI library accepts 1-based channel numbers, even though the wire protocol is for 0-based channel numbers
+#define CHANNEL (regs[CHANNEL_REG].value + 1)
+
 // potentiometer
 struct Pot {
   int pin;
@@ -110,12 +113,14 @@ void setup() {
 void loop() {
   scan_count++;
   unsigned long now = micros();
+  // load key state into shift regs
   digitalWrite(9, LOW);
   delayMicroseconds(1); // min ~20ns
   digitalWrite(9, HIGH);
   delayMicroseconds(1); // min ~20ns
-  //SPI.transfer(B11111101); // load key state into shift regs on penultimate bit
-  // read state of control buttons on end, and sustain pedal
+  // also tried this, to be able to use MOSI instead of a separate digital pin, but it has timing issues when >2 octaves are connected
+  //SPI.transfer(B11111101);
+/*  // read state of control buttons on end, and sustain pedal
   byte new_button_states = SPI.transfer(B11111111);
   // which states have changed?
   byte button_changes = new_button_states ^ old_button_states;
@@ -123,9 +128,9 @@ void loop() {
   // sustain pedal
   if (button_changes & 1) { // sus pedal changed
     if (new_button_states & 1) { // sus pedal pressed
-      usbMIDI.sendControlChange(0x40, 0x7f, regs[CHANNEL_REG].value);
+      usbMIDI.sendControlChange(0x40, 0x7f, CHANNEL);
     } else { // sus pedal released
-      usbMIDI.sendControlChange(0x40, 0x00, regs[CHANNEL_REG].value);
+      usbMIDI.sendControlChange(0x40, 0x00, CHANNEL);
     }
   }
 
@@ -173,10 +178,10 @@ void loop() {
   }
   if (current_reg == PROGRAM_REG && button_presses & B01100110) {
     // program register (instrument) changed
-    usbMIDI.sendProgramChange(regs[PROGRAM_REG].value, regs[CHANNEL_REG].value);
+    usbMIDI.sendProgramChange(regs[PROGRAM_REG].value, CHANNEL);
   }
   // TODO? re-send the last note-on message if any register value changed, to reflect the new value
-
+*/
   // read key states and send note on/off messages
   for (int o = 0; o < MAX_OCTAVES; o++) {
     buf[0] = SPI.transfer(B11111111);
@@ -211,9 +216,9 @@ void loop() {
 	    // to compute velocity
 	    int kpdi = tsci^1; // key-partly-down bits toggle the 1s place
 	    byte velocity = 0x80 - times_since_change[kpdi];
-	    usbMIDI.sendNoteOn(note_num, velocity, regs[CHANNEL_REG].value);
+	    usbMIDI.sendNoteOn(note_num, velocity, CHANNEL);
 	  } else { // key released
-	    usbMIDI.sendNoteOff(note_num, 0, regs[CHANNEL_REG].value);
+	    usbMIDI.sendNoteOff(note_num, 0, CHANNEL);
 	  }
 	}
       }
@@ -221,13 +226,21 @@ void loop() {
   }
 
   // read knob states
-  int new_pitch_bend = update_pot(pitch_bend);
+  long new_pitch_bend = update_pot(pitch_bend);
   if (new_pitch_bend >= 0) { // changed
-    usbMIDI.sendPitchBend(new_pitch_bend, regs[CHANNEL_REG].value);
+    // the library function for this doesn't seem to work right
+    //usbMIDI.sendPitchBend((unsigned int)new_pitch_bend, CHANNEL);
+    // instead, do it ourselves:
+    usbMIDI.send((byte)B11100000, // type
+                 (byte)(new_pitch_bend & B01111111), // low 7 bits
+                 (byte)((new_pitch_bend >> 7) & B01111111), // high 7 bits
+                 CHANNEL, // channel
+                 0 // cable (WTF, usbMIDI library?)
+                );
   }
-  int new_modulation = update_pot(modulation);
+  long new_modulation = update_pot(modulation);
   if (new_modulation >= 0) { // changed
-    usbMIDI.sendControlChange(0x01, new_modulation, regs[CHANNEL_REG].value);
+    usbMIDI.sendControlChange(0x01, (byte)new_modulation, CHANNEL);
   }
 
   usbMIDI.send_now(); // flush midi output buffer to usb

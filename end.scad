@@ -19,7 +19,7 @@ pcb_height = 3.23*25.4;
 
 // Teensy 4.0
 teensy_min_x = 0.87*25.4;
-teensy_min_y = -0.35*25.4;
+teensy_min_y = -0.45*25.4;
 teensy_min_z = 0.1*25.4; // ???
 teensy_width = 0.7*25.4;
 teensy_height = 1.4*25.4;
@@ -276,7 +276,7 @@ module enclosure() {
     cube([gap + pcb_width - sus_min_x + epsilon, button_panel_radius + epsilon, wall_thickness+gap+3*epsilon]);
   }
   // logo on top
-    translate([25,3,top_component_thickness+gap+wall_thickness])
+    translate([25,2,top_component_thickness+gap+wall_thickness])
     rotate([0,0,180])
   logo();
 }

@@ -84,8 +84,9 @@ long update_pot(Pot& pot) {
 }
 
 void setup() {
+  pinMode(9, OUTPUT);
   SPI.begin();
-  SPI.beginTransaction(SPISettings(30000000, MSBFIRST, SPI_MODE1));
+  SPI.beginTransaction(SPISettings(26000000, MSBFIRST, SPI_MODE0)); // was mode 1 on raspi?
   scan_count = 0;
   memset(switch_states, 0, MAX_OCTAVES*sizeof(long));
   memset(times_since_change, 0, MAX_OCTAVES*24);
@@ -109,8 +110,11 @@ void setup() {
 void loop() {
   scan_count++;
   unsigned long now = micros();
-  SPI.transfer(B11111101); // load key state into shift regs on penultimate bit
-
+  digitalWrite(9, LOW);
+  delayMicroseconds(1); // min ~20ns
+  digitalWrite(9, HIGH);
+  delayMicroseconds(1); // min ~20ns
+  //SPI.transfer(B11111101); // load key state into shift regs on penultimate bit
   // read state of control buttons on end, and sustain pedal
   byte new_button_states = SPI.transfer(B11111111);
   // which states have changed?

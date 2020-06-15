@@ -15,10 +15,10 @@ Comment3 "License: CC BY 4.0"
 Comment4 "Author: William de Beaumont"
 $EndDescr
 $Comp
-L Connector:Conn_01x05_Female J5
+L Connector:Conn_01x05_Female J6
 U 1 1 5E5EDAC0
 P 10400 5200
-F 0 "J5" H 10428 5226 50  0000 L CNN
+F 0 "J6" H 10428 5226 50  0000 L CNN
 F 1 "Conn_01x05_Female" H 10428 5135 50  0000 L CNN
 F 2 "Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Horizontal" H 10400 5200 50  0001 C CNN
 F 3 "~" H 10400 5200 50  0001 C CNN
@@ -376,32 +376,17 @@ Wire Wire Line
 	3000 2750 4700 2750
 Wire Wire Line
 	5500 2550 5500 5200
-$Comp
-L Connector:Conn_01x02_Male J4
-U 1 1 5EE0F82F
-P 2800 4150
-F 0 "J4" H 2908 4331 50  0000 C CNN
-F 1 "Conn_01x02_Male" H 2908 4240 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 2800 4150 50  0001 C CNN
-F 3 "~" H 2800 4150 50  0001 C CNN
-	1    2800 4150
-	1    0    0    -1  
-$EndComp
 Text Label 3000 4150 0    50   ~ 0
 MISO-DATA_OUT
-Text Label 3000 4250 0    50   ~ 0
-MOSI-SHIFT
+Text Label 3000 4400 0    50   ~ 0
+9-SHIFT
 Wire Wire Line
-	6400 4250 6400 5300
-Wire Wire Line
-	6400 5300 7300 5300
-Wire Wire Line
-	3000 4250 6400 4250
+	5450 5300 7300 5300
 $Comp
-L Connector:AudioJack2 J6
+L Connector:AudioJack2 J7
 U 1 1 5EE1C0C0
 P 10950 950
-F 0 "J6" H 10982 1275 50  0000 C CNN
+F 0 "J7" H 10982 1275 50  0000 C CNN
 F 1 "AudioJack2" H 10982 1184 50  0000 C CNN
 F 2 "piano-keyboard-end-pcb:Switchcraft_RA49B11" H 10950 950 50  0001 C CNN
 F 3 "~" H 10950 950 50  0001 C CNN
@@ -701,4 +686,30 @@ Text Label 3000 3650 0    50   ~ 0
 3.3V
 Text Label 3000 3150 0    50   ~ 0
 5V
+$Comp
+L Connector:Conn_01x01_Male J4
+U 1 1 5EE819A7
+P 2800 4150
+F 0 "J4" H 2908 4331 50  0000 C CNN
+F 1 "Conn_01x01_Male" H 2908 4240 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 2800 4150 50  0001 C CNN
+F 3 "~" H 2800 4150 50  0001 C CNN
+	1    2800 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x01_Male J5
+U 1 1 5EE8217E
+P 2800 4400
+F 0 "J5" H 2908 4581 50  0000 C CNN
+F 1 "Conn_01x01_Male" H 2908 4490 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 2800 4400 50  0001 C CNN
+F 3 "~" H 2800 4400 50  0001 C CNN
+	1    2800 4400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5450 4400 5450 5300
+Wire Wire Line
+	3000 4400 5450 4400
 $EndSCHEMATC

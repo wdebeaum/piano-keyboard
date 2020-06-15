@@ -448,7 +448,16 @@ module knob() {
     union() {
       // outer body
       difference() {
-	cylinder(r=knob_radius, h=knob_width);
+	union() {
+	  // left bevel
+	  cylinder(r1=knob_radius-wall_thickness, r2=knob_radius, h=wall_thickness+epsilon);
+	    translate([0,0,wall_thickness])
+	  // main cylinder
+	  cylinder(r=knob_radius, h=knob_width-2*wall_thickness);
+	  // right bevel
+	    translate([0,0,knob_width-(wall_thickness+epsilon)])
+	  cylinder(r1=knob_radius, r2=knob_radius-wall_thickness, h=wall_thickness+epsilon);
+	}
 	  translate([0,0,wall_thickness])
 	cylinder(r=knob_radius-knob_wall_thickness, h=knob_width-wall_thickness+epsilon);
 	// finger notch

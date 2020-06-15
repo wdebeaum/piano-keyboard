@@ -120,7 +120,7 @@ void loop() {
   delayMicroseconds(1); // min ~20ns
   // also tried this, to be able to use MOSI instead of a separate digital pin, but it has timing issues when >2 octaves are connected
   //SPI.transfer(B11111101);
-/*  // read state of control buttons on end, and sustain pedal
+  // read state of control buttons on end, and sustain pedal
   byte new_button_states = SPI.transfer(B11111111);
   // which states have changed?
   byte button_changes = new_button_states ^ old_button_states;
@@ -181,7 +181,7 @@ void loop() {
     usbMIDI.sendProgramChange(regs[PROGRAM_REG].value, CHANNEL);
   }
   // TODO? re-send the last note-on message if any register value changed, to reflect the new value
-*/
+
   // read key states and send note on/off messages
   for (int o = 0; o < MAX_OCTAVES; o++) {
     buf[0] = SPI.transfer(B11111111);

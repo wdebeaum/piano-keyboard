@@ -116,6 +116,7 @@ finger_radius = 5;
 finger_depth = 2;
 
 button_shaft_length = button_travel + gap + wall_thickness + gap + top_component_thickness - gap - button_thickness;
+shaft_radius = button_radius/sqrt(2);
 
 shelf_width = 1.5; // not wide enough to interfere with solder joints around pcb edges
 
@@ -320,7 +321,6 @@ module plated_enclosure() {
 //
 
 module plated_rectangle_button() {
-    translate([0,0,-button_radius/2])
   intersection() {
     union() {
       // user side flat
@@ -343,12 +343,11 @@ module plated_rectangle_button() {
 module rectangle_button() {
     translate([0,0, top_component_thickness+gap+wall_thickness+gap])
     rotate([-90,0,0])
+    translate([0,0,-button_radius/2])
   plated_rectangle_button();
 }
 
 module plated_triangle_button() {
-  shaft_radius = button_radius/sqrt(2);
-    translate([0,0,-shaft_radius/2])
   intersection() {
     union() {
       // user side flat
@@ -373,6 +372,7 @@ module plated_triangle_button() {
 module triangle_button() {
     translate([0,0, top_component_thickness+gap+wall_thickness+gap])
     rotate([-90,0,0])
+    translate([0,0,-shaft_radius/2])
   plated_triangle_button();
 }
 //

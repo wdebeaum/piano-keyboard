@@ -3,20 +3,6 @@
  * 2020-06-16
  */
 
-/* TODO:
-# increase width of lip around button panel
- # what about front screw post?
- # add lip on left side
-  # make sure to leave enough room for button shaft guides
-# increase base radius of screw posts (make them cones)
- # make sure to leave room for sus pedal jack next to front screw post
- # increase button panel radius to match
- . just cut off part of the cone for the front screw post
-# add wall on bottom left side to make the enclosure not flex so much
- # curve the sides of that wall up to meet the front and back sides of the enclosure
- # make sure to leave enough room around screws
-*/
-
 include <common.scad>;
 include <logo.scad>;
 
@@ -612,22 +598,39 @@ module assembled_end() {
   %end_cardboard();
 }
 
+// helper for doing assembly steps; step(n) is 1 before the step starts, 0 after the step ends, and linear during the step
+num_steps = 8;
+function step(n) =
+  ($t < n/num_steps ? 1 : // before
+  ($t > (n+1)/num_steps ? 0 : // after
+  1 - ($t - n/num_steps) * num_steps)); // during
+
+/* steps:
+0	pcb
+1	knobs
+2	button panel
+3	screws
+4	buttons
+5	skewer
+6	cardboard
+7	finished!
+*/
+
 module exploded_end() {
-  // TODO step-by-step animation using $t
-    translate([pcb_width+10,0,0])
+    translate([step(0)*(pcb_width+10),0,0])
   %end_pcb();
-    %translate([0,0,-(screw_threads_height+10)])
+    %translate([0,0,step(3)*-(screw_threads_height+10)])
     translate([screw1_x,screw1_y,-(pcb_thickness+gap)])
     rotate([180,0,0])
   screw();
-    %translate([0,0,-(screw_threads_height+10)])
+    %translate([0,0,step(3)*-(screw_threads_height+10)])
     translate([screw2_x,screw2_y,-(pcb_thickness+gap)])
     rotate([180,0,0])
   screw();
   enclosure();
-    translate([0,0,top_component_thickness+10])
+    translate([0,0,step(2)*(top_component_thickness+10)])
   button_panel();
-    translate([0,0,2*(top_component_thickness+10)])
+    translate([0,0,step(4)*2*(top_component_thickness+10)])
   union() {
     translate([button_x2, button_y1, 0]) triangle_button();
     translate([button_x2, button_y2, 0]) triangle_button();
@@ -637,23 +640,23 @@ module exploded_end() {
     translate([button_x1, button_y5, 0]) rectangle_button();
     translate([button_x2, button_y6, 0]) rotate([0,0,180]) triangle_button();
   }
-    %translate([2*(pcb_width+10)-skewer_x,0,0])
+    %translate([step(5)*(2*(pcb_width+10)-skewer_x),0,0])
     translate([skewer_x, skewer_y, skewer_z])
     rotate([0,90,0])
   cylinder(r=skewer_radius, h=skewer_length);
-    translate([-(knob_width+10),0,0])
+    translate([step(1)*-(knob_width+10),0,0])
     translate([pot_shaft_min_x, pot1_shaft_y, pot_shaft_z])
     rotate([0,90,0])
   knob();
-    translate([-(knob_width+10),0,0])
+    translate([step(1)*-(knob_width+10),0,0])
     translate([pot_shaft_min_x, pot2_shaft_y, pot_shaft_z])
     rotate([0,90,0])
   knob();
-    %translate([0,0,-20])
+    %translate([0,0,step(6)*-20])
   end_cardboard();
 }
 
 //exploded_end();
-//assembled_end();
-white_plated();
+assembled_end();
+//white_plated();
 //black_plated();

@@ -1,7 +1,21 @@
 /* end.scad - controls at the left end of octave.scad
  * William de Beaumont
- * 2020-06-10
+ * 2020-06-16
  */
+
+/* TODO:
+# increase width of lip around button panel
+ # what about front screw post?
+ # add lip on left side
+  # make sure to leave enough room for button shaft guides
+# increase base radius of screw posts (make them cones)
+ # make sure to leave room for sus pedal jack next to front screw post
+ # increase button panel radius to match
+ . just cut off part of the cone for the front screw post
+# add wall on bottom left side to make the enclosure not flex so much
+ # curve the sides of that wall up to meet the front and back sides of the enclosure
+ # make sure to leave enough room around screws
+*/
 
 include <common.scad>;
 include <logo.scad>;
@@ -131,9 +145,15 @@ skewer_y = // this depends on a lot of stuff that only it depends on in this fil
   ;
 skewer_z = skewer_hole_radius+wall_thickness/2 - support_base_height;
 
+screw_post_base_radius = sus_min_x - gap - screw2_x; // max it could be
+
 button_panel_x = button_x2;
 button_panel_y = button_y3;
-button_panel_radius = button_panel_y - screw2_y + support_hole_or + gap + wall_thickness;
+button_panel_radius = button_panel_y - screw2_y + screw_post_base_radius;
+button_panel_shelf_width = 3*wall_thickness;
+button_panel_left_height = 2*(sqrt(button_panel_radius*button_panel_radius - button_panel_x*button_panel_x));
+
+bottom_shelf_width = 10;
 
 //
 // non-printed parts
@@ -221,8 +241,8 @@ module enclosure() {
       rotate([0,-90,0])
     cylinder(r=pot_shaft_radius+gap+sliding_deduction, h=hole_thickness);
     // hole for pitch bend torsion spring anchoring
-      translate([-(wall_thickness+gap+epsilon), pot2_shaft_y-2*(wire_radius+gap), top_component_thickness - wall_thickness - 2*(wire_radius+gap)])
-    cube([hole_thickness, 4*(wire_radius+gap), 2*(wire_radius+gap)]);
+      translate([-(wall_thickness+gap+epsilon), pot2_shaft_y-2*(insulated_wire_radius+gap), top_component_thickness - wall_thickness - 2*(insulated_wire_radius+gap)])
+    cube([hole_thickness, 4*(insulated_wire_radius+gap), 2*(insulated_wire_radius+gap)]);
     // hole for button panel
       translate([button_panel_x, button_panel_y, top_component_thickness-epsilon])
     cylinder(r=button_panel_radius+gap, h=hole_thickness+gap, $fn=48);
@@ -239,6 +259,23 @@ module enclosure() {
   // ....under pcb
     translate([-(gap+epsilon), -pcb_height, -support_base_height])
   cube([shelf_width+epsilon, pcb_height, support_base_height-(pcb_thickness+gap)]);
+  // ......farther under pcb, for strength against bending the left wall
+    translate([-(gap+epsilon), -pcb_height, -support_base_height])
+  cube([bottom_shelf_width+epsilon, pcb_height, wall_thickness]);
+    translate([2*bottom_shelf_width-(gap+epsilon), bottom_shelf_width+shelf_width-(epsilon+gap+pcb_height), -support_base_height])
+    rotate([0,0,180])
+  difference() {
+    cube([bottom_shelf_width+epsilon, bottom_shelf_width+epsilon, wall_thickness]);
+      translate([0,0,-epsilon])
+    cylinder(r=bottom_shelf_width, h=wall_thickness+2*epsilon);
+  }
+    translate([2*bottom_shelf_width-(gap+epsilon), epsilon+gap-(bottom_shelf_width+shelf_width), -support_base_height])
+    rotate([0,0,90])
+  difference() {
+    cube([10+epsilon, 10+epsilon, wall_thickness]);
+      translate([0,0,-epsilon])
+    cylinder(r=10, h=wall_thickness+2*epsilon);
+  }
   // ....over pcb (with cutouts for pots)
   difference() {
       translate([-(gap+epsilon), -pcb_height, gap])
@@ -268,15 +305,20 @@ module enclosure() {
     }
     // center hole
       translate([button_panel_x, button_panel_y, top_component_thickness-wall_thickness-epsilon])
-    cylinder(r=button_panel_radius-wall_thickness, h=wall_thickness+gap+3*epsilon);
+    cylinder(r=button_panel_radius-button_panel_shelf_width, h=wall_thickness+gap+3*epsilon);
       translate([button_panel_x, button_panel_y, top_component_thickness-epsilon])
     cylinder(r=button_panel_radius+gap, h=gap+3*epsilon);
     // cutout for sustain pedal jack
       translate([sus_min_x - gap, button_panel_y - (button_panel_radius + wall_thickness + epsilon), top_component_thickness-wall_thickness-epsilon])
     cube([gap + pcb_width - sus_min_x + epsilon, button_panel_radius + epsilon, wall_thickness+gap+3*epsilon]);
+    // cutout for front screw
+      translate([screw2_x, screw2_y, top_component_thickness-wall_thickness-epsilon])
+    cylinder(r=screw_post_base_radius+gap, h=wall_thickness+gap+3*epsilon);
   }
+    translate([epsilon-(gap+wall_thickness), button_panel_y-button_panel_left_height/2, top_component_thickness-wall_thickness])
+  cube([button_panel_shelf_width-epsilon, button_panel_left_height, wall_thickness]);
   // logo on top
-    translate([25,2,top_component_thickness+gap+wall_thickness])
+    translate([25,3,top_component_thickness+gap+wall_thickness])
     rotate([0,0,180])
   logo();
 }
@@ -368,7 +410,7 @@ module triangle_hole() {
 module screw_post() {
     translate([0, 0, gap])
   difference() {
-    cylinder(r=support_hole_or, h=top_component_thickness+epsilon);
+    cylinder(r1=support_hole_or, r2=screw_post_base_radius, h=top_component_thickness+epsilon);
       translate([0,0,-epsilon])
     cylinder(r=support_hole_ir, h=screw_threads_height);
   }
@@ -467,35 +509,35 @@ module knob() {
 	// bottom hole
 	  translate([
 	    knob_radius - (knob_wall_thickness+1),
-	    -(wire_radius+gap),
-	    (knob_width - (wall_thickness + 4*(wire_radius+gap)))/2
+	    -(insulated_wire_radius+gap),
+	    (knob_width - (wall_thickness + 4*(insulated_wire_radius+gap)))/2
 	  ])
 	cube([
 	  knob_wall_thickness+1/*fudge for curvature*/,
-	  2*(wire_radius+gap),
-	  2*(wire_radius+gap)
+	  2*(insulated_wire_radius+gap),
+	  2*(insulated_wire_radius+gap)
 	]);
 	// top hole
 	  translate([
 	    knob_radius - (knob_wall_thickness+1),
-	    -(wire_radius+gap),
+	    -(insulated_wire_radius+gap),
 	    (knob_width + wall_thickness)/2
 	  ])
 	cube([
 	  knob_wall_thickness+1/*fudge for curvature*/,
-	  2*(wire_radius+gap),
-	  2*(wire_radius+gap)
+	  2*(insulated_wire_radius+gap),
+	  2*(insulated_wire_radius+gap)
 	]);
 	// outer trench
 	  translate([
-	    knob_radius - 2*(wire_radius+gap),
-	    -(wire_radius+gap),
-	    (knob_width - (wall_thickness+4*(wire_radius+gap)))/2
+	    knob_radius - 2*(insulated_wire_radius+gap),
+	    -(insulated_wire_radius+gap),
+	    (knob_width - (wall_thickness+4*(insulated_wire_radius+gap)))/2
 	  ])
 	cube([
-	  2*(wire_radius+gap)+epsilon,
-	  2*(wire_radius+gap),
-	  wall_thickness+4*(wire_radius+gap)
+	  2*(insulated_wire_radius+gap)+epsilon,
+	  2*(insulated_wire_radius+gap),
+	  wall_thickness+4*(insulated_wire_radius+gap)
 	]);
       }
       // inner post
@@ -570,6 +612,48 @@ module assembled_end() {
   %end_cardboard();
 }
 
-assembled_end();
-//white_plated();
+module exploded_end() {
+  // TODO step-by-step animation using $t
+    translate([pcb_width+10,0,0])
+  %end_pcb();
+    %translate([0,0,-(screw_threads_height+10)])
+    translate([screw1_x,screw1_y,-(pcb_thickness+gap)])
+    rotate([180,0,0])
+  screw();
+    %translate([0,0,-(screw_threads_height+10)])
+    translate([screw2_x,screw2_y,-(pcb_thickness+gap)])
+    rotate([180,0,0])
+  screw();
+  enclosure();
+    translate([0,0,top_component_thickness+10])
+  button_panel();
+    translate([0,0,2*(top_component_thickness+10)])
+  union() {
+    translate([button_x2, button_y1, 0]) triangle_button();
+    translate([button_x2, button_y2, 0]) triangle_button();
+    translate([button_x1, button_y3, 0]) rotate([0,0,90]) triangle_button();
+    translate([button_x3, button_y3, 0]) rotate([0,0,-90]) triangle_button();
+    translate([button_x2, button_y4, 0]) rotate([0,0,180]) triangle_button();
+    translate([button_x1, button_y5, 0]) rectangle_button();
+    translate([button_x2, button_y6, 0]) rotate([0,0,180]) triangle_button();
+  }
+    %translate([2*(pcb_width+10)-skewer_x,0,0])
+    translate([skewer_x, skewer_y, skewer_z])
+    rotate([0,90,0])
+  cylinder(r=skewer_radius, h=skewer_length);
+    translate([-(knob_width+10),0,0])
+    translate([pot_shaft_min_x, pot1_shaft_y, pot_shaft_z])
+    rotate([0,90,0])
+  knob();
+    translate([-(knob_width+10),0,0])
+    translate([pot_shaft_min_x, pot2_shaft_y, pot_shaft_z])
+    rotate([0,90,0])
+  knob();
+    %translate([0,0,-20])
+  end_cardboard();
+}
+
+//exploded_end();
+//assembled_end();
+white_plated();
 //black_plated();

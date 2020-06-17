@@ -1,6 +1,6 @@
 /* end.scad - controls at the left end of octave.scad
  * William de Beaumont
- * 2020-06-16
+ * 2020-06-17
  */
 
 include <common.scad>;
@@ -114,9 +114,13 @@ knob_min_x = pot_shaft_min_x;
 knob_wall_thickness = 5;
 finger_radius = 5;
 finger_depth = 2;
+knob_ir = pot_shaft_radius + gap + small_v_hole_shrinkage + thin_wall_deduction;
 
 button_shaft_length = button_travel + gap + wall_thickness + gap + top_component_thickness - gap - button_thickness;
 shaft_radius = button_radius/sqrt(2);
+button_head_thickness = 2*wall_thickness;
+button_head_width = 1.5*button_width; // for rectangle button
+button_head_radius = button_head_width/(2*sqrt(2)); // for triangle buttons
 
 shelf_width = 1.5; // not wide enough to interfere with solder joints around pcb edges
 
@@ -324,19 +328,17 @@ module plated_rectangle_button() {
   intersection() {
     union() {
       // user side flat
-        translate([-(button_radius+wall_thickness),-wall_thickness,0])
-      cube([2*(button_radius+wall_thickness), wall_thickness, button_radius]);
+        translate([-button_head_width/2,-button_head_thickness,0])
+      cube([button_head_width, button_head_thickness, button_radius]);
       // shaft
         translate([-button_radius, -epsilon, 0])
       cube([2*button_radius, button_shaft_length+epsilon, button_radius]);
       // pcb side retention
-        translate([0,button_shaft_length,0])
-        rotate([0,0,45])
-	translate([-(button_radius+gap)/sqrt(2), -(button_radius+gap)/sqrt(2), 0])
-      cube([2*(button_radius+gap)/sqrt(2),2*(button_radius+gap)/sqrt(2),layer_height]);
+        translate([-(button_radius+wall_thickness),button_shaft_length-wall_thickness,0])
+      cube([2*(button_radius+wall_thickness), wall_thickness, button_radius]);
     }
-      translate([-50,-wall_thickness,0])
-    cube([100, button_shaft_length+wall_thickness, 100]);
+      translate([-50,-button_head_thickness,0])
+    cube([100, button_shaft_length+button_head_thickness, 100]);
   }
 }
 
@@ -352,20 +354,23 @@ module plated_triangle_button() {
     union() {
       // user side flat
         rotate([0,45,0])
-        translate([-(shaft_radius+wall_thickness),-wall_thickness,-(shaft_radius+wall_thickness)])
-      cube([2*(shaft_radius+wall_thickness), wall_thickness, 2*(shaft_radius+wall_thickness)]);
+        translate([-button_head_radius,-button_head_thickness,-button_head_radius])
+      cube([2*button_head_radius, button_head_thickness, 2*button_head_radius]);
       // shaft
         rotate([0,45,0])
 	translate([-shaft_radius,-epsilon,-shaft_radius])
       cube([2*shaft_radius, button_shaft_length+epsilon, 2*shaft_radius]);
       // pcb side retention
-        translate([0,button_shaft_length,0])
+/*        translate([0,button_shaft_length,0])
         rotate([0,0,45])
 	translate([-(shaft_radius+gap), -(shaft_radius+gap), 0])
-      cube([2*(shaft_radius+gap),2*(shaft_radius+gap),layer_height]);
+      cube([2*(shaft_radius+gap),2*(shaft_radius+gap),layer_height]);*/
+        rotate([0,45,0])
+	translate([-(shaft_radius+wall_thickness),button_shaft_length-wall_thickness,-(shaft_radius+wall_thickness)])
+      cube([2*(shaft_radius+wall_thickness), wall_thickness, 2*(shaft_radius+wall_thickness)]);
     }
-      translate([-50,-wall_thickness,0])
-    cube([100, button_shaft_length+wall_thickness, 100]);
+      translate([-50,-button_head_thickness,0])
+    cube([100, button_shaft_length+button_head_thickness, 100]);
   }
 }
 
@@ -382,14 +387,14 @@ module triangle_button() {
 module rectangle_hole() {
   minkowski() {
     rectangle_button();
-    cylinder(r=gap, h=gap);
+    cylinder(r=gap+sliding_deduction+small_v_hole_shrinkage, h=gap+sliding_deduction+small_v_hole_shrinkage);
   }
 }
 
 module triangle_hole() {
   minkowski() {
     triangle_button();
-    cylinder(r=gap, h=gap);
+    cylinder(r=gap+sliding_deduction+small_v_hole_shrinkage, h=gap+sliding_deduction+small_v_hole_shrinkage);
   }
 }
 
@@ -527,22 +532,22 @@ module knob() {
 	]);
       }
       // inner post
-      cylinder(r=pot_shaft_radius+gap+wall_thickness, h=knob_width);
+      cylinder(r=knob_ir+wall_thickness, h=knob_width);
     }
     // shaft hole
       translate([0,0,-epsilon])
     difference() {
-      cylinder(r=pot_shaft_radius+gap, h=knob_width+2*epsilon);
+      cylinder(r=knob_ir, h=knob_width+2*epsilon);
       // flat
 	rotate([0,0,-90])
         translate([
-	  -(pot_shaft_radius+gap+epsilon),
-	  pot_shaft_radius+gap-pot_flat_depth,
+	  -(knob_ir+epsilon),
+	  knob_ir-pot_flat_depth,
 	  -2*epsilon
 	])
       cube([
-        2*(pot_shaft_radius+gap+epsilon),
-        2*(pot_shaft_radius+gap+epsilon),
+        2*(knob_ir+epsilon),
+        2*(knob_ir+epsilon),
         pot_flat_length - gap + 2*epsilon
       ]);
     }

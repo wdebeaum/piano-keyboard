@@ -114,7 +114,7 @@ knob_min_x = pot_shaft_min_x;
 knob_wall_thickness = 5;
 finger_radius = 5;
 finger_depth = 2;
-knob_ir = pot_shaft_radius + gap + small_v_hole_shrinkage + thin_wall_deduction;
+knob_ir = pot_shaft_radius + gap + small_v_hole_shrinkage/* + thin_wall_deduction*/;
 
 button_shaft_length = button_travel + gap + wall_thickness + gap + top_component_thickness - gap - button_thickness;
 shaft_radius = button_radius/sqrt(2);
@@ -662,6 +662,14 @@ module exploded_end() {
 }
 
 //exploded_end();
-assembled_end();
+//assembled_end();
 //white_plated();
 //black_plated();
+
+
+  translate([0,0,0])
+knob();
+  translate([0,-40,0])
+knob();
+  translate([10,30,0])
+plated_button_panel();

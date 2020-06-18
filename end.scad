@@ -114,10 +114,11 @@ knob_min_x = pot_shaft_min_x;
 knob_wall_thickness = 5;
 finger_radius = 5;
 finger_depth = 2;
-knob_ir = pot_shaft_radius + gap + small_v_hole_shrinkage/* + thin_wall_deduction*/;
+knob_ir = pot_shaft_radius + gap/* + small_v_hole_shrinkage*/ + thin_wall_deduction;
 
-button_shaft_length = button_travel + gap + wall_thickness + gap + top_component_thickness - gap - button_thickness;
+button_shaft_length = button_travel + gap + wall_thickness + gap + top_component_thickness - button_thickness;
 shaft_radius = button_radius/sqrt(2);
+triangle_retention_radius = (shaft_radius + wall_thickness) / sqrt(2);
 button_head_thickness = 2*wall_thickness;
 button_head_width = 1.5*button_width; // for rectangle button
 button_head_radius = button_head_width/(2*sqrt(2)); // for triangle buttons
@@ -159,6 +160,21 @@ module end_pcb() {
   // usb
     translate([usb_min_x, usb_max_y - usb_height, usb_min_z])
   cube([usb_width, usb_height, usb_thickness]);
+  // buttons shown on pcb aren't as tall as the ones I actually bought; add cylinders showing their real height
+    translate([button_x2,button_y1,0])
+  cylinder(r=button_radius, h=button_thickness);
+    translate([button_x2,button_y2,0])
+  cylinder(r=button_radius, h=button_thickness);
+    translate([button_x1,button_y3,0])
+  cylinder(r=button_radius, h=button_thickness);
+    translate([button_x3,button_y3,0])
+  cylinder(r=button_radius, h=button_thickness);
+    translate([button_x2,button_y4,0])
+  cylinder(r=button_radius, h=button_thickness);
+    translate([button_x1,button_y5,0])
+  cylinder(r=button_radius, h=button_thickness);
+    translate([button_x2,button_y6,0])
+  cylinder(r=button_radius, h=button_thickness);
 }
 
 module end_cardboard() {
@@ -361,13 +377,9 @@ module plated_triangle_button() {
 	translate([-shaft_radius,-epsilon,-shaft_radius])
       cube([2*shaft_radius, button_shaft_length+epsilon, 2*shaft_radius]);
       // pcb side retention
-/*        translate([0,button_shaft_length,0])
-        rotate([0,0,45])
-	translate([-(shaft_radius+gap), -(shaft_radius+gap), 0])
-      cube([2*(shaft_radius+gap),2*(shaft_radius+gap),layer_height]);*/
         rotate([0,45,0])
-	translate([-(shaft_radius+wall_thickness),button_shaft_length-wall_thickness,-(shaft_radius+wall_thickness)])
-      cube([2*(shaft_radius+wall_thickness), wall_thickness, 2*(shaft_radius+wall_thickness)]);
+	translate([-triangle_retention_radius,button_shaft_length-wall_thickness,-triangle_retention_radius])
+      cube([2*triangle_retention_radius, wall_thickness, 2*triangle_retention_radius]);
     }
       translate([-50,-button_head_thickness,0])
     cube([100, button_shaft_length+button_head_thickness, 100]);
@@ -387,14 +399,14 @@ module triangle_button() {
 module rectangle_hole() {
   minkowski() {
     rectangle_button();
-    cylinder(r=gap+sliding_deduction+small_v_hole_shrinkage, h=gap+sliding_deduction+small_v_hole_shrinkage);
+    cylinder(r=gap+sliding_deduction+small_v_hole_shrinkage, h=gap+sliding_deduction);
   }
 }
 
 module triangle_hole() {
   minkowski() {
     triangle_button();
-    cylinder(r=gap+sliding_deduction+small_v_hole_shrinkage, h=gap+sliding_deduction+small_v_hole_shrinkage);
+    cylinder(r=gap+sliding_deduction+small_v_hole_shrinkage, h=gap+sliding_deduction);
   }
 }
 
@@ -417,39 +429,41 @@ module button_panel() {
 	cube([pcb_width+gap+wall_thickness, electronics_height+2*(gap+wall_thickness), electronics_thickness+gap+wall_thickness+epsilon]);
       }
       // button shaft guides
-      button_shaft_guide_height = top_component_thickness - button_thickness + epsilon;
+      button_shaft_guide_min_z = button_thickness + gap + wall_thickness + gap + sliding_deduction;
+      button_shaft_guide_thickness = top_component_thickness + gap - button_shaft_guide_min_z + epsilon;
+      button_shaft_guide_width = button_width + 2*wall_thickness;
       // ...horizontal
         translate([
-	  button_x1 - button_width/2,
-	  button_y3 - button_width/2,
-	  button_thickness + gap
+	  button_x1 - button_width/2 - wall_thickness,
+	  button_y3 - button_shaft_guide_width/2,
+	  button_shaft_guide_min_z
 	])
       cube([
-        button_width + button_x3 - button_x1,
-	button_width,
-	button_shaft_guide_height
+        button_width + button_x3 - button_x1 + wall_thickness,
+	button_shaft_guide_width,
+	button_shaft_guide_thickness
       ]);
       // ...vertical
         translate([
-	  button_x2 - button_width/2,
+	  button_x2 - button_shaft_guide_width/2,
 	  button_y6 - button_width/2,
-	  button_thickness + gap
+	  button_shaft_guide_min_z
 	])
       cube([
-        button_width,
+        button_shaft_guide_width,
 	button_width + button_y1 - button_y6,
-	button_shaft_guide_height
+	button_shaft_guide_thickness
       ]);
       // ...lower left
         translate([
-	  button_x1 - button_width/2,
+	  button_x1 - button_shaft_guide_width/2,
 	  button_y5 - button_width/2,
-	  button_thickness + gap
+	  button_shaft_guide_min_z
 	])
       cube([
-        button_width/2 + button_x2 - button_x1,
+        button_shaft_guide_width/2 + button_x2 - button_x1,
 	button_width/2 + button_y3 - button_y5,
-	button_shaft_guide_height
+	button_shaft_guide_thickness
       ]);
     }
     // holes for button shafts
@@ -559,11 +573,7 @@ module white_plated() {
   plated_button_panel();
 }
 
-module black_plated() {
-    translate([0,0,0])
-  knob();
-    translate([0,-40,0])
-  knob();
+module buttons_plated() {
     translate([40,-25,0])
   plated_rectangle_button();
   for(x=[30:10:50]) {
@@ -572,6 +582,14 @@ module black_plated() {
       translate([x,-45,0])
     plated_triangle_button();
   }
+}
+
+module black_plated() {
+    translate([0,0,0])
+  knob();
+    translate([0,-40,0])
+  knob();
+  buttons_plated();
 }
 
 module assembled_end() {
@@ -673,3 +691,6 @@ knob();
 knob();
   translate([10,30,0])
 plated_button_panel();
+  translate([10,-115,0])
+  rotate([0,0,90])
+buttons_plated();

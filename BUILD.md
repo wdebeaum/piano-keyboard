@@ -116,6 +116,10 @@ You can also view the `assembled_end()` module to see how the end should look wh
 
 You might need to drill out the screw holes in the conical posts on the bottom of the button panel in order to get the screws to fit, since the 3D printer might have dragged the plastic around, or oozed too much plastic, making the holes smaller. The design tries to account for this, but it's not an exact science.
 
+### Firmware
+
+Open `teensy-usb-midi/teensy-usb-midi.ino` in the Arduino IDE software with [Teensyduino](https://www.pjrc.com/teensy/td_download.html) installed. Make sure that in the `Tools` menu, the `Board` is set to `Teensy 4.0`, and `USB Type` is set to `MIDI`. Click the checkmark button in the top left to verify the sketch. This will compile the program and pop up the `Teensy` window. Then push the button on the Teensy with it connected to the computer, which will cause it to download the newly compiled program. (It's easier to reach the button now, before assembly.)
+
 ### Printed Circuit Board (PCB)
 
 Again, this is designed in KiCAD (open `end-pcb/piano-keyboard-end-pcb.pro`) and ordered from OSH Park (this time for $26.20 for 3 boards, though I only needed one).

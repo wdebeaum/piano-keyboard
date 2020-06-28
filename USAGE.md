@@ -2,7 +2,21 @@
 
 ## Usage Instructions
 
-Build up to 10 octaves by repeating the [building instructions](BUILD.md). Connect them side to side on a flat surface, first lining up the skewers with their holes on the opposide side, and then pushing the octaves together so that the five-pin male connector on the right octave goes into the five-socket female connector on the left octave.
+Build up to 10 octaves by repeating the [octave building instructions](BUILD.md). Connect them side to side on a flat surface, first lining up the skewers with their holes on the opposide side, and then pushing the octaves together so that the five-pin male connector on the right octave goes into the five-socket female connector on the left octave.
+
+You have a number of options for connecting the octaves to something that will actually play notes:
+
+### With a Teensy 4.0
+
+Build the end piece using the [end building instructions](BUILD.md) (scroll down). Connect the left (five-pin male) connector on the lowest (leftmost) octave to the (five-pin female) connector on the right side of the end piece. Then connect the micro-USB connector on the back of the end piece to a computer or other device that understands USB MIDI devices. Optionally, connect a pedal switch to the 1/4" sustain pedal jack on the front of the end piece.
+
+The front knob is a pitch bend knob. The back knob is for modulation. Not all MIDI synthesizers or instruments support these functions.
+
+The buttons allow you to adjust a few settings. The left and right buttons select which setting is being changed. The inner up and down buttons adjust the currently selected setting in fine increments, and the outer ones adjust it in coarse increments. The rectangular button in the bottom left resets the currently selected setting to the minimum possible value. There are currently 3 different settings you can change:
+
+ 1. Transposition. Fine adjustment is by semitone, coarse adjustment is by octave. On startup the lowest pitch on the keyboard is C5.
+ 2. Instrument (MIDI program). Fine adjustment is by instrument, coarse adjustment is by family (group of 8 instruments in the General MIDI instrument list). On startup this is the first instrument, Acoustic Grand Piano.
+ 3. MIDI channel. Fine adjustment moves by 1 channel at a time, coarse adjustment moves by 4 channels at a time. On startup this is the first channel.
 
 ### With a Raspberry Pi
 

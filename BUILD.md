@@ -1,6 +1,8 @@
 # Modular Piano Keyboard
 
-## Building Instructions
+## Octave Building Instructions
+
+These are the building instructions for a single octave module of the modular piano keyboard. The instructions for the end piece that connects the octaves to a computer appear later in this document.
 
 ### Plastic Parts
 
@@ -100,3 +102,51 @@ Cut a rectangular piece of corrugated cardboard, 162.5mm × 138.8mm (these measu
 
 Turn the keyboard upside down and put a small amount of glue on each of the bottom surfaces (and on the skewers if they're still loose). Press the cardboard onto the glued surfaces, taking care to align the back corners of the support with the back corners of the cardboard. Turn the keyboard right side up again and let the glue set.
 
+## End Building Instructions
+
+These are the building instructions for the end piece that connects the chain of octaves to a computer as a USB MIDI device.
+
+[TODO add photos]
+
+### Plastic Parts
+
+The plastic parts of the end can be printed from `end.scad`. You will need the enclosure (`plated_enclosure()`), the button panel (`plated_button_panel()`), two knobs (`knob()`), six triangular buttons, and one rectangular button (`buttons_plated()`). I recommend printing the enclosure and button panel in white, and the knobs and buttons in black, for contrast. You can use the `white_plated()` and `black_plated()` modules to make this easy. But the colors aren't super important here; I was running out of white, so I used black plastic for everything.
+
+You can also view the `assembled_end()` module to see how the end should look when assembled, or animate the `exploded_end()` module to see how to put it together.
+
+You might need to drill out the screw holes in the conical posts on the bottom of the button panel in order to get the screws to fit, since the 3D printer might have dragged the plastic around, or oozed too much plastic, making the holes smaller. The design tries to account for this, but it's not an exact science.
+
+### Printed Circuit Board (PCB)
+
+Again, this is designed in KiCAD (open `end-pcb/piano-keyboard-end-pcb.pro`) and ordered from OSH Park (this time for $26.20 for 3 boards, though I only needed one).
+
+All components except for the 5-pin female connector (J6) belong on the top side of the PCB; J6 goes on the bottom, matching the octaves.
+
+#### Solder shorter components to the top
+
+Solder the resistors R1-3, the capacitor C1, and the chip U1 to the top of the board. Trim the leads from the resistors and the capacitor, and save them so you can use them for the next step.
+
+#### Solder leads between Teensy and end PCB
+
+Solder the saved leads to only the holes in the Teensy that have corresponding holes in the end PCB, in the area in the top right corner labeled `TEENSY 4.0`. Use a longer wire to connect the 5V hole in the top right of the Teensy to the extra hole in the end PCB labeled `5V`. All the leads should extend down from the bottom of the Teensy.
+
+Put J6 temporarily between the Teensy and the end PCB as a spacer (it's 0.1" thick), inserting the leads you just soldered, into the correct holes in the end PCB, from the top, then solder them from the bottom of the PCB.
+
+#### Solder taller components to the top
+
+Solder the resistor network RN1 to the top of the PCB. This is the last component that needs to be supported from below while you're soldering it. The rest of the top-side components will clip into place, so you can insert them all now and solder them in one pass: switches SW1-7, potentiometers RV1-2, and the sustain pedal jack J7.
+
+#### Solder J6 to the bottom
+
+Finally, solder the 5-pin female connector J6 to the bottom of the end PCB. The leads of the other components sticking out of the bottom will help support the PCB so that J6 is straight.
+
+### Final Assembly
+
+Viewing the animated version of `exploded_end();` might be helpful here.
+
+ 1. Slide the end PCB into the enclosure from the right side, so that the edges go into their slots around the three other sides, the potentiometer shafts go through their holes on the left side, and the sustain pedal jack and the Teensy's USB port slide into their slots on the bottom and the top, respectively. You can thread the nut that came with the sustain pedal jack onto it from the outside, to secure it further.
+ 2. Put the knobs onto the potentiometer shafts.
+ 3. Put the button panel into its hole in the top of the enclosure, so that the conical screw hole posts line up with the screw holes in the PCB, and screw in the two M3 screws from the bottom.
+ 4. Put the button shafts into the button panel. They should feel tight most of the way, and then pop into place. After that, you should be able to feel the click of the switches on the PCB when you push the buttons.
+ 5. Cut and glue a short piece of skewer into the groove just under the PCB where it connects to the Teensy. This should stick out of the right side by about 1cm, and it will go into the front skewer hole on the first octave when the keyboard is assembled.
+ 6. Cut a piece of the same corrugated cardboard that you used for the bottoms of the octaves, and glue it to the bottom of the end enclosure. You may want to test that everything works before doing this step, since it covers up the screws and makes disassembly harder.

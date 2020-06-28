@@ -349,13 +349,13 @@ module plated_rectangle_button() {
     union() {
       // user side flat
         translate([-button_head_width/2,-button_head_thickness,0])
-      cube([button_head_width, button_head_thickness, button_radius]);
+      cube([button_head_width, button_head_thickness, button_radius+small_v_hole_shrinkage/*fudge*/]);
       // shaft
         translate([-button_radius, -epsilon, 0])
-      cube([2*button_radius, button_shaft_length+epsilon, button_radius]);
+      cube([2*button_radius, button_shaft_length+epsilon, button_radius+small_v_hole_shrinkage/*fudge*/]);
       // pcb side retention
         translate([-(button_radius+wall_thickness),button_shaft_length-wall_thickness,0])
-      cube([2*(button_radius+wall_thickness), wall_thickness, button_radius]);
+      cube([2*(button_radius+wall_thickness), wall_thickness, button_radius+small_v_hole_shrinkage/*fudge*/]);
     }
       translate([-50,-button_head_thickness,0])
     cube([100, button_shaft_length+button_head_thickness, 100]);

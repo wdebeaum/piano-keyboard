@@ -1,6 +1,6 @@
 /* end.scad - controls at the left end of octave.scad
  * William de Beaumont
- * 2020-06-27
+ * 2020-06-28
  */
 
 include <common.scad>;
@@ -185,12 +185,12 @@ module end_cardboard() {
   difference() {
       translate([
 	-(wall_thickness+gap),
-	-(wall_thickness+gap+pcb_height),
+	-(wall_thickness+pcb_y_gap+pcb_height),
 	-(support_base_height+gap+cardboard_thickness)
       ])
     cube([
       wall_thickness+gap+pcb_width,
-      2*(wall_thickness+gap)+pcb_height+teensy_height+teensy_min_y,
+      2*(wall_thickness+pcb_y_gap)+pcb_height+teensy_height+teensy_min_y,
       cardboard_thickness
     ]);
     // top left bevel

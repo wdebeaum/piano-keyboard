@@ -149,9 +149,9 @@ Finally, solder the 5-pin female connector J6 to the bottom of the end PCB. The 
 Viewing the animated version of `exploded_end();` might be helpful here.
 
  1. Slide the end PCB into the enclosure from the right side, so that the edges go into their slots around the three other sides, the potentiometer shafts go through their holes on the left side, and the sustain pedal jack and the Teensy's USB port slide into their slots on the bottom and the top, respectively. You can thread the nut that came with the sustain pedal jack onto it from the outside, to secure it further.
- 2. Put the knobs onto the potentiometer shafts.
- 3. Put the button panel into its hole in the top of the enclosure, so that the conical screw hole posts line up with the screw holes in the PCB, and screw in the two M3 screws from the bottom.
- 4. Put the button shafts into the button panel. They should feel tight most of the way, and then pop into place. After that, you should be able to feel the click of the switches on the PCB when you push the buttons.
+ 2. Put the button panel into its hole in the top of the enclosure, so that the conical screw hole posts line up with the screw holes in the PCB, and screw in the two M3 screws from the bottom.
+ 3. Put the button shafts into the button panel. They should feel tight most of the way, and then pop into place. After that, you should be able to feel the click of the switches on the PCB when you push the buttons.
+ 4. Put the knobs onto the potentiometer shafts.
  5. This is a good time to test that everything works properly, since the gluing steps may make disassembly more difficult (in particular, the cardboard covers the screws and makes them inaccessible). See [USAGE](USAGE.md).
  6. Cut and glue a short piece of skewer into the groove just under the PCB where it connects to the Teensy. This should stick out of the right side by about 1cm, and it will go into the front skewer hole on the first octave when the keyboard is assembled.
  7. Cut a piece of the same corrugated cardboard that you used for the bottoms of the octaves, and glue it to the bottom of the end enclosure.

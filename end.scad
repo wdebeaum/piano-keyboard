@@ -635,10 +635,10 @@ function step(n) =
 
 /* steps:
 0	pcb
-1	knobs
-2	button panel
-3	screws
-4	buttons
+1	button panel
+2	screws
+3	buttons
+4	knobs
 5	skewer
 6	cardboard
 7	finished!
@@ -647,18 +647,18 @@ function step(n) =
 module exploded_end() {
     translate([step(0)*(pcb_width+10),0,0])
   %end_pcb();
-    %translate([0,0,step(3)*-(screw_threads_height+10)])
+    %translate([0,0,step(2)*-(screw_threads_height+10)])
     translate([screw1_x,screw1_y,-(pcb_thickness+gap)])
     rotate([180,0,0])
   screw();
-    %translate([0,0,step(3)*-(screw_threads_height+10)])
+    %translate([0,0,step(2)*-(screw_threads_height+10)])
     translate([screw2_x,screw2_y,-(pcb_thickness+gap)])
     rotate([180,0,0])
   screw();
   enclosure();
-    translate([0,0,step(2)*(top_component_thickness+10)])
+    translate([0,0,step(1)*(top_component_thickness+10)])
   button_panel();
-    translate([0,0,step(4)*2*(top_component_thickness+10)])
+    translate([0,0,step(3)*2*(top_component_thickness+10)])
   union() {
     translate([button_x2, button_y1, 0]) triangle_button();
     translate([button_x2, button_y2, 0]) triangle_button();
@@ -672,11 +672,11 @@ module exploded_end() {
     translate([skewer_x, skewer_y, skewer_z])
     rotate([0,90,0])
   cylinder(r=skewer_radius, h=skewer_length);
-    translate([step(1)*-(knob_width+10),0,0])
+    translate([step(4)*-(knob_width+10),0,0])
     translate([pot_shaft_min_x, pot1_shaft_y, pot_shaft_z])
     rotate([0,90,0])
   knob();
-    translate([step(1)*-(knob_width+10),0,0])
+    translate([step(4)*-(knob_width+10),0,0])
     translate([pot_shaft_min_x, pot2_shaft_y, pot_shaft_z])
     rotate([0,90,0])
   knob();

@@ -128,17 +128,17 @@ All components except for the 5-pin female connector (J6) belong on the top side
 
 #### Solder shorter components to the top
 
-Solder the resistors R1-3, the capacitor C1, and the chip U1 to the top of the board. Trim the leads from the resistors and the capacitor, and save them so you can use them for the next step.
+Solder the resistors R1-3, the resistor network RN1, the capacitor C1, and the chip U1 to the top of the board. Trim the leads from the resistors and the capacitor, and save them so you can use them for the next step.
 
 #### Solder leads between Teensy and end PCB
 
-Solder the saved leads to only the holes in the Teensy that have corresponding holes in the end PCB, in the area in the top right corner labeled `TEENSY 4.0`. Use a longer wire to connect the 5V hole in the top right of the Teensy to the extra hole in the end PCB labeled `5V`. All the leads should extend down from the bottom of the Teensy.
+Solder the saved leads to only the holes in the Teensy that have corresponding holes in the end PCB, in the area in the top right corner labeled `TEENSY 4.0`. Use a longer (~3cm) wire to connect the 5V hole in the top right of the Teensy to the extra hole in the end PCB labeled `5V`. All the leads should extend down from the bottom of the Teensy.
 
-Put J6 temporarily between the Teensy and the end PCB as a spacer (it's 0.1" thick), inserting the leads you just soldered, into the correct holes in the end PCB, from the top, then solder them from the bottom of the PCB.
+Insert the leads you just soldered to the Teensy into the corresponding holes in the end PCB. Then slide the two boards into the right side of the enclosure (see Final Assembly below) to get the spacing between the boards right. Solder two or three of the leads that are farther away from the plastic so you don't melt it. Then take the boards back out of the enclosure and finish soldering the rest of the leads.
 
 #### Solder taller components to the top
 
-Solder the resistor network RN1 to the top of the PCB. This is the last component that needs to be supported from below while you're soldering it. The rest of the top-side components will clip into place, so you can insert them all now and solder them in one pass: switches SW1-7, potentiometers RV1-2, and the sustain pedal jack J7.
+The rest of the top-side components will clip into place. Because of that, they don't need to be supported from below, so you can insert them all now and solder them in one pass: switches SW1-7, potentiometers RV1-2, and the sustain pedal jack J7. The potentiometers might be a little loose; if so, solder them in place before inserting J7, and be careful about keeping them angled correctly. However, if they end up a little off-kilter, you can shave the holes their shafts are supposed to go through in the enclosure until they fit and turn freely.
 
 #### Solder J6 to the bottom
 
@@ -152,5 +152,6 @@ Viewing the animated version of `exploded_end();` might be helpful here.
  2. Put the knobs onto the potentiometer shafts.
  3. Put the button panel into its hole in the top of the enclosure, so that the conical screw hole posts line up with the screw holes in the PCB, and screw in the two M3 screws from the bottom.
  4. Put the button shafts into the button panel. They should feel tight most of the way, and then pop into place. After that, you should be able to feel the click of the switches on the PCB when you push the buttons.
- 5. Cut and glue a short piece of skewer into the groove just under the PCB where it connects to the Teensy. This should stick out of the right side by about 1cm, and it will go into the front skewer hole on the first octave when the keyboard is assembled.
- 6. Cut a piece of the same corrugated cardboard that you used for the bottoms of the octaves, and glue it to the bottom of the end enclosure. You may want to test that everything works before doing this step, since it covers up the screws and makes disassembly harder.
+ 5. This is a good time to test that everything works properly, since the gluing steps may make disassembly more difficult (in particular, the cardboard covers the screws and makes them inaccessible). See [USAGE](USAGE.md).
+ 6. Cut and glue a short piece of skewer into the groove just under the PCB where it connects to the Teensy. This should stick out of the right side by about 1cm, and it will go into the front skewer hole on the first octave when the keyboard is assembled.
+ 7. Cut a piece of the same corrugated cardboard that you used for the bottoms of the octaves, and glue it to the bottom of the end enclosure.

@@ -2,6 +2,33 @@
 
 #define MAX_OCTAVES 10
 
+// SPI settings for SN74HC165
+// Datasheet says f_max should be 2-25MHz at Vcc=4.5V, depending on temperature.
+// 26MHz is about as high as I can drive it successfully, experimentally.
+// 341,775Hz is the theoretical minimum for scanning a 10-octave keyboard every
+// 32 CD audio samples.
+// 500KHz is a comfortable margin above that, and seems to work well for 3
+// octaves at least.
+#define SPI_74165_FREQ 500000
+// SN74HC165 datasheet says that data is shifted on the rising edge of the
+// clock (so should be read by Teensy on the falling edge), and seems to imply
+// that clock is low when inactive. So CPOL=0, CPHA=1, therefore MODE=1. But
+// experimentally, CPHA=0/MODE=0 seems to work better? Sometimes?
+// ¯\_(ツ)_/¯
+#define SPI_74165_MODE SPI_MODE0
+
+// Which pin on the Teensy is connected to the SH/~LD pin on the SN74HC165?
+#define SH_LD_PIN 9
+// Should we try to do more precise delays around changing the SH/~LD signal
+// with a busy-wait loop, or just use delayMicroseconds(1)?
+//#define SH_LD_BUSY_WAIT
+// if SH_LD_BUSY_WAIT, how many long multiplications should we loop over in
+// order to wait enough time (>=~20ns) after changing the SH/~LD signal?
+// Experimentally, doing 6500 long multiplications gives me ~22ns on Teensy 4.0.
+#define SH_LD_DELAY_COUNT 6500
+// I also tried connecting MOSI to SH/~LD, and sending B11111101 before
+// reading, but that had timing issues when >2 octaves were connected.
+
 byte scan_count;
 unsigned long switch_states[MAX_OCTAVES];
 byte times_since_change[MAX_OCTAVES*24];
@@ -87,9 +114,9 @@ long update_pot(Pot& pot) {
 }
 
 void setup() {
-  pinMode(9, OUTPUT);
+  pinMode(SH_LD_PIN, OUTPUT);
   SPI.begin();
-  SPI.beginTransaction(SPISettings(26000000, MSBFIRST, SPI_MODE0)); // was mode 1 on raspi?
+  SPI.beginTransaction(SPISettings(SPI_74165_FREQ, MSBFIRST, SPI_74165_MODE));
   scan_count = 0;
   memset(switch_states, 0, MAX_OCTAVES*sizeof(long));
   memset(times_since_change, 0, MAX_OCTAVES*24);
@@ -114,24 +141,26 @@ void loop() {
   scan_count++;
   unsigned long now = micros();
   // load key state into shift regs
-  digitalWrite(9, LOW);
-  // (need ~20ns between settings; experimentally doing 6500 long multiplications gives me ~22ns)
-  int delay1, delay2=3;
-  for (delay1 = 0; delay1 < 6500; delay1++)
+  digitalWrite(SH_LD_PIN, LOW);
+#ifdef SH_LD_BUSY_WAIT
+  long delay1, delay2=3;
+  for (delay1 = 0; delay1 < SH_LD_DELAY_COUNT; delay1++)
     delay2 *= delay1;
-  // alternatively, just wait as few microseconds as possible:
-  //delayMicroseconds(1);
-  digitalWrite(9, HIGH);
-  // ~20ns
-  for (delay1 = 0; delay1 < 6500; delay1++)
+#else
+  delayMicroseconds(1);
+#endif
+  digitalWrite(SH_LD_PIN, HIGH);
+#ifdef SH_LD_BUSY_WAIT
+  for (delay1 = 0; delay1 < SH_LD_DELAY_COUNT; delay1++)
     delay2 *= delay1;
-  // delayMicroseconds(1);
-  // also tried this, to be able to use MOSI instead of a separate digital pin, but it has timing issues when >2 octaves are connected
-  //SPI.transfer(B11111101);
+#else
+  delayMicroseconds(1);
+#endif
   // read state of control buttons on end, and sustain pedal
   byte new_button_states = SPI.transfer(B11111111);
   // which states have changed?
   byte button_changes = new_button_states ^ old_button_states;
+  old_button_states = new_button_states;
 
   // sustain pedal
   if (button_changes & 1) { // sus pedal changed

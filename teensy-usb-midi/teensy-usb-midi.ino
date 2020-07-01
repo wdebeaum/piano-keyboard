@@ -73,12 +73,16 @@ void init_pot(Pot& pot, long center_midi, int pin) {
   pot.pin = pin;
   pinMode(pin, INPUT_DISABLE); // disable jumps around logic transition levels
   long val = analogRead(pin);
+  // use the initial value as the center value unless it's too far away from
+  // the theoretical center value analogRead can return; otherwise use the
+  // theoretical value (theoretical range is 0-0x3ff)
+  long center = ((abs(val-0x200) > 0x100) ? 0x200 : val);
   pot.old = val;
   pot.sum = 0;
-  pot.minimum = val;
-  pot.center = val;
+  pot.minimum = (center < val ? center : val);
+  pot.center = center;
   pot.center_midi = center_midi;
-  pot.maximum = val;
+  pot.maximum = (center > val ? center : val);
 }
 
 // return a midi control value corresponding to the read value of the pot
@@ -104,11 +108,17 @@ long update_pot(Pot& pot) {
     long new_midi_val = pot_midi_value(pot, val);
     if (old_midi_val != new_midi_val) {
       pot.old = val;
-      return new_midi_val;
-    } else {
+      // only start reporting values once we start getting reasonable estimates
+      // of min/max values (i.e. far enough from center)
+      if (pot.center - pot.minimum > 0x80 && pot.maximum - pot.center > 0x80) {
+	return new_midi_val;
+      } else { // otherwise, assume user hasn't really moved the pot, and we're just picking up noise
+	return -1;
+      }
+    } else { // value hasn't changed significantly
       return -1;
     }
-  } else {
+  } else { // hasn't been long enough since last computed value
     return -1;
   }
 }

@@ -134,17 +134,17 @@ void setup() {
   regs[LOWEST_PITCH_REG].value = 12*5; // octave #5
   regs[LOWEST_PITCH_REG].small_step = 1; // half-step
   regs[LOWEST_PITCH_REG].large_step = 12; // octave
-  regs[LOWEST_PITCH_REG].maximum = 0x3f-12; // just the highest single octave
+  regs[LOWEST_PITCH_REG].maximum = 0x7f-12; // just the highest single octave
   regs[PROGRAM_REG].value = 0; // piano
   regs[PROGRAM_REG].small_step = 1;
   regs[PROGRAM_REG].large_step = 8; // instrument family
-  regs[PROGRAM_REG].maximum = 0x3f;
+  regs[PROGRAM_REG].maximum = 0x7f;
   regs[CHANNEL_REG].value = 0;
   regs[CHANNEL_REG].small_step = 1;
   regs[CHANNEL_REG].large_step = 4; // only 16 channels; 4 is half the bits
   regs[CHANNEL_REG].maximum = 0xf;
   init_pot(pitch_bend, 0x1fff, PIN_A0);
-  init_pot(modulation, 0x3f, PIN_A1);
+  init_pot(modulation, 0x7f, PIN_A1);
 }
 
 void loop() {
@@ -187,13 +187,13 @@ void loop() {
   if (button_presses & (1<<1)) { // fast up
     regs[current_reg].value += regs[current_reg].large_step;
     if (regs[current_reg].value > regs[current_reg].maximum) {
-      regs[current_reg].value -= regs[current_reg].maximum+1;
+      regs[current_reg].value %= regs[current_reg].large_step;
     }
   }
   if (button_presses & (1<<2)) { // up
     regs[current_reg].value += regs[current_reg].small_step;
     if (regs[current_reg].value > regs[current_reg].maximum) {
-      regs[current_reg].value -= regs[current_reg].maximum+1;;
+      regs[current_reg].value %= regs[current_reg].small_step;
     }
   }
   if (button_presses & (1<<3)) { // left
@@ -206,15 +206,21 @@ void loop() {
     regs[current_reg].value = 0;
   }
   if (button_presses & (1<<5)) { // fast down
-    regs[current_reg].value -= regs[current_reg].large_step;
-    if (regs[current_reg].value < 0) {
-      regs[current_reg].value += regs[current_reg].maximum+1;
+    if (regs[current_reg].value < regs[current_reg].large_step) {
+      regs[current_reg].value =
+        regs[current_reg].maximum + regs[current_reg].value
+	- regs[current_reg].large_step;
+    } else {
+      regs[current_reg].value -= regs[current_reg].large_step;
     }
   }
   if (button_presses & (1<<6)) { // down
-    regs[current_reg].value -= regs[current_reg].small_step;
-    if (regs[current_reg].value < 0) {
-      regs[current_reg].value += regs[current_reg].maximum+1;
+    if (regs[current_reg].value < regs[current_reg].small_step) {
+      regs[current_reg].value =
+        regs[current_reg].maximum + regs[current_reg].value
+	- regs[current_reg].small_step;
+    } else {
+      regs[current_reg].value -= regs[current_reg].small_step;
     }
   }
   if (button_presses & (1<<7)) { // right

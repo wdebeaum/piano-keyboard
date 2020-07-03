@@ -2,7 +2,7 @@
 
 ## Octave Bill of Materials
 
-![picture of the parts listed below, laid out on a table](images/all_parts.jpg)
+![picture of the parts listed below, laid out on a table](images/octave_parts.jpg)
 
 Quantities shown here are for one octave (though you probably want to make at least 3).
 

@@ -6,11 +6,11 @@ These are the building instructions for a single octave module of the modular pi
 
 ### Plastic Parts
 
-The keys and their support structure can be printed on a 3D printer. Open `octave.scad` in [OpenSCAD](https://www.openscad.org/). By default this shows one assembled octave, including ghosts for the non-printed parts. You can also see a version with a cutaway in the C key to show how things fit together, by commenting out `assembled();` and uncommenting `cutaway();`, at the end of the file.
+The keys and their support structure can be printed on a 3D printer. Open `octave.scad` in [OpenSCAD](https://www.openscad.org/). By default this shows one assembled octave, including ghosts for the non-printed parts. You can also see a version with a cutaway in the C key to show how things fit together, by commenting out `assembled_octave();` and uncommenting `cutaway();`, at the end of the file.
 
 You may need to adjust some parameters in the section labeled "parameters that depend on printer capabilities". I use an original [Printrbot](https://reprap.org/wiki/Printrbot), printing in ABS plastic onto blue painter's tape with a coating of ABS glue (made by dissolving waste ABS in a small amount of acetone to make it just gooey enough to spread). The Printrbot has a relatively small print bed (~ 124mm × 144mm, the white keys just barely fit), and printing in ABS onto tape means I have to worry a lot about prints curling up due to differential thermal contraction, especially with long thin pieces like piano keys. I also tend to have problems with close-fitting parts, solved with the `gap` parameter and a few others for specific situations. These issues are why I don't include my STL files here, only the original OpenSCAD file; you really should make your own STLs.
 
-To show printable parts, comment out `assembled();` and uncomment one line at a time from the "recommended printing order" section (make sure to read the comments there for more tips). You can then generate an STL file for each print (`Design` > `Render`, then `File` > `Export` > `Export as STL...`). I use Slic3r to generate gcode from the STL, with 20% fill density, and 2 solid layers on all sides.
+To show printable parts, comment out `assembled_octave();` and uncomment one line at a time from the "recommended printing order" section (make sure to read the comments there for more tips). You can then generate an STL file for each print (`Design` > `Render`, then `File` > `Export` > `Export as STL...`). I use Slic3r to generate gcode from the STL, with 20% fill density, and 2 solid layers on all sides.
 
 Note that you have a couple of options for printing the black keys and the supports. I use the separate low and high halves for both, but if your printer is big enough and you're not worried about curling, you can try printing a whole octave at a time.
 
@@ -96,7 +96,7 @@ If you printed the support in two halves, check that the F key doesn't noisily r
 
 #### Attach cardboard
 
-Cut a rectangular piece of corrugated cardboard, 162.5mm × 138.8mm (these measurements are `echo`'d by OpenSCAD when you show the default `assembled();` scene). Cut it so that the corrugations run parallel to the keys (along the Y dimension). This cardboard helps the keyboard not to tip forward when you play chords, so you don't want it to fold up along the X dimension.
+Cut a rectangular piece of corrugated cardboard, 162.5mm × 138.8mm (these measurements are `echo`'d by OpenSCAD when you show the default `assembled_octave();` scene). Cut it so that the corrugations run parallel to the keys (along the Y dimension). This cardboard helps the keyboard not to tip forward when you play chords, so you don't want it to fold up along the X dimension.
 
 ![cardboard cut to size](images/cardboard_cut.jpg)
 
@@ -151,7 +151,7 @@ Viewing the animated version of `exploded_end();` might be helpful here.
  1. Slide the end PCB into the enclosure from the right side, so that the edges go into their slots around the three other sides, the potentiometer shafts go through their holes on the left side, and the sustain pedal jack and the Teensy's USB port slide into their slots on the bottom and the top, respectively. You can thread the nut that came with the sustain pedal jack onto it from the outside, to secure it further.
  2. Put the button panel into its hole in the top of the enclosure, so that the conical screw hole posts line up with the screw holes in the PCB, and screw in the two M3 screws from the bottom.
  3. Put the button shafts into the button panel. They should feel tight most of the way, and then pop into place. After that, you should be able to feel the click of the switches on the PCB when you push the buttons.
- 4. Put the knobs onto the potentiometer shafts.
+ 4. Put the knobs onto the potentiometer shafts. If they're too loose to stay on, wrap a tiny bit of tape around the shafts to make the fit tighter.
  5. This is a good time to test that everything works properly, since the gluing steps may make disassembly more difficult (in particular, the cardboard covers the screws and makes them inaccessible). See [USAGE](USAGE.md).
- 6. Cut and glue a short piece of skewer into the groove just under the PCB where it connects to the Teensy. This should stick out of the right side by about 1cm, and it will go into the front skewer hole on the first octave when the keyboard is assembled.
- 7. Cut a piece of the same corrugated cardboard that you used for the bottoms of the octaves, and glue it to the bottom of the end enclosure.
+ 6. Cut and glue a 30.6mm piece of skewer into the groove just under the PCB where it connects to the Teensy. This should stick out of the right side by about 1cm, and it will go into the front skewer hole on the first octave when the keyboard is assembled.
+ 7. Cut a 42.4×109.3mm piece of the same corrugated cardboard that you used for the bottoms of the octaves, with a 45° bevel cut off of the top left corner, 22.1mm in from the top and left edges. (These dimensions are `echo`'d by OpenSCAD when you show the default `assembled_end();` scene.) Glue it to the bottom of the end enclosure.

@@ -198,6 +198,14 @@ module end_cardboard() {
       rotate([0,0,-45])
       translate([-50,0,0])
     cube([100,100,100], center=true);
+    echo(
+      cardboard_x=
+      wall_thickness+gap+pcb_width,
+      cardboard_y=
+      2*(wall_thickness+pcb_y_gap)+pcb_height+teensy_height+teensy_min_y,
+      cardboard_bevel=
+      teensy_min_x
+    );
   }
 }
 
@@ -617,6 +625,7 @@ module assembled_end() {
     %translate([skewer_x, skewer_y, skewer_z])
     rotate([0,90,0])
   cylinder(r=skewer_radius, h=skewer_length);
+  echo(skewer_length=skewer_length);
     translate([pot_shaft_min_x, pot1_shaft_y, pot_shaft_z])
     rotate([0,90,0])
   knob();

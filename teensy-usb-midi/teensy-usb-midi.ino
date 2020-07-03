@@ -34,6 +34,7 @@ unsigned long switch_states[MAX_OCTAVES];
 byte times_since_change[MAX_OCTAVES*24];
 byte old_button_states;
 byte buf[3];
+byte prev_note_num;
 
 // value that can be changed using buttons on end
 struct Reg {
@@ -135,6 +136,7 @@ void setup() {
   regs[LOWEST_PITCH_REG].small_step = 1; // half-step
   regs[LOWEST_PITCH_REG].large_step = 12; // octave
   regs[LOWEST_PITCH_REG].maximum = 0x7f-12; // just the highest single octave
+  prev_note_num = regs[LOWEST_PITCH_REG].value;
   regs[PROGRAM_REG].value = 0; // piano
   regs[PROGRAM_REG].small_step = 1;
   regs[PROGRAM_REG].large_step = 8; // instrument family
@@ -183,6 +185,7 @@ void loop() {
 
   // get just the buttons that just started being pressed
   byte button_presses = button_changes & new_button_states;
+  int prev_lowest_pitch = regs[LOWEST_PITCH_REG].value;
   // interpret button presses as changing register values or switching registers
   if (button_presses & (1<<1)) { // fast up
     regs[current_reg].value += regs[current_reg].large_step;
@@ -233,7 +236,17 @@ void loop() {
     // program register (instrument) changed
     usbMIDI.sendProgramChange(regs[PROGRAM_REG].value, CHANNEL);
   }
-  // TODO? re-send the last note-on message if any register value changed, to reflect the new value
+
+  // if any buttons were just pressed, re-send the last note with the new
+  // settings to indicate what changed
+  // TODO? somehow indicate current_reg when left/right pressed
+  if (button_presses != 0) { // some button was newly pressed
+    if (current_reg == LOWEST_PITCH_REG) // changed transposition
+      prev_note_num += regs[LOWEST_PITCH_REG].value - prev_lowest_pitch;
+    usbMIDI.sendNoteOn(prev_note_num, 0x7f, CHANNEL);
+    delay(250);
+    usbMIDI.sendNoteOff(prev_note_num, 0, CHANNEL);
+  }
 
   // read key states and send note on/off messages
   for (int o = 0; o < MAX_OCTAVES; o++) {
@@ -270,6 +283,7 @@ void loop() {
 	    int kpdi = tsci^1; // key-partly-down bits toggle the 1s place
 	    byte velocity = 0x80 - times_since_change[kpdi];
 	    usbMIDI.sendNoteOn(note_num, velocity, CHANNEL);
+	    prev_note_num = note_num;
 	  } else { // key released
 	    usbMIDI.sendNoteOff(note_num, 0, CHANNEL);
 	  }

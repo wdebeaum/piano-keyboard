@@ -146,7 +146,7 @@ void setup() {
   regs[CHANNEL_REG].large_step = 4; // only 16 channels; 4 is half the bits
   regs[CHANNEL_REG].maximum = 0xf;
   init_pot(pitch_bend, 0x1fff, PIN_A0);
-  init_pot(modulation, 0x7f, PIN_A1);
+  init_pot(modulation, 0x3f, PIN_A1);
 }
 
 void loop() {

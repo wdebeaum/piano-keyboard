@@ -4,7 +4,7 @@ By William de Beaumont
 
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
-![two octave modules being connected](images/two_octaves_connecting.gif)
+![three octaves and end piece being unstacked and then connected](images/stacking_and_connecting.gif)
 
 ## Description
 

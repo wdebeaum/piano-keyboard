@@ -20,9 +20,23 @@ Alternatively, you can connect that side of the keyboard to your own microcontro
 
  - [Bill of Materials](BOM.md)
 
- - [Building Instructions](BUILD.md)
+ - [Building Instructions](BUILD.md) (many pictures)
 
  - [Usage Instructions](USAGE.md)
+
+## Known issues
+
+ - Sometimes with many octaves connected, the highest few keys don't trigger when you press them, and/or trigger at random, or when you press other keys. This seems to be mitigated somewhat by connecting an extra 10kΩ resistor between the clock and ground of the connector on the right side of the keyboard.
+
+ - When you have 3 octaves connected, and hold any C key, the highest A key won't trigger when you press it (even with the resistor hack above). This also happens with C♯/A♯ and D/B. A, A♯, and B also happen to be the high keys that don't trigger without the resistor hack in this situation.
+
+ - The key switches sometimes get out of alignment, preventing specific keys from triggering consistently until you take the key off and realign the switch.
+
+ - The connection between the lowest octave and the end piece is a bit wobbly with only one alignment pin.
+
+ - The pitch bend knob has no centering mechanism. I tried to make various kinds of springs for it, but the results were unsatisfying.
+
+ - The hole in the end piece enclosure intended to let the LED on the Teensy shine through is too far away from it to matter. Maybe a light pipe would improve it. But as it is, the light shines out the right side anyway, so whatever.
 
 ## Future work
 

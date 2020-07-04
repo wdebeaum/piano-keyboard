@@ -38,7 +38,7 @@ Connect the left connector on the lowest (leftmost) octave to a microcontroller 
 
  1. +5V VCC
  2. SPI MISO (5V!)
- 3. SPI clock (~30MHz)
+ 3. SPI clock (~350KHz-25MHz)
  4. Shift/load (connect to GPIO output pin; low loads switch state into the shift registers, high shifts state out of the registers)
  5. Ground
 

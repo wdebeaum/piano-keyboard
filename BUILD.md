@@ -106,8 +106,6 @@ Turn the keyboard upside down and put a small amount of glue on each of the bott
 
 These are the building instructions for the end piece that connects the chain of octaves to a computer as a USB MIDI device.
 
-[TODO add photos]
-
 ### Plastic Parts
 
 The plastic parts of the end can be printed from `end.scad`. You will need the enclosure (`plated_enclosure()`), the button panel (`plated_button_panel()`), two knobs (`knob()`), six triangular buttons, and one rectangular button (`buttons_plated()`). I recommend printing the enclosure and button panel in white, and the knobs and buttons in black, for contrast. You can use the `white_plated()` and `black_plated()` modules to make this easy. But the colors aren't super important here; I was running out of white, so I used black plastic for everything.
@@ -120,6 +118,8 @@ You might need to drill out the screw holes in the conical posts on the bottom o
 
 Open `teensy-usb-midi/teensy-usb-midi.ino` in the Arduino IDE software with [Teensyduino](https://www.pjrc.com/teensy/td_download.html) installed. Make sure that in the `Tools` menu, the `Board` is set to `Teensy 4.0`, and `USB Type` is set to `MIDI`. Click the checkmark button in the top left to verify the sketch. This will compile the program and pop up the `Teensy` window. Then push the button on the Teensy with it connected to the computer, which will cause it to download the newly compiled program. (It's easier to reach the button now, before assembly.)
 
+![teensyduino settings, compilation, and flashing](images/teensyduino.jpg)
+
 ### Printed Circuit Board (PCB)
 
 Again, this is designed in KiCAD (open `end-pcb/piano-keyboard-end-pcb.pro`) and ordered from OSH Park (this time for $26.20 for 3 boards, though I only needed one).
@@ -130,28 +130,66 @@ All components except for the 5-pin female connector (J6) belong on the top side
 
 Solder the resistors R1-3, the resistor network RN1, the capacitor C1, and the chip U1 to the top of the board. Trim the leads from the resistors and the capacitor, and save them so you can use them for the next step.
 
+![shorter components soldered](images/end_short_soldered.jpg)
+
 #### Solder leads between Teensy and end PCB
 
 Solder the saved leads to only the holes in the Teensy that have corresponding holes in the end PCB, in the area in the top right corner labeled `TEENSY 4.0`. Use a longer (~3cm) wire to connect the 5V hole in the top right of the Teensy to the extra hole in the end PCB labeled `5V`. All the leads should extend down from the bottom of the Teensy.
 
+![leads on Teensy](images/leads_on_teensy.jpg)
+
 Insert the leads you just soldered to the Teensy into the corresponding holes in the end PCB. Then slide the two boards into the right side of the enclosure (see Final Assembly below) to get the spacing between the boards right. Solder two or three of the leads that are farther away from the plastic so you don't melt it. Then take the boards back out of the enclosure and finish soldering the rest of the leads.
+
+![teensy fit in enclosure, on pcb](images/teensy_fit.jpg)
 
 #### Solder taller components to the top
 
 The rest of the top-side components will clip into place. Because of that, they don't need to be supported from below, so you can insert them all now and solder them in one pass: switches SW1-7, potentiometers RV1-2, and the sustain pedal jack J7. The potentiometers might be a little loose; if so, solder them in place before inserting J7, and be careful about keeping them angled correctly. However, if they end up a little off-kilter, you can shave the holes their shafts are supposed to go through in the enclosure until they fit and turn freely.
 
+![taller components soldered](images/end_tall_soldered.jpg)
+
 #### Solder J6 to the bottom
 
 Finally, solder the 5-pin female connector J6 to the bottom of the end PCB. The leads of the other components sticking out of the bottom will help support the PCB so that J6 is straight.
+
+![J6 soldered](images/end_j6_soldered.jpg)
 
 ### Final Assembly
 
 Viewing the animated version of `exploded_end();` might be helpful here.
 
- 1. Slide the end PCB into the enclosure from the right side, so that the edges go into their slots around the three other sides, the potentiometer shafts go through their holes on the left side, and the sustain pedal jack and the Teensy's USB port slide into their slots on the bottom and the top, respectively. You can thread the nut that came with the sustain pedal jack onto it from the outside, to secure it further.
- 2. Put the button panel into its hole in the top of the enclosure, so that the conical screw hole posts line up with the screw holes in the PCB, and screw in the two M3 screws from the bottom.
- 3. Put the button shafts into the button panel. They should feel tight most of the way, and then pop into place. After that, you should be able to feel the click of the switches on the PCB when you push the buttons.
- 4. Put the knobs onto the potentiometer shafts. If they're too loose to stay on, wrap a tiny bit of tape around the shafts to make the fit tighter.
- 5. This is a good time to test that everything works properly, since the gluing steps may make disassembly more difficult (in particular, the cardboard covers the screws and makes them inaccessible). See [USAGE](USAGE.md).
- 6. Cut and glue a 30.6mm piece of skewer into the groove just under the PCB where it connects to the Teensy. This should stick out of the right side by about 1cm, and it will go into the front skewer hole on the first octave when the keyboard is assembled.
- 7. Cut a 42.4×109.3mm piece of the same corrugated cardboard that you used for the bottoms of the octaves, with a 45° bevel cut off of the top left corner, 22.1mm in from the top and left edges. (These dimensions are `echo`'d by OpenSCAD when you show the default `assembled_end();` scene.) Glue it to the bottom of the end enclosure.
+#### Insert PCB
+
+Slide the end PCB into the enclosure from the right side, so that the edges go into their slots around the three other sides, the potentiometer shafts go through their holes on the left side, and the sustain pedal jack and the Teensy's USB port slide into their slots on the bottom and the top, respectively. You can thread the nut that came with the sustain pedal jack onto it from the outside, to secure it further.
+
+![end PCB inserted](images/end_pcb_inserted.jpg)
+
+#### Insert button panel and screws
+
+Put the button panel into its hole in the top of the enclosure, so that the conical screw hole posts line up with the screw holes in the PCB, and screw in the two M3 screws from the bottom.
+
+![button panel affixed](images/button_panel_affixed.jpg)
+
+#### Insert button shafts and add knobs
+
+Put the button shafts into the button panel. They should feel tight most of the way, and then pop into place. After that, you should be able to feel the click of the switches on the PCB when you push the buttons.
+
+Put the knobs onto the potentiometer shafts. If they're too loose to stay on, wrap a tiny bit of tape around the shafts to make the fit tighter.
+
+![buttons and knobs affixed](images/buttons_and_knobs.jpg)
+
+#### Test
+
+This is a good time to test that everything works properly, since the gluing steps may make disassembly more difficult (in particular, the cardboard covers the screws and makes them inaccessible). See [USAGE](USAGE.md).
+
+#### Glue skewer alignment pin
+
+Cut and glue a 30.6mm piece of skewer into the groove just under the PCB where it connects to the Teensy. This should stick out of the right side by about 1cm, and it will go into the front skewer hole on the first octave when the keyboard is assembled.
+
+![skewer glued](images/end_skewer_glued.jpg)
+
+#### Glue cardboard base
+
+Cut a 42.4×109.3mm piece of the same corrugated cardboard that you used for the bottoms of the octaves, with a 45° bevel cut off of the top left corner, 22.1mm in from the top and left edges. (These dimensions are `echo`'d by OpenSCAD when you show the default `assembled_end();` scene.) Glue it to the bottom of the end enclosure.
+
+![cardboard cut](images/end_cardboard_cut.jpg)

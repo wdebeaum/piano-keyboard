@@ -10,7 +10,7 @@ You have a number of options for connecting the octaves to something that will a
 
 Build the end piece using the [end building instructions](BUILD.md) (scroll down). Connect the left (five-pin male) connector on the lowest (leftmost) octave to the (five-pin female) connector on the right side of the end piece. Then connect the micro-USB connector on the back of the end piece to a computer or other device that understands USB MIDI devices. Optionally, connect a pedal switch to the 1/4" sustain pedal jack on the front of the end piece.
 
-The front knob is a pitch bend knob. The back knob is for modulation. Not all MIDI synthesizers or instruments support these functions.
+The front knob is a pitch bend knob. The back knob is for modulation. Not all MIDI synthesizers or instruments support these functions. When you first plug in the USB, the knobs are disabled; in order to enable them, you should calibrate them by moving them all the way in one direction, and then all the way in the other direction. For the best calibration you should have them in the center position (finger notch straight up) when the USB is connected.
 
 The buttons allow you to adjust a few settings. The left and right buttons select which setting is being changed. The inner up and down buttons adjust the currently selected setting in fine increments, and the outer ones adjust it in coarse increments. The rectangular button in the bottom left resets the currently selected setting to the minimum possible value. There are currently 3 different settings you can change:
 

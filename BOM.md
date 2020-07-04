@@ -33,8 +33,8 @@ These total about 40cm<sup>3</sup> of black plastic, 60cm<sup>3</sup> of white p
 | C1-3 | 3 | K104Z15Y5VF5TL2 | BC1160CD-ND | 0.1μF capacitor |
 | RN1-3 | 3 | 4609X-101-103LF | 4609X-101-103LF-ND | 8×10kΩ bussed resistor array |
 | R1 | 1 | RNF14FTD10K0 | RNF14FTD10K0CT-ND | 10kΩ resistor |
-| J1 | 1 | PPTC051LGBN-RC | S5441-ND | 5-pin horiz. 0.1" pitch header, female |
-| J2 | 1 | PRPC005SBAN-M71RC | S1111EC-05-ND | 5-pin horiz. 0.1" pitch header, male |
+| J1 | 1 | PPTC051LGBN-RC | S5441-ND | 5-pin horiz. 0.1" pitch header, male |
+| J2 | 1 | PRPC005SBAN-M71RC | S1111EC-05-ND | 5-pin horiz. 0.1" pitch header, female |
 
 Note that many of these parts are shared between the octaves and the end piece, so you might want to take that into account when computing quantities to order. Even if you don't want to use the Teensy-based end piece, you might want to order 3 more resistors for the whole keyboard, so you can make the level shifter/voltage divider for connecting the 5V output of the keyboard to a 3.3V input on a Raspberry Pi or other microcontroller, as shown in `wiring.h`.
 

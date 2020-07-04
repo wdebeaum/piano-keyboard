@@ -56,6 +56,8 @@ Note that many of these parts are shared between the octaves and the end piece, 
 
 ## End Bill of Materials
 
+![picture of most of the parts listed below, laid out on a table](images/end_parts.jpg)
+
 Parts and quantities for one Teensy-based end piece.
 
 ### Printed plastic parts

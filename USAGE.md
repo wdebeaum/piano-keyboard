@@ -18,6 +18,8 @@ The buttons allow you to adjust a few settings. The left and right buttons selec
  2. Instrument (MIDI program). Fine adjustment is by instrument, coarse adjustment is by family (group of 8 instruments in the General MIDI instrument list). On startup this is the first instrument, Acoustic Grand Piano.
  3. MIDI channel. Fine adjustment moves by 1 channel at a time, coarse adjustment moves by 4 channels at a time. On startup this is the first channel.
 
+When you push one of the buttons, the last note you played (or the lowest key if you haven't played any yet) is played again, with any changes applied: it is transposed, or on the new instrument, or on the new channel. This lets you know what you just did.
+
 ### With a Raspberry Pi
 
 Connect the left connector on the lowest (leftmost) octave to a Raspberry Pi's 5V power, SPI port, and one GPIO pin, as shown in the comments in `wiring.h`. If you connect to different pins, change the `#define`s in this file.

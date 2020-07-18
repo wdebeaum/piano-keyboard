@@ -25,7 +25,7 @@ int ioctl_or_die(int fd, unsigned long request, void* arg) {
   return result;
 }
 
-// 30MHz clock (within spec for SN74HC165N)
+// 30MHz clock (within spec for SN74HC165N at Vcc=4.5V and 25°C)
 #define MAX_SPEED_HZ 30000000
 #define MAX_OCTAVES 10
 

@@ -128,13 +128,13 @@ All components except for the 5-pin female connector (J6) belong on the top side
 
 #### Solder shorter components to the top
 
-Solder the resistors R1-3, the resistor network RN1, the capacitor C1, and the chip U1 to the top of the board. Trim the leads from the resistors and the capacitor, and save them so you can use them for the next step.
+Solder the resistor network RN1, the capacitor C1, and the chip U1 to the top of the board. Trim the leads from the capacitor, and save them so you can use them for the next step. (Ignore the individual resistors in the photos, they were only used in an earlier version.)
 
 ![shorter components soldered](images/end_short_soldered.jpg)
 
 #### Solder leads between Teensy and end PCB
 
-Solder the saved leads to only the holes in the Teensy that have corresponding holes in the end PCB, in the area in the top right corner labeled `TEENSY 4.0`. Use a longer (~3cm) wire to connect the 5V hole in the top right of the Teensy to the extra hole in the end PCB labeled `5V`. All the leads should extend down from the bottom of the Teensy.
+Solder the saved leads and/or other solid wire to only the holes in the Teensy that have corresponding holes in the end PCB, in the area in the top right corner labeled `TEENSY 4.0`. All the leads should extend down from the bottom of the Teensy. (Ignore the red wire in the photos, it was only used in an earlier version.)
 
 ![leads on Teensy](images/leads_on_teensy.jpg)
 

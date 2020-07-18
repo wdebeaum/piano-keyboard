@@ -3,8 +3,11 @@
 #define MAX_OCTAVES 10
 
 // SPI settings for SN74HC165
-// Datasheet says f_max should be 2-25MHz at Vcc=4.5V, depending on temperature.
-// 26MHz is about as high as I can drive it successfully, experimentally.
+// Frustratingly, the datasheet gives frequency values at Vcc = 2V, 4.5V, and
+// 6V, not 3.3V or 5V. They also depend on temperature. But roughly speaking, a
+// lower bound for the maximum clock frequency is about 21MHz at Vcc=3.3V, for
+// a wide temperature range. I have been able to run it at 36MHz, but it's not
+// really necessary to overclock like that.
 // 341,775Hz is the theoretical minimum for scanning a 10-octave keyboard every
 // 32 CD audio samples.
 // 500KHz is a comfortable margin above that, and seems to work well for 3
@@ -23,7 +26,8 @@
 // with a busy-wait loop, or just use delayMicroseconds(1)?
 //#define SH_LD_BUSY_WAIT
 // if SH_LD_BUSY_WAIT, how many long multiplications should we loop over in
-// order to wait enough time (>=~20ns) after changing the SH/~LD signal?
+// order to wait enough time (>=~20ns at Vcc=5V) after changing the SH/~LD
+// signal?
 // Experimentally, doing 6500 long multiplications gives me ~22ns on Teensy 4.0.
 #define SH_LD_DELAY_COUNT 6500
 // I also tried connecting MOSI to SH/~LD, and sending B11111101 before

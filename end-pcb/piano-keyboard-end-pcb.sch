@@ -7,7 +7,7 @@ encoding utf-8
 Sheet 1 1
 Title "Modular Piano Keyboard End"
 Date "2020-06-06"
-Rev "v1"
+Rev "v2"
 Comp ""
 Comment1 ""
 Comment2 "creativecommons.org/licenses/by/4.0/"
@@ -178,17 +178,6 @@ F 3 "~" H 2800 2650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Connector:Conn_01x01_Male J2
-U 1 1 5EDDDC79
-P 2800 3150
-F 0 "J2" H 2908 3331 50  0000 C CNN
-F 1 "Conn_01x01_Male" H 2908 3240 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 2800 3150 50  0001 C CNN
-F 3 "~" H 2800 3150 50  0001 C CNN
-	1    2800 3150
-	1    0    0    -1  
-$EndComp
-$Comp
 L Connector:Conn_01x02_Male J3
 U 1 1 5EDDE3D9
 P 2800 3550
@@ -205,31 +194,6 @@ Text Label 3000 2650 0    50   ~ 0
 A0-PITCH
 Text Label 3000 2750 0    50   ~ 0
 A1-MOD
-$Comp
-L power:VCC #PWR01
-U 1 1 5EDE6477
-P 3900 3150
-F 0 "#PWR01" H 3900 3000 50  0001 C CNN
-F 1 "VCC" H 3917 3323 50  0000 C CNN
-F 2 "" H 3900 3150 50  0001 C CNN
-F 3 "" H 3900 3150 50  0001 C CNN
-	1    3900 3150
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:PWR_FLAG #FLG01
-U 1 1 5EDE7A50
-P 3650 3150
-F 0 "#FLG01" H 3650 3225 50  0001 C CNN
-F 1 "PWR_FLAG" H 3650 3323 50  0000 C CNN
-F 2 "" H 3650 3150 50  0001 C CNN
-F 3 "~" H 3650 3150 50  0001 C CNN
-	1    3650 3150
-	1    0    0    -1  
-$EndComp
-Connection ~ 3650 3150
-Wire Wire Line
-	3650 3150 3900 3150
 $Comp
 L power:PWR_FLAG #FLG02
 U 1 1 5EDE80D3
@@ -269,17 +233,6 @@ F 3 "" H 4100 3500 50  0001 C CNN
 	1    4100 3500
 	1    0    0    -1  
 $EndComp
-$Comp
-L power:+3V3 #PWR02
-U 1 1 5EDEB14A
-P 3900 3700
-F 0 "#PWR02" H 3900 3550 50  0001 C CNN
-F 1 "+3V3" H 3915 3873 50  0000 C CNN
-F 2 "" H 3900 3700 50  0001 C CNN
-F 3 "" H 3900 3700 50  0001 C CNN
-	1    3900 3700
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	3800 3550 3800 3450
 Wire Wire Line
@@ -314,17 +267,6 @@ F 3 "" H 3900 1600 50  0001 C CNN
 	1    3900 1600
 	1    0    0    -1  
 $EndComp
-$Comp
-L power:+3V3 #PWR04
-U 1 1 5EDF56F3
-P 3900 1100
-F 0 "#PWR04" H 3900 950 50  0001 C CNN
-F 1 "+3V3" H 3915 1273 50  0000 C CNN
-F 2 "" H 3900 1100 50  0001 C CNN
-F 3 "" H 3900 1100 50  0001 C CNN
-	1    3900 1100
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	3900 1200 3900 1100
 Wire Wire Line
@@ -349,17 +291,6 @@ F 1 "GND" H 4555 1427 50  0000 C CNN
 F 2 "" H 4550 1600 50  0001 C CNN
 F 3 "" H 4550 1600 50  0001 C CNN
 	1    4550 1600
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:+3V3 #PWR06
-U 1 1 5EDFA2A9
-P 4550 1100
-F 0 "#PWR06" H 4550 950 50  0001 C CNN
-F 1 "+3V3" H 4565 1273 50  0000 C CNN
-F 2 "" H 4550 1100 50  0001 C CNN
-F 3 "" H 4550 1100 50  0001 C CNN
-	1    4550 1100
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -611,71 +542,8 @@ Wire Wire Line
 	6400 1250 6400 1350
 Wire Wire Line
 	6400 1850 6400 1950
-$Comp
-L Device:R_US R1
-U 1 1 5EE99843
-P 5950 2900
-F 0 "R1" H 6018 2946 50  0000 L CNN
-F 1 "10k" H 6018 2855 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5990 2890 50  0001 C CNN
-F 3 "~" H 5950 2900 50  0001 C CNN
-	1    5950 2900
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_US R2
-U 1 1 5EE9C4B8
-P 5950 3300
-F 0 "R2" H 6018 3346 50  0000 L CNN
-F 1 "10k" H 6018 3255 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5990 3290 50  0001 C CNN
-F 3 "~" H 5950 3300 50  0001 C CNN
-	1    5950 3300
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R_US R3
-U 1 1 5EE9E9C9
-P 5950 3700
-F 0 "R3" H 6018 3746 50  0000 L CNN
-F 1 "10k" H 6018 3655 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5990 3690 50  0001 C CNN
-F 3 "~" H 5950 3700 50  0001 C CNN
-	1    5950 3700
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR08
-U 1 1 5EEA0F60
-P 5950 3900
-F 0 "#PWR08" H 5950 3650 50  0001 C CNN
-F 1 "GND" H 5955 3727 50  0000 C CNN
-F 2 "" H 5950 3900 50  0001 C CNN
-F 3 "" H 5950 3900 50  0001 C CNN
-	1    5950 3900
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6200 2650 5950 2650
-Wire Wire Line
-	5950 2650 5950 2750
-Wire Wire Line
-	5950 3050 5950 3100
-Wire Wire Line
-	5950 3450 5950 3550
-Wire Wire Line
-	5700 4150 5700 3100
-Wire Wire Line
-	5700 3100 5950 3100
-Connection ~ 5950 3100
-Wire Wire Line
-	5950 3100 5950 3150
-Wire Wire Line
-	5950 3850 5950 3900
 Wire Wire Line
 	7950 5100 10200 5100
-Wire Wire Line
-	3000 3150 3650 3150
 Wire Wire Line
 	3000 3550 3650 3550
 Wire Wire Line
@@ -684,8 +552,6 @@ Text Label 3000 3550 0    50   ~ 0
 GND
 Text Label 3000 3650 0    50   ~ 0
 3.3V
-Text Label 3000 3150 0    50   ~ 0
-5V
 $Comp
 L Connector:Conn_01x01_Male J4
 U 1 1 5EE819A7
@@ -712,4 +578,41 @@ Wire Wire Line
 	5450 4400 5450 5300
 Wire Wire Line
 	3000 4400 5450 4400
+$Comp
+L power:VCC #PWR?
+U 1 1 5F132000
+P 3900 3700
+F 0 "#PWR?" H 3900 3550 50  0001 C CNN
+F 1 "VCC" H 3917 3873 50  0000 C CNN
+F 2 "" H 3900 3700 50  0001 C CNN
+F 3 "" H 3900 3700 50  0001 C CNN
+	1    3900 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VCC #PWR?
+U 1 1 5F137220
+P 3900 1100
+F 0 "#PWR?" H 3900 950 50  0001 C CNN
+F 1 "VCC" H 3917 1273 50  0000 C CNN
+F 2 "" H 3900 1100 50  0001 C CNN
+F 3 "" H 3900 1100 50  0001 C CNN
+	1    3900 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VCC #PWR?
+U 1 1 5F1375ED
+P 4550 1100
+F 0 "#PWR?" H 4550 950 50  0001 C CNN
+F 1 "VCC" H 4567 1273 50  0000 C CNN
+F 2 "" H 4550 1100 50  0001 C CNN
+F 3 "" H 4550 1100 50  0001 C CNN
+	1    4550 1100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5700 2650 6200 2650
+Wire Wire Line
+	5700 2650 5700 4150
 $EndSCHEMATC
